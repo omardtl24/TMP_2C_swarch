@@ -1,0 +1,22 @@
+
+# docker compose -f compose.dev.yaml up --build
+
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: dev.Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/app:/app/app
+      - ./frontend/public:/app/public
+      # Puedes agregar más volúmenes si necesitas hot reload de otros archivos
+    restart: always
+    # environment:
+    #   ENV_VARIABLE: valor
+    #   NEXT_PUBLIC_ENV_VARIABLE: valor
+    # env_file:
+    #   - .env
+
