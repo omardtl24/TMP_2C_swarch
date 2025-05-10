@@ -1,0 +1,94 @@
+
+# docker compose -f compose.dev.yaml up --build
+
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: dev.Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/app:/app/app
+      - ./frontend/public:/app/public
+      # Puedes agregar más volúmenes si necesitas hot reload de otros archivos
+    restart: always
+    # environment:
+    #   ENV_VARIABLE: valor
+    #   NEXT_PUBLIC_ENV_VARIABLE: valor
+    # env_file:
+    #   - .env
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/pom.xml:/app/pom.xml
+    environment:
+      # Postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://data_posgres:5432/${POSTGRES_INITIAL_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_SUPERUSER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      # Mongo
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@data_mongo:27017/${MONGO_DB_SCHEMA}?authSource=admin
+    depends_on:
+      - data_mongo
+      - data_posgres
+    restart: always
+    
+  data_mongo:
+    container_name: MongoDB
+    image: mongo:8.0.9
+    #build:
+      #context: ./data/mongo
+      #dockerfile: Dockerfile
+    
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      # These are for the root user of MongoDB itself.
+      # Docker Compose will substitute these with values from the .env file.
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      # Esto va en backend MONGO_INITIAL_DB: ${MONGO_DB_SCHEMA}
+    volumes:
+      - mongo_data:/data/db
+
+
+  data_posgres:
+    container_name: PostgresDB
+    image: postgres:alpine3.20
+    #build:
+     # context: ./data/postgres
+      #dockerfile: Dockerfile
+    
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      # These are used by the PostgreSQL entrypoint script.
+      # Docker Compose will substitute these with values from the .env file.
+      POSTGRES_USER: ${POSTGRES_SUPERUSER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_INITIAL_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    #networks:
+     # - db_network
+
+volumes:
+  mongo_data:
+    driver: local
+  postgres_data:
+    driver: local
+
+#networks:
+  #db_network:
+   # driver: bridge
