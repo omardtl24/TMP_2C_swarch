@@ -16,6 +16,7 @@ COPY public ./public
 COPY next.config.ts .
 COPY postcss.config.mjs .
 COPY tsconfig.json .
+COPY .env.local .
 
 RUN \
   if [ -f yarn.lock ]; then yarn build; \

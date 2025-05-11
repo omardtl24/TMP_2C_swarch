@@ -1,5 +1,5 @@
-
 # docker compose -f compose.dev.yaml up --build
+# https://www.reddit.com/r/nextjs/comments/1jyv6g6/comment/mpxf2v7/
 
 services:
   frontend:
@@ -10,13 +10,12 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend/app:/app/app
-      - ./frontend/public:/app/public
-      # Puedes agregar más volúmenes si necesitas hot reload de otros archivos
+      - ./frontend:/app
+      - /app/node_modules
     restart: always
     # environment:
     #   ENV_VARIABLE: valor
     #   NEXT_PUBLIC_ENV_VARIABLE: valor
-    # env_file:
-    #   - .env
+    env_file:
+      - ./frontend/.env.local
 
