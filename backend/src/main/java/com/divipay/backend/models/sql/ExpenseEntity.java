@@ -1,4 +1,4 @@
-package com.divipay.backend.entities.sql;
+package com.divipay.backend.models.sql;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
