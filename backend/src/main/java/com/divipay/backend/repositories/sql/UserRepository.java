@@ -8,12 +8,12 @@ import org.springframework.stereotype.Repository;
 import com.divipay.backend.models.sql.UserEntity;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, Integer> {
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
-    // búsqueda de usuario por correo
+    // búsqueda de user por correo
     Optional<UserEntity> findByEmail(String email);
 
-    // búsqueda de usuario por nombre de usuario
+    // búsqueda de user por nombre de user
     Optional<UserEntity> findByUsername(String username);
 
 }

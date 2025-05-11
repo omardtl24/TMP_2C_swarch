@@ -14,11 +14,11 @@ public interface ExpenseRepository extends MongoRepository<ExpenseDocument, Stri
     // buscar por pagador
     List<ExpenseDocument> findByPayerId(String payerId);
 
-    // ver gastos donde participa el usuario
+    // ver gastos donde participa el user
     @Query("{ 'participation.userId' : ?0 }")
     List<ExpenseDocument> findByParticipationUserId(String userId);
 
-    // todos los gastos relacionados con un usuario (payer o participante)
+    // todos los gastos relacionados con un user (payer o participante)
     @Query("{ $or: [ { 'payerId': ?0 }, { 'participation.userId': ?0 } ] }")
     List<ExpenseDocument> findAllByUserId(String userId);
 

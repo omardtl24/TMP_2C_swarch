@@ -1,7 +1,7 @@
 package com.divipay.backend.exceptions;
 
 public final class ErrorMessage {
-	public static final String USUARIO_NO_ENCONTRADO = "El usuario con el id proporcionado no fue encontrado";
+	public static final String USUARIO_NO_ENCONTRADO = "El user con el id proporcionado no fue encontrado";
 	public static final String META_NO_ENCONTRADA = "La meta con el id proporcionado no fue encontrada";
 	public static final String TAREA_NO_ENCONTRADA = "La tarea con el id proporcionado no fue encontrada";
 	public static final String HITO_NO_ENCONTRADO = "El hito con el id proporcionado no fue encontrado";

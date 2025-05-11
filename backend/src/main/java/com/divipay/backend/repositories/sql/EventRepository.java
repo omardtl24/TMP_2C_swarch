@@ -8,12 +8,12 @@ import org.springframework.stereotype.Repository;
 import com.divipay.backend.models.sql.EventEntity;
 
 @Repository
-public interface EventRepository extends JpaRepository<EventEntity, Integer> {
+public interface EventRepository extends JpaRepository<EventEntity, Long> {
 
     // ver creador de un evento
-    List<EventEntity> findByCreator_Id(Integer creatorId);
+    List<EventEntity> findByCreator_Id(Long creatorId);
 
     // ver eventos en los que se participa
-    List<EventEntity> findByParticipants_Id(Integer participantId);
+    List<EventEntity> findByParticipants_Id(Long participantId);
 
 }

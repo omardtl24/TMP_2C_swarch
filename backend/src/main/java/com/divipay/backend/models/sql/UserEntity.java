@@ -16,7 +16,7 @@ import uk.co.jemos.podam.common.PodamExclude;
 
 
 /**
- * Clase que representa un usuario en la persistencia.
+ * Clase que representa un user en la persistencia.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
