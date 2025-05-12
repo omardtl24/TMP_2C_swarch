@@ -12,7 +12,13 @@ import com.divipay.backend.models.mongo.ExpenseDocument;
 public interface ExpenseRepository extends MongoRepository<ExpenseDocument, String> {
 
     // buscar por pagador
-    List<ExpenseDocument> findByPayerId(String payerId);
+    List<ExpenseDocument> findByPayerId(String payerId);    
+
+    // buscar por tipo
+    List<ExpenseDocument> findByType(String type);
+
+    // buscar por concepto
+    List<ExpenseDocument> findByConceptContainingIgnoreCase(String keyword);
 
     // ver gastos donde participa el user
     @Query("{ 'participation.userId' : ?0 }")
