@@ -8,6 +8,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import com.divipay.backend.models.enums.ExpenseType;
+
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Data;
 
 @Data
@@ -19,7 +23,10 @@ public class ExpenseDocument {
     private String payerId;
     private double total;
     private String concept;
-    private String type;
+    @Field("type")
+    @Enumerated(EnumType.STRING)
+    private ExpenseType type;
+
 
     private List<Participation> participation = new ArrayList<>();
 

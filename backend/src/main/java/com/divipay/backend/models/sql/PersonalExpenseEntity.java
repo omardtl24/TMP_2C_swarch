@@ -1,9 +1,15 @@
 package com.divipay.backend.models.sql;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
+import java.util.Date;
 
+import com.divipay.backend.models.enums.ExpenseType;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import uk.co.jemos.podam.common.PodamExclude;
@@ -14,10 +20,16 @@ import uk.co.jemos.podam.common.PodamExclude;
 public class PersonalExpenseEntity extends BaseEntity {
 
     private String concept;
-    private String type;
+
+    @Enumerated(EnumType.STRING)
+    private ExpenseType type;
+
     private Float total;
 
+    @Temporal(TemporalType.DATE)
+    private Date date;
+
     @PodamExclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    private UserEntity owner;
+    @ManyToOne
+    private UserEntity user;
 }

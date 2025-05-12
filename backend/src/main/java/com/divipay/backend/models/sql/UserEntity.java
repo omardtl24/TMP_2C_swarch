@@ -26,7 +26,6 @@ public class UserEntity extends BaseEntity {
     private String name;
     private String email;
     private String username;
-    private String password;
 
     @PodamExclude
     @OneToMany(mappedBy = "creator", cascade = CascadeType.PERSIST, orphanRemoval = true)
