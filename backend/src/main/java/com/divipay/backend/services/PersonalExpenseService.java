@@ -40,7 +40,7 @@ public class PersonalExpenseService {
         return personalExpenseRepository.save(expense);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<PersonalExpenseEntity> getUserExpenses(Long userId) throws EntityNotFoundException {
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
