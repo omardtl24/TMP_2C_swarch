@@ -35,4 +35,8 @@ public class UserEntity extends BaseEntity {
     @PodamExclude
     @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY)
     private List<EventEntity> eventsParticipating = new ArrayList<>();
+
+    @PodamExclude
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PersonalExpenseEntity> personalExpenses = new ArrayList<>();
 }

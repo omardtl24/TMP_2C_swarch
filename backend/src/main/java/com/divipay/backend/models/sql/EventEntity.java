@@ -24,6 +24,7 @@ import uk.co.jemos.podam.common.PodamExclude;
 public class EventEntity extends BaseEntity {
 
     private String name;
+    private String description;
 
     @Temporal(TemporalType.DATE)
     private Date beginDate;
