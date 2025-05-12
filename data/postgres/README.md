@@ -38,7 +38,7 @@ Represents a scheduled or past event to which users are linked.
 | `end_date`   | `date`   | End date of the event    |
 | `name`       | `string` | Name or title of event   |
 | `description`| `string` | Event description        |
-| `is_open`    | `boolean`| If event is open to receive participants |
+| `invitation_enabled`    | `boolean`| If event is open to receive participants |
 
 ---
 
