@@ -23,7 +23,6 @@ Represents a registered user in the system.
 | `user_id`  | `int`    | Primary key             |
 | `username` | `string` | Unique username         |
 | `email`    | `string` | User email address      |
-| `password` | `string` | Hashed password         |
 | `name`     | `string` | Full name of the user   |
 
 ---
@@ -39,6 +38,7 @@ Represents a scheduled or past event to which users are linked.
 | `end_date`   | `date`   | End date of the event    |
 | `name`       | `string` | Name or title of event   |
 | `description`| `string` | Event description        |
+| `is_open`    | `boolean`| If event is open to receive participants |
 
 ---
 
@@ -63,6 +63,7 @@ Represents individual user expenses not directly tied to a specific event.
 | `concept`             | `string` | Description of the expense   |
 | `type`                | `string` | Category/type of the expense |
 | `total`               | `float`  | Total amount spent           |
+| `expense_date`        | `date`   | Date related to expense      |
 
 ---
 
@@ -87,5 +88,4 @@ Represents individual user expenses not directly tied to a specific event.
 
 ## 🛠️ Notes
 
-- Passwords must be stored securely using a cryptographic hash function.
 - The `external_doc_id` in the `Expenses` table links to a document stored in a **NoSQL database** which contains the detailed expense record.
