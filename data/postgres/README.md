@@ -18,12 +18,13 @@ The following ER diagram illustrates the relationships between the entities:
 
 Represents a registered user in the system.
 
-| Field      | Type   | Description           |
-|------------|--------|-----------------------|
-| `user_id`  | `int`  | Primary key           |
-| `username` | `string` | Unique username     |
-| `password` | `string` | Hashed password     |
-| `name`     | `string` | Full name of the user |
+| Field      | Type     | Description             |
+|------------|----------|-------------------------|
+| `user_id`  | `int`    | Primary key             |
+| `username` | `string` | Unique username         |
+| `email`    | `string` | User email address      |
+| `password` | `string` | Hashed password         |
+| `name`     | `string` | Full name of the user   |
 
 ---
 
@@ -31,18 +32,19 @@ Represents a registered user in the system.
 
 Represents a scheduled or past event to which users are linked.
 
-| Field        | Type   | Description              |
-|--------------|--------|--------------------------|
-| `event_id`   | `int`  | Primary key              |
-| `begin_date` | `date` | Start date of the event  |
-| `end_date`   | `date` | End date of the event    |
-| `name`       | `string` | Name or title of the event |
+| Field        | Type     | Description              |
+|--------------|----------|--------------------------|
+| `event_id`   | `int`    | Primary key              |
+| `begin_date` | `date`   | Start date of the event  |
+| `end_date`   | `date`   | End date of the event    |
+| `name`       | `string` | Name or title of event   |
+| `description`| `string` | Event description        |
 
 ---
 
 ### 💸 Expenses
 
-Represents an expense made in the context of an event.
+Represents a shared expense linked to an event.
 
 | Field             | Type     | Description                                |
 |-------------------|----------|--------------------------------------------|
@@ -51,13 +53,26 @@ Represents an expense made in the context of an event.
 
 ---
 
+### 🧾 PersonalExpenses
+
+Represents individual user expenses not directly tied to a specific event.
+
+| Field                 | Type     | Description                  |
+|-----------------------|----------|------------------------------|
+| `personal_expense_id` | `int`    | Primary key                  |
+| `concept`             | `string` | Description of the expense   |
+| `type`                | `string` | Category/type of the expense |
+| `total`               | `float`  | Total amount spent           |
+
+---
+
 ## 🔗 Relationships
 
 - **User creates Event**  
-  A user can create many events (`1:N`), but an event has only one creator.
+  A user can create many events (`1:N`), but each event has only one creator.
 
 - **User participates in Event**  
-  A many-to-many relationship where multiple users can participate in multiple events.
+  A many-to-many relationship: multiple users can participate in multiple events.
 
 - **Event has Expenses**  
   An event may have multiple related expenses (`1:N`), each tied to one event.
@@ -65,10 +80,12 @@ Represents an expense made in the context of an event.
 - **User creates Expenses**  
   A user can register multiple expenses; each expense is created by exactly one user.
 
+- **User has PersonalExpenses**  
+  A user may log multiple personal expenses not linked to events.
 
 ---
 
 ## 🛠️ Notes
 
 - Passwords must be stored securely using a cryptographic hash function.
-- The `external_doc_id` in the `Expenses` table links to a document stored in a **NoSQL database** which has the expense details.
+- The `external_doc_id` in the `Expenses` table links to a document stored in a **NoSQL database** which contains the detailed expense record.
