@@ -32,6 +32,8 @@ public class EventEntity extends BaseEntity {
     @Temporal(TemporalType.DATE)
     private Date endDate;
 
+    private boolean invitationEnabled = false;
+
     @PodamExclude
     @OneToOne(optional = false)
     private UserEntity creator;

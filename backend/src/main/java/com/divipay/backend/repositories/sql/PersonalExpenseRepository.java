@@ -3,6 +3,8 @@ package com.divipay.backend.repositories.sql;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.divipay.backend.models.sql.PersonalExpenseEntity;
@@ -18,4 +20,7 @@ public interface PersonalExpenseRepository extends JpaRepository<PersonalExpense
 
     // Buscar todos los gastos personales de un usuario
     List<PersonalExpenseEntity> findByOwner_Id(Long userId);
+
+    @Query("SELECT SUM(p.total) FROM PersonalExpenseEntity p WHERE p.user.id = :userId")
+    Double sumTotalByUserId(@Param("userId") Long userId);
 }

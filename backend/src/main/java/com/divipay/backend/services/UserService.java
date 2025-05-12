@@ -22,7 +22,7 @@ public class UserService {
     UserRepository userRepository;
 
     /**
-     * Obtiene la lista de los registros de User.
+     * Obtiene la lista todos los usuarios.
      *
      * @return Colección de objetos de UserEntity.
      */
@@ -54,9 +54,9 @@ public class UserService {
     }
 
     /**
-     * Borrar un user por ID
+     * Borrar un usuario por ID
      *
-     * @param userId El ID del user a borrar
+     * @param userId El ID del usuario borrar
      * @throws EntityNotFoundException Si el user no es encontrado
      */
 
