@@ -31,5 +31,5 @@ public class PersonalExpenseEntity extends BaseEntity {
 
     @PodamExclude
     @ManyToOne
-    private UserEntity user;
+    private UserEntity owner;
 }

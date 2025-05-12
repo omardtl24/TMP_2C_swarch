@@ -17,7 +17,7 @@ public class DefaultController {
     public Map<String, String> welcome() {
         HashMap<String, String> map = new HashMap<>();
         map.put("status", "OK");
-        map.put("message", "REST API for crecimiento is running");
+        map.put("message", "REST API for divipat is running");
         return map;
     }
 }

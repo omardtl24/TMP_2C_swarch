@@ -6,10 +6,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @SpringBootApplication
-// Point to JPA repo 
-@EnableJpaRepositories(basePackages = "com.divipay.backend.repository.sql")
-// Point to Mongo repo 
-@EnableMongoRepositories(basePackages = "com.divipay.backend.repository.mongo")
+@EnableJpaRepositories(basePackages = "com.divipay.backend.repositories.sql")
+@EnableMongoRepositories(basePackages = "com.divipay.backend.repositories.mongo")
+
 public class BackendApplication {
 
     public static void main(String[] args) {
