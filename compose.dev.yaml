@@ -54,7 +54,7 @@ services:
       # Docker Compose will substitute these with values from the .env file.
       POSTGRES_USER: ${POSTGRES_SUPERUSER}
       POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_INITIAL_DB}
+      #POSTGRES_DB: ${POSTGRES_INITIAL_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     #networks:
