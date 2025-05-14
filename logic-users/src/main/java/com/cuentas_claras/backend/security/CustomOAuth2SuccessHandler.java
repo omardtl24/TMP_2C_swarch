@@ -26,6 +26,9 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     @Value("${frontend.base-url}")
     private String frontendBaseUrl;
 
+    @Value("${jwt.session-duration-seconds:86400}")
+    private int jwtSessionDurationSeconds;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
@@ -39,11 +42,12 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             user -> {
                 // Usuario existe: generar JWT y setear cookie httpOnly
                 try {
-                    String jwt = JwtUtil.generateToken(user.getId(), user.getEmail(), 1000 * 60 * 60 * 24); // 24h
+                    System.out.println("magot");
+                    String jwt = JwtUtil.generateToken(user.getId(), user.getEmail(), jwtSessionDurationSeconds * 1000L);
                     Cookie cookie = new Cookie("jwt", jwt);
                     cookie.setHttpOnly(true);
                     cookie.setPath("/");
-                    cookie.setMaxAge(60 * 60 * 24); // 24h
+                    cookie.setMaxAge(jwtSessionDurationSeconds);
                     response.addCookie(cookie);
                     response.sendRedirect(frontendBaseUrl + "/dashboard");
                 } catch (Exception e) {
@@ -53,7 +57,8 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             () -> {
                 // Usuario NO existe: generar token temporal y redirigir a registro
                 try {
-                    String tempToken = JwtUtil.generateToken(0L, email, 1000 * 60 * 10); // 10 min
+                    String name = (String) oauthUser.getAttributes().get("name");
+                    String tempToken = JwtUtil.generateTokenWithName(0L, email, name, 1000 * 60 * 10); // 10 min
                     String redirectUrl = frontendBaseUrl + "/complete-signup?email=" + email + "&token=" + tempToken;
                     response.sendRedirect(redirectUrl);
                 } catch (Exception e) {

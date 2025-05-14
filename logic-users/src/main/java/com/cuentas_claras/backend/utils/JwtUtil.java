@@ -58,6 +58,21 @@ public class JwtUtil {
         return signedJWT.serialize();
     }
 
+    public static String generateTokenWithName(Long userId, String email, String name, long expirationMillis) throws Exception {
+        JWSSigner signer = new RSASSASigner(getPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject(userId.toString())
+                .claim("email", email)
+                .claim("name", name)
+                .expirationTime(new Date(System.currentTimeMillis() + expirationMillis))
+                .build();
+        SignedJWT signedJWT = new SignedJWT(
+                new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).build(),
+                claimsSet);
+        signedJWT.sign(signer);
+        return signedJWT.serialize();
+    }
+
     public static boolean validateToken(String token) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);

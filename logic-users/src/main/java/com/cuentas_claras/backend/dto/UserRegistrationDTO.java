@@ -2,7 +2,9 @@ package com.cuentas_claras.backend.dto;
 
 public class UserRegistrationDTO {
     private String username;
-    private boolean aceptaPoliticas;
+    private String email;
+    private String token;
+    private String name;
 
     public String getUsername() {
         return username;
@@ -10,10 +12,22 @@ public class UserRegistrationDTO {
     public void setUsername(String username) {
         this.username = username;
     }
-    public boolean isAceptaPoliticas() {
-        return aceptaPoliticas;
+    public String getEmail() {
+        return email;
     }
-    public void setAceptaPoliticas(boolean aceptaPoliticas) {
-        this.aceptaPoliticas = aceptaPoliticas;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public String getToken() {
+        return token;
+    }
+    public void setToken(String token) {
+        this.token = token;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
     }
 }

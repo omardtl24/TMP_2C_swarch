@@ -85,4 +85,14 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+    /**
+     * Guarda un usuario en la base de datos.
+     * @param user El usuario a guardar
+     * @return El usuario guardado
+     */
+    @Transactional
+    public UserEntity save(UserEntity user) {
+        return userRepository.save(user);
+    }
+
 }
