@@ -22,9 +22,9 @@ services:
   data_mongo:
     container_name: MongoDB
     image: mongo:8.0.9
-    #build:
-      #context: ./data/mongo
-      #dockerfile: Dockerfile
+    build:
+      context: ./data/mongo
+      dockerfile: Dockerfile
     
     restart: unless-stopped
     ports:
