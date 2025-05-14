@@ -54,6 +54,18 @@ public class UserService {
     }
 
     /**
+     * Busca un usuario por su email.
+     *
+     * @param email Email del usuario a buscar
+     * @return Optional<UserEntity> con el usuario si existe
+     */
+    @Transactional
+    public Optional<UserEntity> findByEmail(String email) {
+        log.info("Buscando usuario por email: {}", email);
+        return userRepository.findByEmail(email);
+    }
+
+    /**
      * Borrar un usuario por ID
      *
      * @param userId El ID del usuario borrar
