@@ -20,7 +20,5 @@ public interface PersonalExpenseRepository extends JpaRepository<PersonalExpense
     // Buscar todos los gastos personales de un usuario
     List<PersonalExpenseEntity> findByOwner_Id(Long userId);
 
-    @Query("SELECT SUM(p.total) FROM PersonalExpenseEntity p WHERE p.owner.id = :userId")
-    Double sumTotalByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
 
 }
