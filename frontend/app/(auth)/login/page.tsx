@@ -15,7 +15,7 @@ export default function LoginPage() {
 	}
 
 	return (
-		<main className="flex flex-col items-center justify-center min-h-screen gap-6">
+		<div className="flex flex-col items-center justify-center">
 			<h1 className="text-2xl font-bold">Ingresa a Cuentas Claras</h1>
 
 			<button
@@ -61,6 +61,6 @@ export default function LoginPage() {
 					¿No tienes cuenta? Regístrate
 				</button>
 			)}
-		</main>
+		</div>
 	);
 }
