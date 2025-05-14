@@ -96,8 +96,8 @@ This schema can be applied using `db.createCollection()` or `collMod` to enforce
       "description": "Short description of the expense"
     },
     "type": {
-      "bsonType": "string",
-      "description": "Category of the expense (e.g., Food, Transport)"
+      "enum": [0, 1, 2, 3, 4, 5, 6],
+      "description": "0: Food and Beverage, 1: Purchase, 2: Home, 3: Transport, 4: Entertainment, 5: Communication, 6: Finantial Expenses"
     },
     "participation": {
       "bsonType": "array",
