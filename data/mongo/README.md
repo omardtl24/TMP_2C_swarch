@@ -14,7 +14,7 @@ Each document in the `expenses` collection represents a detailed expense or shar
   "payer_id": 1,
   "total": 95.75,
   "concept": "Dinner at Italian restaurant",
-  "type": "Food",
+  "type": 0,
   "participation": [
     {
       "user_id": 1,
@@ -39,9 +39,21 @@ Each document in the `expenses` collection represents a detailed expense or shar
 | `payer_id`         | String            | ID of the user who paid the expense (linked to SQL user_id)               |
 | `total`            | Double            | Total amount of the expense                                               |
 | `concept`          | String            | Short description of the expense                                          |
-| `type`             | String            | Category (e.g., Food, Transport)                                       |
+| `type`             | Int               | Category (see below)                                       |
 | `participation`    | Array\<Object\>     | List of users involved and their payment confirmation                  |
 | `support_image_id` | ObjectId          | Reference to image in GridFS (`fs.files._id`)                          |
+
+#### `type` Field Semantics
+
+| Value | Meaning                                                                 |
+|-------|-------------------------------------------------------------------------|
+| `0`   | Food and Beverages                                                      |
+| `1`   | Purchase                                                                |
+| `2`   | Home                                                                    |
+| `3`   | Transport                                                               |
+| `4`   | Entertainment                                                           |
+| `5`   | Communication                                                           |
+| `6`   | Finantial Expenses                                                      |
 
 ### 👥 Participation Subdocument
 
@@ -58,7 +70,6 @@ Each document in the `expenses` collection represents a detailed expense or shar
 | `0`   | Payment not confirmed by either party                                   |
 | `1`   | Payer confirmed the payment, but receiver has not                       |
 | `2`   | Receiver confirmed the payment, but payer has not                       |
-| `3`   | Both payer and receiver confirmed the transaction                       |
 
 ---
 
