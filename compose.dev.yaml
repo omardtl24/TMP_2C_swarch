@@ -1,6 +1,6 @@
 
 # docker compose -f compose.dev.yaml up --build
-
+#Realizar inits para cada DB dependiendo de la necesidad de back
 services:
   frontend:
     container_name: frontend
@@ -39,12 +39,12 @@ services:
       - mongo_data:/data/db
 
 
-  data_posgres:
-    container_name: PostgresDB
-    image: postgres:alpine3.20
-    #build:
-     # context: ./data/postgres
-      #dockerfile: Dockerfile
+  data_postgres_users:
+    container_name: PostgresDB_Users
+    #image: postgres:alpine3.20
+    build:
+      context: ./data/postgres/users
+      dockerfile: Dockerfile
     
     restart: unless-stopped
     ports:
@@ -52,20 +52,61 @@ services:
     environment:
       # These are used by the PostgreSQL entrypoint script.
       # Docker Compose will substitute these with values from the .env file.
-      POSTGRES_USER: ${POSTGRES_SUPERUSER}
-      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_SUPERUSER_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_USER}
       #POSTGRES_DB: ${POSTGRES_INITIAL_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_user:/var/lib/postgresql/data
+    #networks:
+     # - db_network
+
+  data_postgres_community:
+    container_name: PostgresDB_Community
+    #image: postgres:alpine3.20
+    build:
+      context: ./data/postgres/community
+      dockerfile: Dockerfile
+    
+    restart: unless-stopped
+    ports:
+      - "5433:5433"
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER_COMMUNITY}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_COMMUNITY}
+      #POSTGRES_DB: ${POSTGRES_INITIAL_DB}
+    volumes:
+      - postgres_data_community:/var/lib/postgresql/data
+    #networks:
+     # - db_network
+
+  data_postgres_personal:
+    container_name: PostgresDB_Personal
+    #image: postgres:alpine3.20
+    build:
+      context: ./data/postgres/personal
+      dockerfile: Dockerfile
+    
+    restart: unless-stopped
+    ports:
+      - "5434:5434"
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER_PERSONAL}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_PERSONAL}
+      #POSTGRES_DB: ${POSTGRES_INITIAL_DB}
+    volumes:
+      - postgres_data_personal:/var/lib/postgresql/data
     #networks:
      # - db_network
 
 volumes:
   mongo_data:
     driver: local
-  postgres_data:
+  postgres_data_user:
     driver: local
-
+  postgres_data_community:
+    driver: local
+  postgres_data_personal:
+    driver: local  
 #networks:
   #db_network:
    # driver: bridge
