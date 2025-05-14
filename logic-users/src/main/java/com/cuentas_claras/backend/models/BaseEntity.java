@@ -1,4 +1,4 @@
-package com.cuentas_claras.backend.models.sql;
+package com.cuentas_claras.backend.models;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

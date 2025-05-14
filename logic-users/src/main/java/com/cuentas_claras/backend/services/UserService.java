@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cuentas_claras.backend.models.sql.UserEntity;
+import com.cuentas_claras.backend.repositories.UserRepository;
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.exceptions.ErrorMessage;
-import com.cuentas_claras.backend.repositories.sql.UserRepository;
+import com.cuentas_claras.backend.models.UserEntity;
 
 import lombok.extern.slf4j.Slf4j;
 
