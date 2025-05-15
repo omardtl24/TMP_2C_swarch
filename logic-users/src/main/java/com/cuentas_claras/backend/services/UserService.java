@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cuentas_claras.backend.models.sql.UserEntity;
+import com.cuentas_claras.backend.repositories.UserRepository;
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.exceptions.ErrorMessage;
-import com.cuentas_claras.backend.repositories.sql.UserRepository;
+import com.cuentas_claras.backend.models.UserEntity;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,6 +54,18 @@ public class UserService {
     }
 
     /**
+     * Busca un usuario por su email.
+     *
+     * @param email Email del usuario a buscar
+     * @return Optional<UserEntity> con el usuario si existe
+     */
+    @Transactional
+    public Optional<UserEntity> findByEmail(String email) {
+        log.info("Buscando usuario por email: {}", email);
+        return userRepository.findByEmail(email);
+    }
+
+    /**
      * Borrar un usuario por ID
      *
      * @param userId El ID del usuario borrar
@@ -71,6 +83,16 @@ public class UserService {
         }
 
         userRepository.deleteById(userId);
+    }
+
+    /**
+     * Guarda un usuario en la base de datos.
+     * @param user El usuario a guardar
+     * @return El usuario guardado
+     */
+    @Transactional
+    public UserEntity save(UserEntity user) {
+        return userRepository.save(user);
     }
 
 }
