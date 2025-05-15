@@ -65,7 +65,7 @@ export default function HomePageContent({ session }: HomePageContentProps) {
           </div>
           {session ? (
             <button
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition mt-2"
+              className="px-4 py-2 bg-primary-50 text-white rounded hover:bg-blue-700 transition mt-2"
               onClick={() => {
                 alert("Invitación aceptada (dummy)");
                 // Refrescar la página y eliminar los query params
@@ -76,7 +76,7 @@ export default function HomePageContent({ session }: HomePageContentProps) {
             </button>
           ) : (
             <button
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition mt-2"
+              className="px-4 py-2 bg-primary-50 text-white rounded hover:bg-blue-700 transition mt-2"
               onClick={() => router.push(`/login?codigo=${encodeURIComponent(codigo)}`)}
             >
               Iniciar sesión para aceptar
@@ -94,7 +94,7 @@ export default function HomePageContent({ session }: HomePageContentProps) {
         </button>
       ) : (
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          className="px-4 py-2 bg-primary-50 text-white rounded hover:bg-blue-700 transition"
           onClick={() => router.push(`/login`)}
         >
           Iniciar sesión
