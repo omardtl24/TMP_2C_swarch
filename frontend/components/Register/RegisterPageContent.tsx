@@ -1,12 +1,11 @@
 "use client";
 
-import { Session } from "next-auth";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { logout } from "@/lib/utils";
 
 interface RegisterPageContentProps {
-	session: Session;
+	session: unknown;
 }
 
 export default function RegisterPageContent({
@@ -88,7 +87,8 @@ export default function RegisterPageContent({
 					type="button"
 					className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400 transition mt-2"
 					onClick={async () => {
-						signOut({ callbackUrl: "/" });
+						await logout();
+						window.location.href = "/";
 					}}
 				>
 					Cancelar y salir

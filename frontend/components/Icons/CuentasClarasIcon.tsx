@@ -1,22 +1,29 @@
+"use client";
 import Image from "next/image";
 import { sizeClasses } from "./IconProps";
 
-
 interface CuentasClarasIconProps {
-    className?: string;
-    size?: 'xs' | 'sm' | 'md' | 'lg';
-
+	className?: string;
+	size?: "xs" | "sm" | "md" | "lg";
+	onClick?: () => void;
 }
-const CuentasClarasIcon = ({className, size="md"}:CuentasClarasIconProps) => {
-    return (
-        <Image
-            src="/images/CuentasClaras.png"
-            alt="Logo"
-            width={50}
-            height={50}
-            className={`${sizeClasses[size]} ${className}`}
-        />
-    )
-}
+const CuentasClarasIcon = ({
+	className,
+	size = "md",
+	onClick,
+}: CuentasClarasIconProps) => {
+	return (
+		<Image
+			src="/images/CuentasClaras.png"
+			alt="Logo"
+			width={50}
+			height={50}
+			className={`${sizeClasses[size]} ${className ?? ""} ${
+				onClick ? "cursor-pointer" : ""
+			}`}
+			onClick={onClick}
+		/>
+	);
+};
 
 export default CuentasClarasIcon;

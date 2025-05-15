@@ -1,47 +1,31 @@
 "use client";
 
-import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "../ui/button";
 import { GoogleIcon } from "../Icons/GoogleIcon";
 
-interface RegisterLoginButtonProps {
-	callbackUrl: string;
-	title: string;
-}
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export default function RegisterLoginButton({callbackUrl,title}: RegisterLoginButtonProps) {
+export default function RegisterLoginButton({ title }: { title: string }) {
 	const searchParams = useSearchParams();
 	const codigo = searchParams.get("codigo") || "";
 
-	// Construir callbackUrl con el código si existe
-
-	
+	// Construir la URL de redirección al backend para Google OAuth
+	let redirectUrl = `${backendUrl}/oauth2/authorization/google`;
 	if (codigo) {
-		callbackUrl += `?codigo=${encodeURIComponent(codigo)}`;
+		redirectUrl += `?codigo=${encodeURIComponent(codigo)}`;
 	}
 
 	return (
-		// <button
-		// 	className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-		// 	type="button"
-		// 	onClick={() => {
-		// 		signIn("google", { callbackUrl });
-		// 	}}
-		// >
-		// 	Ingresar con Google
-		// </button>
-
 		<Button
-					className="w-full max-w-xs h-14 text-md bg-white text-gray-700 rounded-full py-3 px-4 flex items-center justify-center gap-2 hover:bg-gray-100 transition mb-6"
-					type="button"
-					onClick={() => {
-						signIn("google", { callbackUrl: callbackUrl })
-					}}
-				>
-					<GoogleIcon className="md" />
-					{title}
-				</Button>
-
+			className="w-full max-w-xs h-14 text-md bg-white text-gray-700 rounded-full py-3 px-4 flex items-center justify-center gap-2 hover:bg-gray-100 transition mb-6"
+			type="button"
+			onClick={() => {
+				window.location.href = redirectUrl;
+			}}
+		>
+			<GoogleIcon className="md" />
+			{title}
+		</Button>
 	);
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { signOut } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Session } from "next-auth";
+import { logout } from "@/lib/utils";
+import type { Session } from "@/lib/types";
 
 interface HomePageContentProps {
   session: Session | null;
@@ -88,7 +88,10 @@ export default function HomePageContent({ session }: HomePageContentProps) {
       {session ? (
         <button
           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
-          onClick={() => signOut()}
+          onClick={async () => {
+            await logout();
+            router.replace("/");
+          }}
         >
           Cerrar sesión
         </button>
