@@ -7,7 +7,6 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.PrivateKey;

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.cuentas_claras.backend.services.UserService;
 import com.cuentas_claras.backend.utils.JwtUtil;
-import com.cuentas_claras.backend.models.UserEntity;
 import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Value;
 
