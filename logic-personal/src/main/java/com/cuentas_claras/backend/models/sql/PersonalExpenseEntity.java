@@ -7,12 +7,11 @@ import com.cuentas_claras.backend.models.enums.ExpenseType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import uk.co.jemos.podam.common.PodamExclude;
+
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -20,6 +19,8 @@ import uk.co.jemos.podam.common.PodamExclude;
 public class PersonalExpenseEntity extends BaseEntity {
 
     private String concept;
+    private Long owner;
+
 
     @Enumerated(EnumType.STRING)
     private ExpenseType type;
@@ -29,7 +30,4 @@ public class PersonalExpenseEntity extends BaseEntity {
     @Temporal(TemporalType.DATE)
     private Date date;
 
-    @PodamExclude
-    @ManyToOne
-    private UserEntity owner;
 }

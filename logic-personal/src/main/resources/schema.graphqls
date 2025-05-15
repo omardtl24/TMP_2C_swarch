@@ -1,0 +1,40 @@
+enum ExpenseType {
+  COMIDA_BEBIDA
+  COMPRAS
+  HOGAR
+  TRANSPORTE
+  ENTRETENIMIENTO
+  COMUNICACION
+  FINANZAS
+  INVERSIONES
+}
+
+type PersonalExpense {
+  id: ID!
+  owner: ID!
+  concept: String!
+  type: ExpenseType!
+  total: Float!
+  date: String!   
+}
+
+input PersonalExpenseInput {
+  owner: ID!
+  concept: String!
+  type: ExpenseType!
+  total: Float!
+  date: String!
+}
+
+type Query {
+  getPersonalExpense(id: ID!): PersonalExpense
+  listPersonalExpenses(userId: ID!): [PersonalExpense!]!
+  listExpensesBetween(userId: ID!, start: String!, end: String!): [PersonalExpense!]!
+  totalPersonalExpenses(userId: ID!): Float!
+}
+
+type Mutation {
+  createPersonalExpense(input: PersonalExpenseInput!): PersonalExpense!
+  updatePersonalExpense(id: ID!, input: PersonalExpenseInput!): PersonalExpense!
+  deletePersonalExpense(id: ID!): Boolean!
+}

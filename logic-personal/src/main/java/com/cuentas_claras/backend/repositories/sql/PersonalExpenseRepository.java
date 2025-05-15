@@ -1,5 +1,6 @@
 package com.cuentas_claras.backend.repositories.sql;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,8 +18,10 @@ public interface PersonalExpenseRepository extends JpaRepository<PersonalExpense
     // Buscar por tipo
     List<PersonalExpenseEntity> findByType(String type);
 
-    // Buscar todos los gastos personales de un usuario
-    List<PersonalExpenseEntity> findByOwner_Id(Long userId);
+    // Buscar el Id del usuario que realizó el gasto
+    List<PersonalExpenseEntity> findByOwner(Long userId);
+
+    List<PersonalExpenseEntity> findByOwnerAndDateBetween(Long owner, LocalDate start, LocalDate end);
 
     @Query("SELECT SUM(p.total) FROM PersonalExpenseEntity p WHERE p.owner.id = :userId")
     Double sumTotalByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
