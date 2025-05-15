@@ -8,7 +8,7 @@ export default function loginLayout({
     <>
     
     <Navbar/>
-    <main className="main-container">
+    <main className="main-container p-0">
         {children}
     </main>
     

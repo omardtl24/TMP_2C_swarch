@@ -1,7 +1,7 @@
 import { IconProps, sizeClasses } from "./IconProps";
 
 
-export const MenuIcon: React.FC<IconProps> = ({
+const MenuIcon: React.FC<IconProps> = ({
   size = 'md',
   className = '',
   label,
@@ -22,3 +22,5 @@ export const MenuIcon: React.FC<IconProps> = ({
     </svg>
   );
 };
+
+export default MenuIcon;
