@@ -19,8 +19,8 @@ import java.util.List;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    // Llave secreta compartida con el user-manager (debería venir de config)
-    private static final String SECRET_KEY = "mi-clave-super-secreta"; // reemplázala en producción
+    // Llave secreta compartida con el user-manager 
+    private static final String SECRET_KEY = "mi-clave-super-secreta"; //toca mirar como ponemos esto...
 
     @Override
     protected void doFilterInternal(
