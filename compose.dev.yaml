@@ -1,5 +1,3 @@
-# docker compose -f compose.dev.yaml up --build
-# https://www.reddit.com/r/nextjs/comments/1jyv6g6/comment/mpxf2v7/
 
 services:
   frontend:
@@ -18,4 +16,70 @@ services:
     #   NEXT_PUBLIC_ENV_VARIABLE: valor
     env_file:
       - ./frontend/.env.local
+      
+     
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      # PostgreSQL
+      POSTGRES_INITIAL_DB: ${POSTGRES_INITIAL_DB}
+      POSTGRES_SUPERUSER: ${POSTGRES_SUPERUSER}
+      POSTGRES_SUPERUSER_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://data_posgres:5432/${POSTGRES_INITIAL_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_SUPERUSER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      
+      # MongoDB
+      MONGO_ROOT_USER: ${MONGO_ROOT_USER}
+      MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITIAL_DB: ${MONGO_INITIAL_DB}
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@data_mongo:27017/${MONGO_INITIAL_DB}?authSource=admin
+    depends_on:
+      - data_mongo
+      - data_posgres
+    restart: always
 
+  data_mongo:
+    container_name: MongoDB
+    image: mongo:8.0.9
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  data_posgres:
+    container_name: PostgresDB
+    image: postgres:alpine3.20
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_INITIAL_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  adminer:
+    container_name: Adminer
+    image: adminer
+    ports:
+      - "8081:8080"
+    restart: always
+    depends_on:
+      - data_posgres
+
+volumes:
+  mongo_data:
+    driver: local
+  postgres_data:
+    driver: local
