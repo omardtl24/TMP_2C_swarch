@@ -1,3 +1,6 @@
+
+secret
+
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
@@ -32,3 +35,4 @@ build/
 ### VS Code ###
 .vscode
 .env
+

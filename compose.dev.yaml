@@ -1,16 +1,23 @@
-services:
-  # frontend:
-  #   container_name: frontend
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: dev.Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./frontend/app:/app/app
-  #     - ./frontend/public:/app/public
-  #   restart: always
 
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: dev.Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    restart: always
+    # environment:
+    #   ENV_VARIABLE: valor
+    #   NEXT_PUBLIC_ENV_VARIABLE: valor
+    env_file:
+      - ./frontend/.env.local
+      
+     
   backend:
     container_name: backend
     build:
