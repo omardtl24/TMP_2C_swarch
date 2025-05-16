@@ -24,4 +24,7 @@ public interface ExpenseDocumentRepository extends MongoRepository<ExpenseDocume
 
     @Aggregation("{ $match: { payerId: ?0 } },{ $group: { _id: null, total: { $sum: \"$total\" } } }")
     Double sumTotalByPayerId(String payerId);
+
+    @Aggregation("{ $group: { _id: null, total: { $sum: \"$total\" } } }")
+    Double sumAllTotals();
 }

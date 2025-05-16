@@ -209,4 +209,16 @@ public class ExpenseService {
             )
         );
     }
+    
+    /**
+     * Suma el total de todos los gastos registrados (en MongoDB).
+     * @return Suma total de todos los gastos; 0.0 si no hay registros
+     */
+    @Transactional(readOnly = true)
+    public Double sumAllExpenses() {
+        log.info("Sumando todos los gastos registrados");
+        // Asumimos que el repositorio Mongo define sumAllTotals()
+        Double total = expenseDocumentRepository.sumAllTotals();
+        return total != null ? total : 0.0;
+    }
 }
