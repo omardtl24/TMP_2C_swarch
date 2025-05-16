@@ -3,6 +3,7 @@ package com.cuentas_claras.backend.repositories.sql;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -21,7 +22,10 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
     // 3. Eventos futuros (para agenda)
     List<EventEntity> findByBeginDateAfter(LocalDate date);
 
+    // 4. Encontrar el codigo de invitación luego de generado
+    Optional<EventEntity> findByInvitationCode(String code);
 
+    // 5. Hacer busqueda de eventos por fecha
     List<EventEntity> findByBeginDateBetween(Date start, Date end);
 
 

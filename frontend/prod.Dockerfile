@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:22-alpine AS base
 
 FROM base AS builder
 WORKDIR /app
@@ -13,6 +13,8 @@ RUN \
 
 COPY app ./app
 COPY public ./public
+COPY lib ./lib
+COPY components ./components
 COPY next.config.ts .
 COPY postcss.config.mjs .
 COPY tsconfig.json .

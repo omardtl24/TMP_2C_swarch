@@ -23,6 +23,7 @@ public class EventEntity extends BaseEntity {
     private String creatorId;
     private String name;
     private String description;
+    private String invitationCode;
 
     @Temporal(TemporalType.DATE)
     private Date beginDate;
