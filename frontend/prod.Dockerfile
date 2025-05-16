@@ -13,6 +13,8 @@ RUN \
 
 COPY app ./app
 COPY public ./public
+COPY lib ./lib
+COPY components ./components
 COPY next.config.ts .
 COPY postcss.config.mjs .
 COPY tsconfig.json .
