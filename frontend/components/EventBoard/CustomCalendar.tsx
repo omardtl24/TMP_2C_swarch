@@ -79,7 +79,7 @@ export function CustomCalendar() {
 					<span className="sr-only">Mes anterior</span>
 				</Button>
 				<h2 className="text-xl font-bold text-white">
-					{format(month, "MMMM", { locale: es })}
+					{format(month, "MMMM yyyy", { locale: es })}
 				</h2>
 				<Button
 					onClick={nextMonth}
@@ -121,13 +121,21 @@ export function CustomCalendar() {
 				components={{
 					Day: ({ date, ...props }) => {
 						const evento = tieneEvento(date)
+						const isToday =
+							date.getDate() === new Date().getDate() &&
+							date.getMonth() === new Date().getMonth() &&
+							date.getFullYear() === new Date().getFullYear()
+
+						// Default color
 						let bgColor = "bg-purple-200"
 
-						if (evento) {
-							bgColor =
-								evento.tipo === "importante"
-									? "bg-orange-300"
-									: "bg-purple-500"
+						// If it's today, use orange
+						if (isToday) {
+							bgColor = "bg-orange-300"
+						}
+						// If it has an event and is not today, use purple
+						else if (evento) {
+							bgColor = "bg-purple-500"
 						}
 
 						return (
@@ -144,8 +152,8 @@ export function CustomCalendar() {
 						)
 					},
 				}}
-				// Hide the default header/navigation since we've created our own custom ones
-				showOutsideDays={true}
+				// Hide days from other months
+				showOutsideDays={false}
 				fixedWeeks={true}
 				hideHead={false}
 			/>
