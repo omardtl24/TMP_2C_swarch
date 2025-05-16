@@ -11,7 +11,7 @@ interface HomePageContentProps {
 
 export default function HomePageContent({ session }: HomePageContentProps) {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const router = useRouter(); 
   const codigo = searchParams.get("codigo") || "";
   const [inputCodigo, setInputCodigo] = useState("");
 
