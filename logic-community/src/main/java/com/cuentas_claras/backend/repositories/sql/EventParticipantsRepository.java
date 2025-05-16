@@ -12,16 +12,17 @@ import com.cuentas_claras.backend.models.sql.EventParticipantsEntity;
 @Repository
 public interface EventParticipantsRepository extends JpaRepository<EventParticipantsEntity, Long> {
 
-    // 1. Buscar el id del participante de un evento
-    Optional<EventParticipantsEntity> findByParticipantId(String participantId);
+    // Buscar la participación específica de un usuario en un evento
+    Optional<EventParticipantsEntity> findByEventAndParticipantId(EventEntity event, String participantId);
 
-    // 2. Listar todos los participantes de un evento específico
+    // Verificar si un usuario ya está inscrito en un evento
+    boolean existsByEventAndParticipantId(EventEntity event, String participantId);
+
+    // Listar todos los participantes de un evento específico
     List<EventParticipantsEntity> findByEvent(EventEntity event);
 
-    // 3. Buscar la participación específica de un usuario en un evento
-    Optional<EventParticipantsEntity> findByEventAndParticipantId(EventEntity event, Long participantId);
+    // Listar todos los eventos donde participa un usuario (útil para resumen de eventos)
+    List<EventParticipantsEntity> findByParticipantId(String participantId);
 
-    // 4. Verificar si un usuario ya está inscrito en un evento (booleano implícito)
-    boolean existsByEventAndParticipantId(EventEntity event, Long participantId);
-    
+
 }

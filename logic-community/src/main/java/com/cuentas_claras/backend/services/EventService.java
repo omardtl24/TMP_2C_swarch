@@ -5,11 +5,13 @@ import com.cuentas_claras.backend.exceptions.IllegalOperationException;
 import com.cuentas_claras.backend.models.sql.EventEntity;
 import com.cuentas_claras.backend.repositories.sql.EventRepository;
 import com.cuentas_claras.backend.models.UserCache;
+import com.cuentas_claras.backend.utils.InvitationCodeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +28,14 @@ public class EventService {
     @Autowired
     private UserCache userCache;
 
+
+    /**
+     * Crea un nuevo evento asociado al usuario autenticado.
+     *
+     * @param event La entidad del evento a crear.
+     * @return La entidad creada con su ID y creador asignados.
+     * @throws IllegalOperationException si los datos del evento no son válidos.
+     */
     @Transactional
     public EventEntity createEvent(EventEntity event) throws IllegalOperationException {
         String creatorId = userCache.getUserId();
@@ -34,17 +44,34 @@ public class EventService {
         validateEvent(event);
         event.setCreatorId(creatorId);
         event.setInvitationEnabled(false);
+        // Generar código de invitación (inicialmente inactivo)
+        event.setInvitationCode(InvitationCodeUtil.generateCodeFromId(event.getId()));
+
         EventEntity saved = eventRepository.save(event);
         log.info("Evento {} creado", saved.getId());
         return saved;
     }
 
+    /**
+     * Obtiene todos los eventos creados por un usuario.
+     *
+     * @param creatorId ID del usuario creador.
+     * @return Lista de eventos.
+     */
     @Transactional(readOnly = true)
-    public List<EventEntity> getEventsByCreator(String creatorId) {
+    public List<EventEntity> getMyEvents() {
+        String creatorId = userCache.getUserId();
         log.info("Listando eventos creados por {}", creatorId);
         return eventRepository.findByCreatorId(creatorId);
     }
 
+    /**
+     * Obtiene un evento por su ID.
+     *
+     * @param eventId ID del evento.
+     * @return La entidad del evento.
+     * @throws EntityNotFoundException si no se encuentra el evento.
+     */
     @Transactional(readOnly = true)
     public EventEntity getEvent(Long eventId) throws EntityNotFoundException {
         log.info("Consultando evento {}", eventId);
@@ -52,24 +79,68 @@ public class EventService {
             .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
     }
 
+    /**
+     * Busca eventos por nombre 
+     */
+    @Transactional(readOnly = true)
+    public List<EventEntity> searchByName(String name) {
+        log.info("Buscando eventos que contengan '{}' en el nombre", name);
+        return eventRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    /**
+     * Obtiene eventos futuros a partir de la fecha dada.
+     */
+    @Transactional(readOnly = true)
+    public List<EventEntity> getUpcomingEvents(LocalDate from) {
+        log.info("Buscando eventos con fecha de inicio después de {}", from);
+        return eventRepository.findByBeginDateAfter(from);
+    }
+
+    /**
+     * Busca eventos en un rango de fechas.
+     */
+    @Transactional(readOnly = true)
+    public List<EventEntity> getEventsBetween(Date start, Date end) {
+        log.info("Buscando eventos entre {} y {}", start, end);
+        return eventRepository.findByBeginDateBetween(start, end);
+    }
+
+
+    /**
+     * Actualiza un evento existente.
+     *
+     * @param eventId ID del evento a actualizar.
+     * @param updated Entidad con los datos actualizados.
+     * @return Evento actualizado.
+     * @throws EntityNotFoundException si el evento no existe.
+     * @throws IllegalOperationException si los datos no son válidos.
+     */
     @Transactional
-    public EventEntity updateEvent(Long eventId, EventEntity updated) throws EntityNotFoundException, IllegalOperationException {
+    public EventEntity updateEvent(Long eventId, EventEntity updated)
+            throws EntityNotFoundException, IllegalOperationException {
         log.info("Actualizando evento {}", eventId);
 
         EventEntity existing = eventRepository.findById(eventId)
             .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
 
         validateEvent(updated);
-
         updated.setId(eventId);
         updated.setCreatorId(existing.getCreatorId());
         updated.setInvitationEnabled(existing.isInvitationEnabled());
+        updated.setInvitationCode(existing.getInvitationCode());
 
         EventEntity saved = eventRepository.save(updated);
         log.info("Evento {} actualizado", saved.getId());
         return saved;
     }
 
+    /**
+     * Elimina un evento por su ID.
+     *
+     * @param eventId ID del evento a eliminar.
+     * @throws EntityNotFoundException si el evento no existe.
+     */
     @Transactional
     public void deleteEvent(Long eventId) throws EntityNotFoundException {
         log.info("Eliminando evento {}", eventId);
@@ -79,8 +150,18 @@ public class EventService {
         eventRepository.deleteById(eventId);
     }
 
+    /**
+     * Habilita o deshabilita el uso de invitaciones para un evento.
+     *
+     * @param eventId ID del evento.
+     * @param enabled true para habilitar, false para deshabilitar.
+     * @return Evento actualizado.
+     * @throws EntityNotFoundException si el evento no existe.
+     * @throws IllegalOperationException si el usuario no es el creador.
+     */
     @Transactional
-    public EventEntity setInvitationEnabled(Long eventId, boolean enabled) throws EntityNotFoundException, IllegalOperationException {
+    public EventEntity setInvitationEnabled(Long eventId, boolean enabled)
+            throws EntityNotFoundException, IllegalOperationException {
         String userId = userCache.getUserId();
         log.info("{} invitaciones para evento {}", enabled ? "Habilitando" : "Deshabilitando", eventId);
 
@@ -92,11 +173,23 @@ public class EventService {
         }
 
         event.setInvitationEnabled(enabled);
+        if (enabled) {
+            event.setInvitationCode(InvitationCodeUtil.generateCodeFromId(eventId));
+        } else {
+            event.setInvitationCode(null);
+        }
+
         EventEntity saved = eventRepository.save(event);
         log.info("Invitaciones {} para evento {}", enabled ? "habilitadas" : "deshabilitadas", eventId);
         return saved;
     }
 
+    /**
+     * Valida los datos de un evento.
+     *
+     * @param event Evento a validar.
+     * @throws IllegalOperationException si alguno de los datos no es válido.
+     */
     private void validateEvent(EventEntity event) throws IllegalOperationException {
         if (event.getName() == null || event.getName().trim().isEmpty()) {
             throw new IllegalOperationException("El nombre del evento no puede estar vacío");
