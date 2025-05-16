@@ -29,12 +29,14 @@ Este proyecto NO sube archivos `.env` ni secretos desencriptados al repo. En su 
 - **Bash/Linux/macOS/Git Bash:** `cifrar_envs.sh`
 - **PowerShell/Windows:** `cifrar_envs.ps1`
 
+> **En Windows debes instalar [Gpg4win](https://gpg4win.org/) para poder cifrar y descifrar los secretos.**
+
 ### Para generar los `.env` para desarrollo y Docker Compose:
 - **Bash/Linux/macOS/Git Bash:** `generar_envs.sh`
 - **PowerShell/Windows:** `generar_envs.ps1`
 - **Windows (sin Python):** Ejecuta directamente `generar_envs.exe`
 
-> Los scripts te pedirán la passphrase de forma segura y nunca la guardan en texto plano. Si no tienes Python en Windows, puedes usar el ejecutable `generar_envs.exe` directamente.
+> Los scripts te pedirán la passphrase de forma segura y nunca la guardan en texto plano. Si no tienes Python en Windows, puedes usar el ejecutable `generar_envs.exe` directamente. El script prioriza el .exe y luego el .py. si algo ajustar el orden.
 
 ---
 

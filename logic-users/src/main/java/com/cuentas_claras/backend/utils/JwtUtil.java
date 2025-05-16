@@ -6,8 +6,6 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -18,14 +16,14 @@ import java.util.Base64;
 import java.util.Date;
 
 public class JwtUtil {
-    private static final String PRIVATE_KEY_PATH = "src/main/resources/keys/private.pem";
-    private static final String PUBLIC_KEY_PATH = "src/main/resources/keys/public.pem";
-
     private static PrivateKey getPrivateKey() throws Exception {
-        String key = new String(Files.readAllBytes(new File(PRIVATE_KEY_PATH).toPath()));
+        String key = System.getenv("PRIVATE_KEY");
+        if (key == null) throw new IllegalStateException("PRIVATE_KEY env var not set");
         key = key.replace("-----BEGIN PRIVATE KEY-----", "")
                  .replace("-----END PRIVATE KEY-----", "")
+                 .replace("\\n", "")
                  .replaceAll("\\s", "");
+        System.out.println(key);
         byte[] keyBytes = Base64.getDecoder().decode(key);
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -33,7 +31,8 @@ public class JwtUtil {
     }
 
     private static PublicKey getPublicKey() throws Exception {
-        String key = new String(Files.readAllBytes(new File(PUBLIC_KEY_PATH).toPath()));
+        String key = System.getenv("PUBLIC_KEY");
+        if (key == null) throw new IllegalStateException("PUBLIC_KEY env var not set");
         key = key.replace("-----BEGIN PUBLIC KEY-----", "")
                  .replace("-----END PUBLIC KEY-----", "")
                  .replaceAll("\\s", "");
