@@ -42,7 +42,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 // Usuario existe: generar JWT y setear cookie httpOnly
                 try {
                     System.out.println("magot");
-                    String jwt = JwtUtil.generateToken(user.getId(), user.getEmail(), jwtSessionDurationSeconds * 1000L);
+                    String jwt = JwtUtil.generateTokenWithName(user.getId(), user.getEmail(), user.getName(), user.getUsername(), jwtSessionDurationSeconds * 1000L);
                     Cookie cookie = new Cookie("jwt", jwt);
                     cookie.setHttpOnly(true);
                     cookie.setPath("/");
@@ -57,7 +57,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 // Usuario NO existe: generar token temporal y redirigir a registro
                 try {
                     String name = (String) oauthUser.getAttributes().get("name");
-                    String tempToken = JwtUtil.generateTokenWithName(0L, email, name, 1000 * 60 * 10); // 10 min
+                    String tempToken = JwtUtil.generateToken(0L, email, name, 1000 * 60 * 10); // 10 min
                     String redirectUrl = frontendBaseUrl + "/complete-signup?email=" + email + "&token=" + tempToken;
                     response.sendRedirect(redirectUrl);
                 } catch (Exception e) {

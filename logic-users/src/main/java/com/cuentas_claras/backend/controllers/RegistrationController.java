@@ -43,9 +43,10 @@ public class RegistrationController {
             user.setUsername(username);
             user.setName(name);
             userService.save(user);
+            System.out.println("usuario creado");
             // Autenticar automáticamente: generar JWT y setear cookie httpOnly
             try {
-                String jwt = JwtUtil.generateToken(user.getId(), user.getEmail(), jwtSessionDurationSeconds * 1000L);
+                String jwt = JwtUtil.generateTokenWithName(user.getId(), user.getEmail(), user.getName(), user.getUsername(), jwtSessionDurationSeconds * 1000L);
                 jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("jwt", jwt);
                 cookie.setHttpOnly(true);
                 cookie.setPath("/");

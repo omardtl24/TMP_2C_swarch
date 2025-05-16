@@ -43,11 +43,12 @@ public class JwtUtil {
         return kf.generatePublic(spec);
     }
 
-    public static String generateToken(Long userId, String email, long expirationMillis) throws Exception {
+    public static String generateToken(Long userId, String email, String name, long expirationMillis) throws Exception {
         JWSSigner signer = new RSASSASigner(getPrivateKey());
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(userId.toString())
                 .claim("email", email)
+                .claim("name", name)
                 .expirationTime(new Date(System.currentTimeMillis() + expirationMillis))
                 .build();
         SignedJWT signedJWT = new SignedJWT(
@@ -57,12 +58,13 @@ public class JwtUtil {
         return signedJWT.serialize();
     }
 
-    public static String generateTokenWithName(Long userId, String email, String name, long expirationMillis) throws Exception {
+    public static String generateTokenWithName(Long userId, String email, String name, String userName, long expirationMillis) throws Exception {
         JWSSigner signer = new RSASSASigner(getPrivateKey());
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(userId.toString())
                 .claim("email", email)
                 .claim("name", name)
+                .claim("userName", userName)
                 .expirationTime(new Date(System.currentTimeMillis() + expirationMillis))
                 .build();
         SignedJWT signedJWT = new SignedJWT(
