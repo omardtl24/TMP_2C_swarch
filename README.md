@@ -40,4 +40,19 @@ Este proyecto NO sube archivos `.env` ni secretos desencriptados al repo. En su 
 
 ---
 
-**¡Listo! Así todos pueden cifrar y generar los `.env` de forma segura y multiplataforma.**
+## 🟢 Cómo ejecutar un microservicio Java con variables de entorno locales (.env)
+
+Para desarrollo local, cada microservicio Java incluye un script PowerShell llamado `run_with_env.ps1`.
+
+**¿Por qué?** Spring Boot no carga automáticamente archivos `.env`. Este script carga las variables del `.env` al entorno antes de arrancar el microservicio, así tu configuración en `application.properties` funciona igual que en Docker Compose.
+
+### Pasos:
+
+1. Abre una terminal PowerShell en la carpeta del microservicio (por ejemplo, `logic-users`).
+2. Ejecuta:
+   ```powershell
+   .\run_with_env.ps1
+   ```
+3. El microservicio arrancará con todas las variables del `.env` disponibles.
+
+> Si usas Linux/macOS, puedes adaptar el script fácilmente a Bash.
