@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.cuentas_claras.backend.models.mongo.ExpenseDocument;
 
 @Repository
-public interface ExpenseRepository extends MongoRepository<ExpenseDocument, String> {
+public interface ExpenseDocumentRepository extends MongoRepository<ExpenseDocument, String> {
     List<ExpenseDocument> findByPayerId(String payerId);
     List<ExpenseDocument> findByType(String type);
     List<ExpenseDocument> findByConceptContainingIgnoreCase(String keyword);
