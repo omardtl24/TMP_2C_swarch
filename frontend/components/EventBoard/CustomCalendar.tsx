@@ -1,180 +1,129 @@
+// CustomCalendar.tsx
 "use client"
 
 import * as React from "react"
-import { ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react"
+import { DayPicker } from "react-day-picker"
+import { format } from "date-fns"
 import { es } from "date-fns/locale"
-import { format, addMonths, subMonths } from "date-fns"
-
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import { ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react"
+import "react-day-picker/dist/style.css"
 
-
-// Datos de ejemplo para eventos
-const eventos = [
-	{ fecha: new Date(2025, 7, 1), tipo: "importante" }, // 1 de agosto - naranja
-	{ fecha: new Date(2025, 7, 15), tipo: "reunion" }, // 15 de agosto - morado
-	{ fecha: new Date(2025, 7, 26), tipo: "reunion" }, // 26 de agosto - morado
-]
-
-export function CustomCalendar() {
-	const [date, setDate] = React.useState<Date>(new Date())
-	const [month, setMonth] = React.useState<Date>(new Date())
-
-	// Función para verificar si un día tiene eventos
-	const tieneEvento = (day: Date) => {
-		const dayDate = day
-
-		return eventos.find(
-			(evento) =>
-				evento.fecha.getDate() === dayDate.getDate() &&
-				evento.fecha.getMonth() === dayDate.getMonth() &&
-				evento.fecha.getFullYear() === dayDate.getFullYear(),
-		)
-	}
-
-	// Función para manejar el clic en un día
-	const handleDayClick = (day: Date) => {
-		const dayDate = day
-		const evento = tieneEvento(dayDate)
-
-		if (evento) {
-			alert(`Tienes un evento ${evento.tipo} para el ${format(dayDate, "dd/MM/yyyy")}`)
-		} else {
-			alert(`No tienes eventos para el ${format(dayDate, "dd/MM/yyyy")}`)
-		}
-
-	}
-
-	// Función para navegar al mes anterior
-	const prevMonth = () => {
-		setMonth(subMonths(month, 1))
-	}
-
-	// Función para navegar al mes siguiente
-	const nextMonth = () => {
-		setMonth(addMonths(month, 1))
-	}
-
-	// Función para crear un nuevo evento
-	const crearEvento = () => {
-		alert("Crear nuevo evento")
-	}
-
-	return (
-		<div className="w-full max-w-md rounded-2xl bg-linear-to-b from-5% from-primary-60/90 to-[#ff9fd8]/70 to-70% px-2 py-4 md:p-6 shadow-lg">
-			<div className="mb-4 flex items-center justify-between">
-				<div className="flex items-center gap-2">
-					<CalendarIcon className="h-6 w-6 text-white" />
-					<h2 className="text-xl font-bold text-white">Calendario</h2>
-				</div>
-				<Button
-					onClick={crearEvento}
-					className="flex items-center gap-2 rounded-md border border-yellow-300 bg-transparent px-4 py-2 text-yellow-300 hover:text-orange-400 hover:bg-orange-200/90"
-				>
-					<CalendarIcon className="h-5 w-5" />
-					<span>Crear evento</span>
-				</Button>
-			</div>
-
-			<div className="mb-4 flex items-center justify-between">
-				<Button
-					onClick={prevMonth}
-					variant="ghost"
-					className="h-8 w-8 rounded-full bg-purple-300 p-0 text-white hover:bg-purple-500"
-				>
-					<ChevronLeft className="h-4 w-4" />
-					<span className="sr-only">Mes anterior</span>
-				</Button>
-				<h2 className="text-xl font-bold text-white">
-					{format(month, "MMMM yyyy", { locale: es })}
-				</h2>
-				<Button
-					onClick={nextMonth}
-					variant="ghost"
-					className="h-8 w-8 rounded-full bg-purple-300 p-0 text-white hover:bg-purple-500"
-				>
-					<ChevronRight className="h-4 w-4" />
-					<span className="sr-only">Mes siguiente</span>
-				</Button>
-			</div>
-
-			<Calendar
-				mode="single"
-				selected={date}
-				onSelect={(newDate) => newDate && setDate(newDate)}
-				month={month}
-				onMonthChange={setMonth}
-				className="rounded-md border-0 bg-transparent p-1 md:pd-3"
-				locale={es}
-				classNames={{
-					months: "flex flex-col",
-					month: "flex flex-col",
-					caption: "hidden", // Hide default caption since we've created a custom one
-					nav: "hidden", // Hide default navigation
-					table: "w-full border-spacing-1",
-					head_row: "flex w-full justify-between mb-1",
-					head_cell:
-						"text-white text-xs uppercase font-medium w-10 text-center",
-					row: "flex w-full justify-between mb-1",
-					cell: "relative p-0 text-center [&:has([aria-selected])]:bg-transparent",
-					day:
-						"h-12 w-12 text-sm p-0 font-normal text-white hover:bg-purple-300 rounded-md",
-					day_selected: "bg-transparent text-white",
-					day_today: "bg-transparent text-white font-bold",
-					day_outside: "text-white opacity-50",
-					day_disabled: "text-purple-200 opacity-50",
-					day_hidden: "invisible",
-				}}
-				components={{
-					Day: (props) => {
-						// Skip rendering if no date
-						if (!props.date) return null;
-						
-						const dayDate = new Date(props.date)
-						
-						
-						if (dayDate.getMonth() !== month.getMonth()) {
-
-							return <div className="size-9 md:size-12"></div>;
-						}
-						
-						const evento = tieneEvento(dayDate)
-						const isToday =
-							dayDate.getDate() === new Date().getDate() &&
-							dayDate.getMonth() === new Date().getMonth() &&
-							dayDate.getFullYear() === new Date().getFullYear()
-
-						// Default color
-						
-
-						// Create a completely new button with only the props we need
-						return (
-							<button
-								type="button"
-								className={cn(
-									`flex  size-9 md:size-12 items-end glass-effect border-1 border-white justify-start rounded-sm p-1 text-primary-40 text-xs font-normal aria-selected:opacity-100 hover:bg-yellow-300/50 hover:border-yellow-600 hover:cursor-pointer
-									${isToday ? "bg-orange-300/70 border-orange-400 text-orange-600 font-semibold" : ""}
-									${evento ? "bg-purple-500/70 border-primary-50 text-white" : ""}
-									
-									`
-								)}
-								onClick={(e) => {
-									e.preventDefault();
-									handleDayClick(dayDate);
-								}}
-								aria-label={format(dayDate, "d MMMM yyyy")}
-							>
-								{format(dayDate, "d")}
-							</button>
-						)
-					},
-				}}
-				// Hide days from other months
-				showOutsideDays={false}
-				fixedWeeks={true}
-				hideHead={false}
-			/>
-		</div>
-	)
+// Tipado de eventos
+export interface EventItem {
+  date: Date
+  name: string
 }
+
+interface CustomCalendarProps {
+  events: EventItem[]
+}
+
+
+
+const CustomCalendar = ({events}:CustomCalendarProps) => {
+  const [selected, setSelected] = React.useState<Date | undefined>()
+  const [month, setMonth] = React.useState<Date>(new Date())
+
+  // Prepare modifiers
+   const modifiers = React.useMemo(
+    () => ({
+      event: events.map(e => e.date),
+    }),
+    [events]
+  )
+   const modifiersClassNames = {
+    event: 'bg-purple-500/30 border border-purple-500 text-white',
+    today: 'bg-orange-500 border border-orange-500 text-white',
+    selected: 'ring-2 ring-offset-2 ring-primary',
+  }
+
+   const handleDayClick = (day: Date | undefined) => {
+    if (!day) return
+    setSelected(day)
+    const ev = events.find(ev => ev.date.toDateString() === day.toDateString())
+    if (ev) {
+      alert(`Evento ${ev.name} el ${format(day, 'dd/MM/yyyy')}`)
+    } else {
+      alert(`Sin eventos el ${format(day, 'dd/MM/yyyy')}`)
+    }
+  }
+
+  //Custom caption with correct props
+  const CustomNav = () =>{
+  
+  return (
+	
+    <div className="flex items-center justify-center gap-4 w-full px-2">
+      <Button
+        size="icon"
+        variant="ghost"
+		className="bg-white/50 text-primary-20 rounded-full hover:bg-primary-40/70 size-7 md:size-9"
+        onClick={() => setMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1))}
+      >
+        <ChevronLeft className="h-4 w-4 text-primary-20" />
+      </Button>
+      <span className="text-white text-xl  font-semibold ">
+		
+        {month ? format(month, 'MMMM yyyy', { locale: es }):""}
+      </span>
+      <Button
+        size="icon"
+        variant="ghost"
+		className="bg-white/50 text-primary-20 rounded-full hover:bg-primary-40/70 size-7 md:size-9 "
+        onClick={() => setMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1))}
+      >
+        <ChevronRight className="h-4 w-4 text-primary-20" />
+      </Button>
+    </div>
+  )
+  } 
+
+  return (
+    <div className="max-w-md  bg-gradient-to-b from-primary/80 to-pink-200/70 p-4 rounded-2xl shadow-md">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <CalendarIcon className="h-6 w-6 text-white" />
+          <h2 className="text-white text-xl font-bold">Calendario</h2>
+        </div>
+        <Button variant="outline" className="border-amber-300 bg-transparent text-amber-300 font-semibold hover:bg-amber-400/50 hover:text-white md:w-40 md:h-10 " onClick={() => alert('Crear evento')}>
+          <CalendarIcon className="h-4 w-4" />
+          Crear evento
+        </Button>
+      </div>
+
+      <DayPicker
+        mode="single"
+        selected={selected}
+        onSelect={handleDayClick}
+        month={month}
+        onMonthChange={setMonth}
+        locale={es}
+        showOutsideDays={false}
+        fixedWeeks
+        modifiers={modifiers}
+        modifiersClassNames={modifiersClassNames}
+		
+		//navLayout="around"
+        components={{ Nav: CustomNav }}
+        classNames={{
+          table: 'w-full border-collapse',
+          head_row: 'flex justify-between',
+          head_cell: 'text-white text-xs w-8 text-center',
+          row: 'flex justify-between',
+          cell: 'w-8 p-0 text-end ',
+          day: 'p-[1px] h-10 w-10  text-xs text-end ',
+          today: 'font-bold bg-orange-30/70 text ',
+		  month_caption:"hidden",
+		  month_grid:"w-full",
+		  day_button:"w-full glass-effect hover:bg-yellow-300/60 hover:cursor-pointer rounded-md flex p-1 justify-start items-end  border-1 border-white text-white w-full h-full text-primary-50",
+		  month:"w-full ",
+		  months:"gap-1",
+		  day_selected:"bg-primary-50/70 text-white",
+        }}
+      />
+    </div>
+  )
+}
+
+export default CustomCalendar

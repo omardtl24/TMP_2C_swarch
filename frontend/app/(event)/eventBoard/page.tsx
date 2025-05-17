@@ -1,5 +1,6 @@
-import { CustomCalendar } from "@/components/EventBoard/CustomCalendar";
+import CustomCalendar  from "@/components/EventBoard/CustomCalendar";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 
 
@@ -22,7 +23,7 @@ export default function EventBoard() {
                 type="text" />
               <Button>Unirme</Button>
             </div>
-            <CustomCalendar />
+            <CustomCalendar events={[]} />
           </div>
 
 
@@ -30,7 +31,7 @@ export default function EventBoard() {
 
         <div className="flex flex-col w-full md:flex-1 ">
           <h3 className="text-primary-20 mt-4 text-2xl font-semibold">Eventos Recientes</h3>
-
+        <Calendar/>
         </div>
       </div>
       
