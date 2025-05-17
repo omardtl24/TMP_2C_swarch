@@ -1,10 +1,9 @@
 import { Button } from "../ui/button";
 import { GoogleIcon } from "../Icons/GoogleIcon";
-
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+import { ENDPOINTS } from "@/lib/endpoints";
 
 export default function RegisterLoginButton({ title }: { title: string }) {
-	const redirectUrl = `${backendUrl}/oauth2/authorization/google`;
+		const redirectUrl = `${ENDPOINTS.users.browser}/oauth2/authorization/google`;
 
 	return (
 		<Button
