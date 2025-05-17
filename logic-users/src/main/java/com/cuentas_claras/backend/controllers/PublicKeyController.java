@@ -2,8 +2,6 @@ package com.cuentas_claras.backend.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.http.MediaType;
 import java.security.interfaces.RSAPublicKey;
@@ -20,9 +18,12 @@ public class PublicKeyController {
     @GetMapping(value = "/jwks.json", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Map<String, Object> getJwks() throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get("src/main/resources/keys/public.pem")));
+        // Lee la clave pública desde la variable de entorno PUBLIC_KEY
+        String key = System.getenv("PUBLIC_KEY");
+        if (key == null) throw new IllegalStateException("PUBLIC_KEY env var not set");
         key = key.replace("-----BEGIN PUBLIC KEY-----", "")
                  .replace("-----END PUBLIC KEY-----", "")
+                 .replace("\\n", "")
                  .replaceAll("\\s", "");
         byte[] keyBytes = Base64.getDecoder().decode(key);
         X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);

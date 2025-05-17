@@ -3,7 +3,6 @@ package com.cuentas_claras.backend.dto;
 public class UserRegistrationDTO {
     private String username;
     private String email;
-    private String token;
     private String name;
 
     public String getUsername() {
@@ -17,12 +16,6 @@ public class UserRegistrationDTO {
     }
     public void setEmail(String email) {
         this.email = email;
-    }
-    public String getToken() {
-        return token;
-    }
-    public void setToken(String token) {
-        this.token = token;
     }
     public String getName() {
         return name;

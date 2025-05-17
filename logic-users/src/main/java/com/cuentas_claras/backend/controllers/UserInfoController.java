@@ -28,22 +28,22 @@ public class UserInfoController {
             } else if (jwtCookie != null) {
                 token = jwtCookie;
             } else {
-                return ResponseEntity.status(401).body("No JWT token provided");
+                return ResponseEntity.status(401).body(java.util.Map.of("error", "No JWT token provided"));
             }
             if (!JwtUtil.validateToken(token)) {
-                return ResponseEntity.status(401).body("Token inválido o expirado");
+                return ResponseEntity.status(401).body(java.util.Map.of("error", "Token inválido o expirado"));
             }
             JWTClaimsSet claims = JwtUtil.getClaims(token);
             Long userId = Long.valueOf(claims.getSubject());
             Optional<UserEntity> userOpt = userService.getUsers().stream().filter(u -> u.getId().equals(userId)).findFirst();
             if (userOpt.isEmpty()) {
-                return ResponseEntity.status(404).body("Usuario no encontrado");
+                return ResponseEntity.status(404).body(java.util.Map.of("error", "Usuario no encontrado"));
             }
             UserEntity user = userOpt.get();
             // Devuelve solo info básica, no sensible
             return ResponseEntity.ok(new UserInfoResponse(user.getId(), user.getEmail(), user.getUsername(), user.getName()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error consultando usuario: " + e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", "Error consultando usuario: " + e.getMessage()));
         }
     }
 

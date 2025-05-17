@@ -12,15 +12,20 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   CustomOAuth2SuccessHandler successHandler) throws Exception {
+            CustomOAuth2SuccessHandler successHandler,
+            CustomOAuth2FailureHandler failureHandler) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().authenticated()
-            )
-            .oauth2Login(oauth2 -> oauth2
-                .successHandler(successHandler)
-            );
-
+                .csrf(csrf -> csrf.disable())
+                .logout(logout -> logout.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // permite preflight
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/auth/register").permitAll() // permite POST sin login
+                        .requestMatchers("/auth/register").permitAll() // permite GET/HEAD/etc. sin login
+                        .requestMatchers("/.well-known/jwks.json").permitAll() // permite acceso público a JWKS
+                        .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(successHandler)
+                        .failureHandler(failureHandler));
         return http.build();
     }
 }
