@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import CuentasClarasIcon from "@/components/Icons/CuentasClarasIcon";
 import RegisterLoginButton from "@/components/Register/RegisterLoginButton";
-import { logout } from "@/lib/utils";
+import { logout } from "@/lib/actions/authActions";
+import { registerUser } from "@/lib/actions/authActions";
 
 export default function RegisterPage() {
   const searchParams = useSearchParams();
@@ -77,15 +78,7 @@ export default function RegisterPage() {
             }
             setLoading(true);
             try {
-              const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/register`,
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ email, username }),
-                  credentials: "include" 
-                }
-              );
+              const res = await registerUser({ email, username });
               if (res.ok) {
                 setSuccess("¡Registro exitoso! Redirigiendo...");
                 setTimeout(() => {

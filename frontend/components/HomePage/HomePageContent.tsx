@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { logout } from "@/lib/utils";
+import { logout } from "@/lib/actions/authActions";
 import type { Session } from "@/lib/types";
 
 interface HomePageContentProps {
