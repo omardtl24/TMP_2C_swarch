@@ -33,7 +33,7 @@ const Navbar = () => {
   }, [])
 
   return (
-    <nav className="sticky top-0 right-0 left-0 bg-surface h-16 w-full flex flex-row items-center justify-between px-4 md:px-8 rounded-b-md shadow-md shadow-primary-80/50 z-50">
+    <nav className="sticky top-0 right-0 left-0 bg-surface h-16 w-full flex flex-row items-center justify-between px-4 md:px-8 py-2 rounded-b-md shadow-md shadow-primary-80/50 z-50">
       {/* Menu Icon for mobile - hidden on md and up */}
       <div className="md:hidden">
         <Popover open={open} onOpenChange={setOpen}>

@@ -134,6 +134,14 @@
     padding: 15px;
 
   }
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.476);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    color: var(--color-on-surface);
+    font-size: var(--font-size-md);
+    font-family: var(--font-sans);
+  }
 }
 
 @media (prefers-color-scheme: light) {

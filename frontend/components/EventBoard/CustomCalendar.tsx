@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 
+
 // Datos de ejemplo para eventos
 const eventos = [
 	{ fecha: new Date(2025, 7, 1), tipo: "importante" }, // 1 de agosto - naranja
@@ -22,20 +23,27 @@ export function CustomCalendar() {
 
 	// Función para verificar si un día tiene eventos
 	const tieneEvento = (day: Date) => {
+		const dayDate = day
+
 		return eventos.find(
 			(evento) =>
-				evento.fecha.getDate() === day.getDate() &&
-				evento.fecha.getMonth() === day.getMonth() &&
-				evento.fecha.getFullYear() === day.getFullYear(),
+				evento.fecha.getDate() === dayDate.getDate() &&
+				evento.fecha.getMonth() === dayDate.getMonth() &&
+				evento.fecha.getFullYear() === dayDate.getFullYear(),
 		)
 	}
 
 	// Función para manejar el clic en un día
 	const handleDayClick = (day: Date) => {
-		const evento = tieneEvento(day)
+		const dayDate = day
+		const evento = tieneEvento(dayDate)
+
 		if (evento) {
-			alert(`Tienes un evento ${evento.tipo} para el ${format(day, "dd/MM/yyyy")}`)
+			alert(`Tienes un evento ${evento.tipo} para el ${format(dayDate, "dd/MM/yyyy")}`)
+		} else {
+			alert(`No tienes eventos para el ${format(dayDate, "dd/MM/yyyy")}`)
 		}
+
 	}
 
 	// Función para navegar al mes anterior
@@ -54,7 +62,7 @@ export function CustomCalendar() {
 	}
 
 	return (
-		<div className="w-full max-w-md rounded-3xl bg-purple-400 p-6 shadow-lg">
+		<div className="w-full max-w-md rounded-2xl bg-linear-to-b from-5% from-primary-60/90 to-[#ff9fd8]/70 to-70% px-2 py-4 md:p-6 shadow-lg">
 			<div className="mb-4 flex items-center justify-between">
 				<div className="flex items-center gap-2">
 					<CalendarIcon className="h-6 w-6 text-white" />
@@ -62,7 +70,7 @@ export function CustomCalendar() {
 				</div>
 				<Button
 					onClick={crearEvento}
-					className="flex items-center gap-2 rounded-full border border-yellow-300 bg-transparent px-4 py-2 text-yellow-300 hover:bg-purple-500"
+					className="flex items-center gap-2 rounded-md border border-yellow-300 bg-transparent px-4 py-2 text-yellow-300 hover:text-orange-400 hover:bg-orange-200/90"
 				>
 					<CalendarIcon className="h-5 w-5" />
 					<span>Crear evento</span>
@@ -97,7 +105,7 @@ export function CustomCalendar() {
 				onSelect={(newDate) => newDate && setDate(newDate)}
 				month={month}
 				onMonthChange={setMonth}
-				className="rounded-md border-0 bg-transparent"
+				className="rounded-md border-0 bg-transparent p-1 md:pd-3"
 				locale={es}
 				classNames={{
 					months: "flex flex-col",
@@ -111,7 +119,7 @@ export function CustomCalendar() {
 					row: "flex w-full justify-between mb-1",
 					cell: "relative p-0 text-center [&:has([aria-selected])]:bg-transparent",
 					day:
-						"h-10 w-10 text-sm p-0 font-normal text-white hover:bg-purple-300 rounded-md",
+						"h-12 w-12 text-sm p-0 font-normal text-white hover:bg-purple-300 rounded-md",
 					day_selected: "bg-transparent text-white",
 					day_today: "bg-transparent text-white font-bold",
 					day_outside: "text-white opacity-50",
@@ -119,35 +127,45 @@ export function CustomCalendar() {
 					day_hidden: "invisible",
 				}}
 				components={{
-					Day: ({ date, ...props }) => {
-						const evento = tieneEvento(date)
+					Day: (props) => {
+						// Skip rendering if no date
+						if (!props.date) return null;
+						
+						const dayDate = new Date(props.date)
+						
+						
+						if (dayDate.getMonth() !== month.getMonth()) {
+
+							return <div className="size-9 md:size-12"></div>;
+						}
+						
+						const evento = tieneEvento(dayDate)
 						const isToday =
-							date.getDate() === new Date().getDate() &&
-							date.getMonth() === new Date().getMonth() &&
-							date.getFullYear() === new Date().getFullYear()
+							dayDate.getDate() === new Date().getDate() &&
+							dayDate.getMonth() === new Date().getMonth() &&
+							dayDate.getFullYear() === new Date().getFullYear()
 
 						// Default color
-						let bgColor = "bg-purple-200"
+						
 
-						// If it's today, use orange
-						if (isToday) {
-							bgColor = "bg-orange-300"
-						}
-						// If it has an event and is not today, use purple
-						else if (evento) {
-							bgColor = "bg-purple-500"
-						}
-
+						// Create a completely new button with only the props we need
 						return (
 							<button
-								{...props}
+								type="button"
 								className={cn(
-									bgColor,
-									"flex h-10 w-10 items-center justify-center rounded-md p-0 text-sm font-normal aria-selected:opacity-100",
+									`flex  size-9 md:size-12 items-end glass-effect border-1 border-white justify-start rounded-sm p-1 text-primary-40 text-xs font-normal aria-selected:opacity-100 hover:bg-yellow-300/50 hover:border-yellow-600 hover:cursor-pointer
+									${isToday ? "bg-orange-300/70 border-orange-400 text-orange-600 font-semibold" : ""}
+									${evento ? "bg-purple-500/70 border-primary-50 text-white" : ""}
+									
+									`
 								)}
-								onClick={() => handleDayClick(date)}
+								onClick={(e) => {
+									e.preventDefault();
+									handleDayClick(dayDate);
+								}}
+								aria-label={format(dayDate, "d MMMM yyyy")}
 							>
-								{format(date, "d")}
+								{format(dayDate, "d")}
 							</button>
 						)
 					},
