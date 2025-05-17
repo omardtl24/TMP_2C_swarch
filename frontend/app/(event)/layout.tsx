@@ -8,7 +8,7 @@ export default function eventLayout({
     <>
     
     <Navbar/>
-    <main className="main-container p-4 md:p-12 ">
+    <main className="main-container p-4 md:px-12 md:py-6 ">
         {children} 
     </main>
     {/*TODO: Add a footer*/}

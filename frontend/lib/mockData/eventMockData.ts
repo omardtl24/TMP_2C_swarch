@@ -1,0 +1,34 @@
+import { EventsResponse } from "../actions/eventActions";
+import { EventType } from "../types";
+
+
+const mockEvents: EventType[] = [
+  {
+    id: 1,
+    name: "Tech Conference 2025",
+    description: "A conference about the latest in tech and innovation.",
+    beginDate: new Date("2025-06-10T09:00:00Z"),
+    endDate: new Date("2025-06-12T17:00:00Z"),
+  },
+  {
+    id: 2,
+    name: "Startup Pitch Day",
+    description: "Startups pitch their ideas to investors and mentors.",
+    beginDate: new Date("2025-07-01T10:00:00Z"),
+    endDate: new Date("2025-07-01T18:00:00Z"),
+  },
+  {
+    id: 3,
+    name: "Frontend Developers Meetup",
+    description: "A casual event for frontend developers to share knowledge.",
+    beginDate: new Date("2025-08-15T18:30:00Z"),
+    endDate: new Date("2025-08-15T21:00:00Z"),
+  },
+];
+
+const mockEventsResponse: EventsResponse = {
+  success: true,
+  data: mockEvents,
+};
+
+export default mockEventsResponse;

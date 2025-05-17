@@ -13,6 +13,7 @@ import "react-day-picker/dist/style.css"
 export interface EventItem {
   date: Date
   name: string
+  id: number
 }
 
 interface CustomCalendarProps {
