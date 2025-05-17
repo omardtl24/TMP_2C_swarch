@@ -8,7 +8,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 export default function LoginPage() {
 	const searchParams = useSearchParams();
 	const router = useRouter();
-	const codigo = searchParams.get("codigo") || "";
+	const error = searchParams.get("error") || "";
 
 	return (
 		<div className="h-full flex flex-col md:flex-row">
@@ -32,44 +32,23 @@ export default function LoginPage() {
 					Entra a tu cuenta
 				</h2>
 
+				{/* Mensaje de error OAuth2 */}
+				{error === "oauth2" && (
+					<div className="mb-4 p-3 bg-red-100 border border-red-400 rounded text-red-900 text-center max-w-md">
+						<strong>Error:</strong> Hubo un problema al iniciar sesión con Google. Intenta de nuevo o contacta soporte.
+					</div>
+				)}
+
 				{/* Botón de Google */}
 				<RegisterLoginButton title="Ingresa con Google" />
 
-				{/* Mensaje condicional o enlace de registro lo dejare hasta que se defina que ser hara con lo del codigo*/}
-				{codigo ? (
-					<div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 rounded text-yellow-900 text-center max-w-md">
-						<strong>Nota:</strong> Si intentas iniciar sesión y{" "}
-						<span className="font-semibold">no estás registrado</span>, <br />
-						<span className="font-semibold">
-							no podremos completar el proceso automático con el código
-						</span>
-						.<br />
-						Por favor,{" "}
-						<span className="font-semibold">
-							ve directamente a{" "}
-							<button
-								className="underline text-blue-700 hover:text-blue-900 inline"
-								type="button"
-								onClick={() => {
-									let url = "/register";
-									if (codigo) url += `?codigo=${encodeURIComponent(codigo)}`;
-									router.push(url);
-								}}
-							>
-								registro
-							</button>
-						</span>{" "}
-						para usar tu código de invitación.
-					</div>
-				) : (
-					<Button
-						className="text-primary-60 hover:text-primary-20 transition underline-offset-none font-medium"
-						variant={"link"}
-						onClick={() => router.push("/register")}
-					>
-						¿No tienes cuenta? Regístrate
-					</Button>
-				)}
+				<Button
+					className="text-primary-60 hover:text-primary-20 transition underline-offset-none font-medium"
+					variant={"link"}
+					onClick={() => router.push("/register")}
+				>
+					¿No tienes cuenta? Regístrate
+				</Button>
 				<CuentasClarasIcon size="lg" className="mt-10" />
 			</div>
 		</div>

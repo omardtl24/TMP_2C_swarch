@@ -35,6 +35,7 @@ public class JwtUtil {
         if (key == null) throw new IllegalStateException("PUBLIC_KEY env var not set");
         key = key.replace("-----BEGIN PUBLIC KEY-----", "")
                  .replace("-----END PUBLIC KEY-----", "")
+                 .replace("\\n", "")
                  .replaceAll("\\s", "");
         byte[] keyBytes = Base64.getDecoder().decode(key);
         X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
