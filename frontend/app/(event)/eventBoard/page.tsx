@@ -6,6 +6,7 @@ import Event from "@/components/EventBoard/Event";
 import { AlertCircle } from "lucide-react";
 import RetryButton from "@/components/RetryButton";
 
+
 // Define the interface for calendar events
 export interface EventItem {
   date: Date
@@ -15,6 +16,7 @@ export interface EventItem {
 
 export default async function EventBoard() {
   const eventsResponse = await fetchEvents();
+ 
 
   // Transform events for the calendar if available
   const calendarEvents: EventItem[] = eventsResponse.success && eventsResponse.data
@@ -24,6 +26,8 @@ export default async function EventBoard() {
       date: new Date(event.beginDate)
     }))
     : [];
+
+  
 
   return (
     <div className="w-full h-full flex flex-col ">
@@ -69,6 +73,8 @@ export default async function EventBoard() {
           </div>
         </div>
       </div>
+
+      
     </div>
   );
 }

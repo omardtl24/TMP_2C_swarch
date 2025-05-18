@@ -1,3 +1,4 @@
+import { ModalProvider } from "@/components/ModalFormBase";
 import Navbar from "@/components/Navbar";
 export default function eventLayout({
   children,
@@ -6,14 +7,16 @@ export default function eventLayout({
 }>) {
   return (
     <>
-    
-    <Navbar/>
-    <main className="main-container p-4 md:px-12 md:py-6 ">
-        {children} 
-    </main>
-    {/*TODO: Add a footer*/}
-    
+      <ModalProvider>
+        <Navbar />
+        <main className="main-container p-4 md:px-12 md:py-6 ">
+          {children}
+        </main>
+        {/*TODO: Add a footer*/}
+      </ModalProvider>
+
+
     </>
-    
+
   );
 }

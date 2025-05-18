@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-dialog": "^1.1.13",
+    "@radix-ui/react-label": "^2.1.6",
     "@radix-ui/react-popover": "^1.1.13",
     "@radix-ui/react-slot": "^1.2.2",
     "class-variance-authority": "^0.7.1",
@@ -24,8 +26,10 @@
     "react": "19.0.0",
     "react-day-picker": "^9.7.0",
     "react-dom": "19.0.0",
+    "react-hook-form": "^7.56.4",
     "sonner": "^2.0.3",
-    "tailwind-merge": "^3.3.0"
+    "tailwind-merge": "^3.3.0",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
