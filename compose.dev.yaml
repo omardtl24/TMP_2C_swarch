@@ -1,4 +1,7 @@
 services:
+
+  #Container related to presentation layer
+  
   frontend:
     container_name: frontend
     build:
@@ -12,6 +15,8 @@ services:
     env_file:
       - ./frontend/.env
     restart: always
+    
+  #Containers related to logic microservices
 
   logic-users:
     container_name: logic-users
@@ -54,29 +59,76 @@ services:
       - data_mongo
       - data_postgres
     restart: always
+   
+   
+  #Containers related to databases
 
-  data_mongo:
-    container_name: MongoDB
-    image: mongo:8.0.9
+  data-mongo-community:
+    container_name: CommunityMongoDB
+    build:
+      context: ./data-mongo-community
+      dockerfile: Dockerfile
     ports:
       - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     env_file:
-      - ./data_mongo.env
+      - ./data-mongo-community/.env
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
 
-  data_postgres:
-    container_name: PostgresDB
-    image: postgres:alpine3.20
+  data-postgres-users:
+    container_name: UsersPostgresDB
+    build:
+      context: ./data-postgres-users
+      dockerfile: Dockerfile
     ports:
       - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_USER}
     env_file:
-      - ./data_postgres.env
+      - ./data-postgres-users/.env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_user:/var/lib/postgresql/data
     restart: unless-stopped
 
+  data-postgres-community:
+    container_name: CommunityPostgresDB
+    build:
+      context: ./data-postgres-community
+      dockerfile: Dockerfile
+    ports:
+      - "5433:5433"
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_USER}
+    env_file:
+      - ./data-postgres-community/.env
+    volumes:
+      - postgres_data_community:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  data-postgres-personal:
+    container_name: PersonalPostgresDB
+    build:
+      context: ./data-postgres-personal
+      dockerfile: Dockerfile
+    ports:
+      - "5434:5434"
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_USER}
+    env_file:
+      - ./data-postgres-personal/.env
+    volumes:
+      - postgres_data_personal:/var/lib/postgresql/data
+    restart: unless-stopped
+    
+  #Adminer done to set a console for relational databases
+  
   adminer:
     container_name: Adminer
     image: adminer
@@ -84,10 +136,17 @@ services:
       - "8081:8080"
     restart: always
     depends_on:
-      - data_postgres
+      - data-postgres-community
+      - data-postgres-users
+      - data-postgres-personal
 
+# Volumes for databases
 volumes:
   mongo_data:
     driver: local
-  postgres_data:
+  postgres_data_user:
+    driver: local
+  postgres_data_community:
+    driver: local
+  postgres_data_personal:
     driver: local
