@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -50,25 +50,45 @@ type EventFormValues = z.infer<typeof eventFormSchema>;
 interface FormCreateEventProps {
     defaultBeginDate?: Date;
     modalId?: string;
+    open?: boolean; 
+    setOpen?: (value: boolean) => void;
 }
 
 const FormCreateEvent = ({
-    defaultBeginDate = new Date(),
-    modalId = "createEvent"
+    defaultBeginDate,
+    modalId = 'createEvent',
+    open,
+    setOpen
+
 }: FormCreateEventProps) => {
-    // Initialize the form with zodResolver
     const form = useForm<EventFormValues>({
         resolver: zodResolver(eventFormSchema),
         defaultValues: {
             name: '',
-            beginDate: defaultBeginDate,
-            endDate: new Date(defaultBeginDate.getTime() + 24 * 60 * 60 * 1000), 
+            beginDate: defaultBeginDate || undefined,
+            endDate: defaultBeginDate ? 
+                new Date(defaultBeginDate.getTime() + 24 * 60 * 60 * 1000) : 
+                new Date(Date.now() + 24 * 60 * 60 * 1000), 
         },
-        mode: "onSubmit", // Validation occurs on form submission
+        mode: "onSubmit", 
     });
 
     const [loading, setLoading] = useState(false);
-    const { closeModal } = useModal(modalId);
+    const { closeModal, openModal } = useModal(modalId);
+    
+
+    useEffect(() => {
+
+        if (open) {
+
+            if (defaultBeginDate) {
+                form.setValue("beginDate", defaultBeginDate);
+                form.setValue("endDate", new Date(defaultBeginDate.getTime() + 24 * 60 * 60 * 1000));
+            }
+            
+            openModal();
+        }
+    }, [open, defaultBeginDate, form, openModal]);
 
     // Handle form submission
     const onSubmit = async (values: EventFormValues) => {
@@ -80,9 +100,10 @@ const FormCreateEvent = ({
             await new Promise(resolve => setTimeout(resolve, 2000));
             
             alert(`Event created: ${JSON.stringify(values)}`);
-            
-            // Only close modal after successful submission
             closeModal();
+            if (setOpen) {
+                setOpen(false);
+            }
             form.reset();
         } catch (error) {
             console.error("Error submitting form:", error);
