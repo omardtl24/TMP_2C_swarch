@@ -1,7 +1,7 @@
-
-# docker compose -f compose.dev.yaml up --build
-#Realizar inits para cada DB dependiendo de la necesidad de back
 services:
+
+  #Container related to presentation layer
+  
   frontend:
     container_name: frontend
     build:
@@ -12,92 +12,135 @@ services:
     volumes:
       - ./frontend/app:/app/app
       - ./frontend/public:/app/public
-      # Puedes agregar más volúmenes si necesitas hot reload de otros archivos
+    env_file:
+      - ./frontend/.env
     restart: always
-    # environment:
-    #   ENV_VARIABLE: valor
-    #   NEXT_PUBLIC_ENV_VARIABLE: valor
-    # env_file:
-    #   - .env
-  data_mongo:
-    container_name: MongoDB
-    image: mongo:8.0.9
-    build:
-      context: ./data/mongo
-      dockerfile: Dockerfile
     
-    restart: unless-stopped
+  #Containers related to logic microservices
+
+  logic-users:
+    container_name: logic-users
+    build:
+      context: ./logic-users
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    env_file:
+      - ./logic-users/.env
+    depends_on:
+      - data_mongo
+      - data_postgres
+    restart: always
+
+  logic-community:
+    container_name: logic-community
+    build:
+      context: ./logic-community
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    env_file:
+      - ./logic-community/.env
+    depends_on:
+      - data_mongo
+      - data_postgres
+    restart: always
+
+  logic-personal:
+    container_name: logic-personal
+    build:
+      context: ./logic-personal
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    env_file:
+      - ./logic-personal/.env
+    depends_on:
+      - data_mongo
+      - data_postgres
+    restart: always
+   
+   
+  #Containers related to databases
+
+  data-mongo-community:
+    container_name: CommunityMongoDB
+    build:
+      context: ./data-mongo-community
+      dockerfile: Dockerfile
     ports:
       - "27017:27017"
     environment:
-      # These are for the root user of MongoDB itself.
-      # Docker Compose will substitute these with values from the .env file.
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
-      # Esto va en backend MONGO_INITIAL_DB: ${MONGO_DB_SCHEMA}
+    env_file:
+      - ./data-mongo-community/.env
     volumes:
       - mongo_data:/data/db
-
-
-  data_postgres_users:
-    container_name: PostgresDB_Users
-    #image: postgres:alpine3.20
-    build:
-      context: ./data/postgres/users
-      dockerfile: Dockerfile
-    
     restart: unless-stopped
+
+  data-postgres-users:
+    container_name: UsersPostgresDB
+    build:
+      context: ./data-postgres-users
+      dockerfile: Dockerfile
     ports:
       - "5432:5432"
     environment:
-      # These are used by the PostgreSQL entrypoint script.
-      # Docker Compose will substitute these with values from the .env file.
       POSTGRES_USER: ${POSTGRES_SUPERUSER_USER}
       POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_USER}
-      #POSTGRES_DB: ${POSTGRES_INITIAL_DB}
+    env_file:
+      - ./data-postgres-users/.env
     volumes:
-      - postgres_data_user:/var/lib/postgresql/data
-    #networks:
-     # - db_network
-
-  data_postgres_community:
-    container_name: PostgresDB_Community
-    #image: postgres:alpine3.20
-    build:
-      context: ./data/postgres/community
-      dockerfile: Dockerfile
-    
+      - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+
+  data-postgres-community:
+    container_name: CommunityPostgresDB
+    build:
+      context: ./data-postgres-community
+      dockerfile: Dockerfile
     ports:
       - "5433:5433"
     environment:
-      POSTGRES_USER: ${POSTGRES_SUPERUSER_COMMUNITY}
-      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_COMMUNITY}
-      #POSTGRES_DB: ${POSTGRES_INITIAL_DB}
+      POSTGRES_USER: ${POSTGRES_SUPERUSER_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_USER}
+    env_file:
+      - ./data-postgres-community/.env
     volumes:
-      - postgres_data_community:/var/lib/postgresql/data
-    #networks:
-     # - db_network
-
-  data_postgres_personal:
-    container_name: PostgresDB_Personal
-    #image: postgres:alpine3.20
-    build:
-      context: ./data/postgres/personal
-      dockerfile: Dockerfile
-    
+      - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+
+  data-postgres-personal:
+    container_name: PersonalPostgresDB
+    build:
+      context: ./data-postgres-personal
+      dockerfile: Dockerfile
     ports:
       - "5434:5434"
     environment:
-      POSTGRES_USER: ${POSTGRES_SUPERUSER_PERSONAL}
-      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_PERSONAL}
-      #POSTGRES_DB: ${POSTGRES_INITIAL_DB}
+      POSTGRES_USER: ${POSTGRES_SUPERUSER_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_USER}
+    env_file:
+      - ./data-postgres-community/.env
     volumes:
-      - postgres_data_personal:/var/lib/postgresql/data
-    #networks:
-     # - db_network
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    
+  #Adminer done to set a console for relational databases
+  
+  adminer:
+    container_name: Adminer
+    image: adminer
+    ports:
+      - "8081:8080"
+    restart: always
+    depends_on:
+      - data-postgres-community
+      - data-postgres-users
+      - data-postgres-personal
 
+# Volumes for databases
 volumes:
   mongo_data:
     driver: local
@@ -106,7 +149,4 @@ volumes:
   postgres_data_community:
     driver: local
   postgres_data_personal:
-    driver: local  
-#networks:
-  #db_network:
-   # driver: bridge
+    driver: local
