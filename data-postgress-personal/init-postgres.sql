@@ -1,7 +1,7 @@
 -- Step 1: Create the database
 CREATE DATABASE devpp;
 
--- Step 2: Connect to the devp database
+-- Step 2: Connect to the devpp database
 \c devpp;
 
 -- Step 3: Create tables
