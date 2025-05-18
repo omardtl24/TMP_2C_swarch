@@ -53,7 +53,7 @@ Each document in the `expenses` collection represents a detailed expense or shar
 | `3`   | Transport                                                               |
 | `4`   | Entertainment                                                           |
 | `5`   | Communication                                                           |
-| `6`   | Finantial Expenses                                                      |
+| `6`   | Financial Expenses                                                      |
 
 ### 👥 Participation Subdocument
 
