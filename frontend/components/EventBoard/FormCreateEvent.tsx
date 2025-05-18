@@ -24,7 +24,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import ModalFormBase, { ModalSubmitButton, useModal } from "@/components/ModalFormBase"
+import ModalFormBase, { useModal } from "@/components/ModalFormBase"
 
 
 // Schema definition with zod
@@ -32,7 +32,8 @@ const eventFormSchema = z.object({
     name: z
         .string()
         .min(3, { message: 'El nombre debe tener al menos 3 caracteres' })
-        .max(50, { message: 'El nombre no puede exceder 50 caracteres' }),
+        .max(50, { message: 'El nombre no puede exceder 50 caracteres' })
+        .nonempty({ message: 'El nombre es obligatorio' }),
     beginDate: z.date({
         required_error: 'La fecha de inicio es requerida',
     }),
@@ -50,45 +51,41 @@ interface FormCreateEventProps {
     defaultBeginDate?: Date;
     modalId?: string;
 }
-const onSubmit = async (values: EventFormValues) => {
-    // Simulate an API call
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            alert(`Event created: ${JSON.stringify(values)}`);
-            resolve(true);
-        }, 2000);
-    });
-}
 
 const FormCreateEvent = ({
     defaultBeginDate = new Date(),
     modalId = "createEvent"
 }: FormCreateEventProps) => {
-    // Initialize the form
+    // Initialize the form with zodResolver
     const form = useForm<EventFormValues>({
         resolver: zodResolver(eventFormSchema),
         defaultValues: {
             name: '',
             beginDate: defaultBeginDate,
-            endDate: new Date(defaultBeginDate.getTime() + 24 * 60 * 60 * 1000), // Default to next day
+            endDate: new Date(defaultBeginDate.getTime() + 24 * 60 * 60 * 1000), 
         },
+        mode: "onSubmit", // Validation occurs on form submission
     });
 
     const [loading, setLoading] = useState(false);
     const { closeModal } = useModal(modalId);
 
     // Handle form submission
-    const handleSubmit = async (values: EventFormValues) => {
+    const onSubmit = async (values: EventFormValues) => {
         try {
+            console.log("Form values:", values);
             setLoading(true);
-            if (onSubmit) {
-                await onSubmit(values);
-            }
+            
+            // Simulating API call
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            alert(`Event created: ${JSON.stringify(values)}`);
+            
+            // Only close modal after successful submission
             closeModal();
-            // Reset form after successful submission
             form.reset();
         } catch (error) {
-            console.error('Error submitting form:', error);
+            console.error("Error submitting form:", error);
         } finally {
             setLoading(false);
         }
@@ -102,17 +99,20 @@ const FormCreateEvent = ({
             headerClassName="text-center text-primary-20 text-3xl flex items-center justify-center w-full space-y-2"
         >
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     <FormField
                         control={form.control}
                         name="name"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-base font-semibold">Nombre evento</FormLabel>
+                                <FormLabel className="text-base font-semibold">
+                                    Nombre evento <span className="text-red-500">*</span>
+                                </FormLabel>
                                 <FormControl>
                                     <Input
                                         placeholder="Escribe el nombre del evento"
-                                        className="rounded-xl  h-12"
+                                        className="rounded-xl h-12"
+                                        required
                                         {...field}
                                     />
                                 </FormControl>
@@ -129,7 +129,7 @@ const FormCreateEvent = ({
                                 <FormItem className="flex flex-col">
                                     <FormLabel className="text-base font-semibold">
                                         <div className="flex items-center gap-1">
-                                            <span className="text-primary">1</span> Fecha Inicio
+                                            <span className="text-primary">1</span> Fecha Inicio <span className="text-red-500">*</span>
                                         </div>
                                     </FormLabel>
                                     <Popover>
@@ -169,7 +169,7 @@ const FormCreateEvent = ({
                                 <FormItem className="flex flex-col">
                                     <FormLabel className="text-base font-semibold">
                                         <div className="flex items-center gap-1">
-                                            <span className="text-primary">2</span> Fecha Fin
+                                            <span className="text-primary">2</span> Fecha Fin <span className="text-red-500">*</span>
                                         </div>
                                     </FormLabel>
                                     <Popover>
@@ -205,14 +205,14 @@ const FormCreateEvent = ({
                         />
                     </div>
 
-                    <ModalSubmitButton 
-                            type="submit"
-                            className="w-full bg-primary hover:bg-primary/90 rounded-full h-12 text-lg"
-                            disabled={loading} >
-                            {loading ? "Creando..." : "Listo"}
-                        
-                    </ModalSubmitButton>
-
+                    {/* Replace ModalSubmitButton with regular Button */}
+                    <Button 
+                        type="submit"
+                        className="w-full bg-primary hover:bg-primary/90 rounded-full h-12 text-lg"
+                        disabled={loading}
+                    >
+                        {loading ? "Creando..." : "Listo"}
+                    </Button>
                 </form>
             </Form>
         </ModalFormBase>
