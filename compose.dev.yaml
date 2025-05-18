@@ -92,7 +92,7 @@ services:
     env_file:
       - ./data-postgres-users/.env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_user:/var/lib/postgresql/data
     restart: unless-stopped
 
   data-postgres-community:
@@ -108,7 +108,7 @@ services:
     env_file:
       - ./data-postgres-community/.env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_community:/var/lib/postgresql/data
     restart: unless-stopped
 
   data-postgres-personal:
@@ -122,9 +122,9 @@ services:
       POSTGRES_USER: ${POSTGRES_SUPERUSER_USER}
       POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_USER}
     env_file:
-      - ./data-postgres-community/.env
+      - ./data-postgres-personal/.env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_personal:/var/lib/postgresql/data
     restart: unless-stopped
     
   #Adminer done to set a console for relational databases
