@@ -108,7 +108,7 @@ This schema can be applied using `db.createCollection()` or `collMod` to enforce
           "user_id": { "bsonType": "string" },
           "state": {
             "bsonType": "int",
-            "enum": [0, 1, 2, 3],
+            "enum": [0, 1, 2],
             "description": "0: None confirmed, 1: Payer confirmed, 2: Receiver confirmed, 3: Both confirmed"
           },
           "portion": { "bsonType": "double", "minimum": 0 }
