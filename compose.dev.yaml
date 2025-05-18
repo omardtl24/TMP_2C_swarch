@@ -28,8 +28,7 @@ services:
     env_file:
       - ./logic-users/.env
     depends_on:
-      - data_mongo
-      - data_postgres
+      - data-postgres-users
     restart: always
 
   logic-community:
@@ -42,8 +41,8 @@ services:
     env_file:
       - ./logic-community/.env
     depends_on:
-      - data_mongo
-      - data_postgres
+      - data-mongo-community
+      - data-postgres-community
     restart: always
 
   logic-personal:
@@ -56,8 +55,7 @@ services:
     env_file:
       - ./logic-personal/.env
     depends_on:
-      - data_mongo
-      - data_postgres
+      - data-postgres-personal
     restart: always
    
    
@@ -86,9 +84,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_USER: ${POSTGRES_SUPERUSER_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_USER}
     env_file:
       - ./data-postgres-users/.env
     volumes:
@@ -102,9 +97,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5433:5433"
-    environment:
-      POSTGRES_USER: ${POSTGRES_SUPERUSER_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_USER}
     env_file:
       - ./data-postgres-community/.env
     volumes:
@@ -118,9 +110,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5434:5434"
-    environment:
-      POSTGRES_USER: ${POSTGRES_SUPERUSER_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD_USER}
     env_file:
       - ./data-postgres-personal/.env
     volumes:
