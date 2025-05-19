@@ -1,4 +1,4 @@
-import { EventsResponse } from "../actions/eventActions";
+import { EventsResponse, EventsResponseDetailed } from "../actions/eventActions";
 import { EventType } from "../types";
 
 
@@ -32,3 +32,18 @@ const mockEventsResponse: EventsResponse = {
 };
 
 export default mockEventsResponse;
+
+export const mockEventDetailResponse: EventsResponseDetailed = {
+  success: true,
+  data: {
+    id: 101,
+    name: "AI Innovation Summit",
+    description: "A summit focused on the future of Artificial Intelligence and its applications.",
+    beginDate: new Date("2025-09-10T09:00:00Z"),
+    endDate: new Date("2025-09-12T17:00:00Z"),
+    creatorId: "user_abc123",
+    invitacionEnabled: true,
+    invitationCode: "INVITE-2025-AI"
+  }
+};
+
