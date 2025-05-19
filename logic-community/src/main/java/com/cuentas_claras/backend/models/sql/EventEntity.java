@@ -34,7 +34,7 @@ public class EventEntity extends BaseEntity {
     private boolean invitationEnabled = false;
 
     @PodamExclude
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventParticipantsEntity> participants = new ArrayList<>();
 
     @PodamExclude
