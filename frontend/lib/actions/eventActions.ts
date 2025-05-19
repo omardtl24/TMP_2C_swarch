@@ -211,3 +211,110 @@ export async function fetchEventParticipants(eventId: string): Promise<Participa
   }
 }
 
+export type CreateExpenseResponse = {
+  success: boolean;
+  data?: ExpenseType;
+  error?: string;
+};
+
+export async function createExpense(
+  eventId: string,
+  expenseData: {
+    name: string;
+    amount: number;
+    category: string;
+    paidById: string;  // ID of the person who paid
+    participantIds: string[];  // IDs of participants
+  }
+): Promise<CreateExpenseResponse> {
+  // Mock data for development - remove when API is ready
+  return {
+    success: true,
+    data: {
+      id: Math.floor(Math.random() * 10000),
+      name: expenseData.name,
+      amount: expenseData.amount,
+      category: expenseData.category,
+      paidBy: `Usuario ${expenseData.paidById}`, // Simulated name lookup
+    }
+  };
+  
+  try {
+    // GraphQL mutation to create expense
+    const mutation = `
+      mutation CreateExpense(
+        $eventId: ID!, 
+        $name: String!, 
+        $amount: Float!, 
+        $category: String!, 
+        $paidById: ID!,
+        $participantIds: [ID!]!
+      ) {
+        createExpense(
+          eventId: $eventId, 
+          input: {
+            name: $name,
+            amount: $amount,
+            category: $category,
+            paidById: $paidById,
+            participantIds: $participantIds
+          }
+        ) {
+          id
+          name
+          amount
+          category
+          paidBy
+        }
+      }
+    `;
+
+    const variables = {
+      eventId,
+      name: expenseData.name,
+      amount: expenseData.amount,
+      category: expenseData.category,
+      paidById: expenseData.paidById,
+      participantIds: expenseData.participantIds
+    };
+
+    const res = await fetch(ENDPOINTS.community + "/expenses", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: mutation,
+        variables,
+      }),
+      cache: 'no-store'
+    });
+
+    if (!res.ok) {
+      return {
+        success: false,
+        error: `Failed to create expense. Status: ${res.status}`
+      };
+    }
+
+    const { data, errors } = await res.json();
+
+    if (errors) {
+      return {
+        success: false,
+        error: errors[0].message || 'GraphQL error occurred'
+      };
+    }
+
+    return {
+      success: true,
+      data: data.createExpense
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+  }
+}
+

@@ -57,7 +57,11 @@ export default async function EventDetailPage({
                 code={id} 
             />
             <div className="px-4 md:px-16 mt-4 space-y-4 ">
-                <EventTabs expenses={expenses} participants={participants} />
+                <EventTabs 
+                    expenses={expenses} 
+                    participants={participants} 
+                    eventId={id} 
+                />
             </div>
         </div>
     )
