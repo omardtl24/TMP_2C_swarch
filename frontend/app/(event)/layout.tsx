@@ -9,7 +9,7 @@ export default function eventLayout({
     <>
       <ModalProvider>
         <Navbar />
-        <main className="main-container p-4 md:px-12 md:py-6 overflow-auto ">
+        <main className="main-container overflow-auto p-0 ">
           {children}
         </main>
         {/*TODO: Add a footer*/}

@@ -25,3 +25,21 @@ export type EventDetailType = EventType &  {
   invitacionEnabled: boolean;
   invitationCode: string;
 }
+
+export type ExpenseType = {
+  id: number;
+  name: string;
+  amount: number;
+  category: string;
+  paidBy: string;
+
+}
+
+export type ParticipantType = {
+  id: string;
+  mount: number;
+  debtorName:string;
+  debtorId:string;
+  LenderName:string;
+  LenderId:string;
+}

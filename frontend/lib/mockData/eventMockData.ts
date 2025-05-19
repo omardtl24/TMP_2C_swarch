@@ -1,4 +1,4 @@
-import { EventsResponse, EventsResponseDetailed } from "../actions/eventActions";
+import { EventsResponse, EventsResponseDetailed, ParticipantsResponse } from "../actions/eventActions";
 import { EventType } from "../types";
 
 
@@ -47,3 +47,75 @@ export const mockEventDetailResponse: EventsResponseDetailed = {
   }
 };
 
+
+export const mockEventExpenses = {
+  success: true,
+  data: [
+    {
+      id: 1,
+      name: "Cena Italiana",
+      amount: 200000,
+      category: "Comida",
+      paidBy: "Gian Karlo Lanziano",
+    },
+    {
+      id: 2,
+      name: "Pola HidraPub",
+      amount: 100000,
+      category: "Bebida",
+      paidBy: "Maria Camila Sanchez",
+    },
+    {
+      id: 3,
+      name: "Compra en carulla",
+      amount: 500000,
+      category: "Fruta",
+      paidBy: "Omar David Toledo",
+    },
+    {
+      id: 4,
+      name: "Guaro o miedo?",
+      amount: 70000,
+      category: "Bebida",
+      paidBy: "Juan David Palacios",
+    },
+  ]
+};
+
+export const mockEventParticipants: ParticipantsResponse = {
+  success: true,
+  data: [
+    {
+      id: "1",
+      mount: 100000,
+      debtorName: "Juan David Palacios",
+      debtorId: "1",
+      LenderName: "Group",
+      LenderId: "0"
+    },
+    {
+      id: "2",
+      mount: -50000,
+      debtorName: "Group",
+      debtorId: "0",
+      LenderName: "Gian Karlo Lanziano",
+      LenderId: "2"
+    },
+    {
+      id: "3",
+      mount: 30000,
+      debtorName: "Maria Camila Sanchez",
+      debtorId: "3",
+      LenderName: "Group",
+      LenderId: "0"
+    },
+    {
+      id: "4",
+      mount: -80000,
+      debtorName: "Group",
+      debtorId: "0",
+      LenderName: "Omar David Toledo",
+      LenderId: "4"
+    }
+  ]
+};

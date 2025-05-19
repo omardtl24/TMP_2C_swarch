@@ -10,13 +10,13 @@ export default function EventBalance({ totalExpense, userBalance }: EventFinanci
 
   return (
     <>
-      <div className="flex-1 md:w-40 bg-[#E9DDFF] p-3 rounded-xl text-center">
-        <p className="text-sm text-[#3A0092]">Gasto total</p>
-        <p className="font-bold text-[#3A0092]">${formattedTotal}</p>
+      <div className="flex-1 md:w-40 border-2 border-white p-3 rounded-xl text-center">
+        <p className="text-md text-primary-20 font-bold">Gasto total</p>
+        <p className="font-medium text-black ">${formattedTotal}</p>
       </div>
-      <div className="flex-1 md:w-40 bg-[#E9DDFF] p-3 rounded-xl text-center">
-        <p className="text-sm text-[#3A0092]">Tu Saldo</p>
-        <p className={`font-bold ${isPositiveBalance ? "text-green-600" : "text-red-600"}`}>
+      <div className="flex-1 md:w-40 border-2 border-white p-3 rounded-xl text-center">
+        <p className="text-md text-primary-20 font-bold ">Tu Saldo</p>
+        <p className={` font-medium ${isPositiveBalance ? "text-green-600" : "text-red-600"}`}>
           {isPositiveBalance ? "+" : ""}
           {formattedBalance}
         </p>
