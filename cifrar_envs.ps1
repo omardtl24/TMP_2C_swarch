@@ -4,4 +4,4 @@ $UnsecurePassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($B
 
 & gpg --batch --yes --passphrase $UnsecurePassword -c env.secrets.json
 Move-Item env.secrets.json.gpg env.secrets.gpg -Force
-Write-Host "Listo: env.secrets.gpg generado y el .json original eliminado."
+Write-Host "Listo: env.secrets.gpg generado."

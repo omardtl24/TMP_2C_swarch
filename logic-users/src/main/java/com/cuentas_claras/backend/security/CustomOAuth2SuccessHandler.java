@@ -36,19 +36,18 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         OAuth2User oauthUser = oauthToken.getPrincipal();
 
         String email = (String) oauthUser.getAttributes().get("email");
-        System.out.println(" LOGIN EXITOSO - Email: " + email);
         userService.findByEmail(email).ifPresentOrElse(
             user -> {
                 // Usuario existe: generar JWT y setear cookie httpOnly
                 try {
-                    System.out.println("magot");
                     String jwt = JwtUtil.generateTokenWithName(user.getId(), user.getEmail(), user.getName(), user.getUsername(), jwtSessionDurationSeconds * 1000L);
-                    Cookie cookie = new Cookie("jwt", jwt);
-                    cookie.setHttpOnly(true);
-                    cookie.setPath("/");
-                    cookie.setMaxAge(jwtSessionDurationSeconds);
-                    response.addCookie(cookie);
-                    response.sendRedirect(frontendBaseUrl + "/dashboard");
+                    Cookie jwtCookie = new Cookie("jwt", jwt);
+                    jwtCookie.setHttpOnly(true);
+                    jwtCookie.setPath("/");
+                    jwtCookie.setMaxAge(jwtSessionDurationSeconds);
+                    response.addCookie(jwtCookie);
+                    String redirectUrl = frontendBaseUrl + "/";
+                    response.sendRedirect(redirectUrl);
                 } catch (Exception e) {
                     throw new RuntimeException("Error generando JWT", e);
                 }
@@ -58,7 +57,12 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 try {
                     String name = (String) oauthUser.getAttributes().get("name");
                     String tempToken = JwtUtil.generateToken(0L, email, name, 1000 * 60 * 10); // 10 min
-                    String redirectUrl = frontendBaseUrl + "/complete-signup?email=" + email + "&token=" + tempToken;
+                    Cookie tempCookie = new Cookie("register_token", tempToken);
+                    tempCookie.setHttpOnly(true);
+                    tempCookie.setPath("/");
+                    tempCookie.setMaxAge(600); // 10 min
+                    response.addCookie(tempCookie);
+                    String redirectUrl = frontendBaseUrl + "/register?email=" + email;
                     response.sendRedirect(redirectUrl);
                 } catch (Exception e) {
                     throw new RuntimeException("Error generando token temporal", e);

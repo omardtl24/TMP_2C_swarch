@@ -18,23 +18,45 @@ public class RegistrationController {
     @Value("${jwt.session-duration-seconds:86400}")
     private int jwtSessionDurationSeconds;
 
+    private void expireRegisterTokenCookie() {
+        jakarta.servlet.http.HttpServletResponse resp = (jakarta.servlet.http.HttpServletResponse) ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.getRequestAttributes()).getResponse();
+        jakarta.servlet.http.Cookie del = new jakarta.servlet.http.Cookie("register_token", "");
+        del.setPath("/");
+        del.setMaxAge(0);
+        del.setHttpOnly(true);
+        resp.addCookie(del);
+    }
+
     @PostMapping("/register")
-    public ResponseEntity<?> completeSignup(@RequestBody UserRegistrationDTO payload) {
+    public ResponseEntity<?> completeSignup(
+        @RequestBody UserRegistrationDTO payload,
+        @CookieValue(value = "register_token", required = false) String token
+    ) {
         try {
             String email = payload.getEmail();
-            String token = payload.getToken();
             String username = payload.getUsername();
-            String name = JwtUtil.getClaims(token).getStringClaim("name");
+            String name = null;
+            String tokenEmail = null;
+            if (token != null) {
+                try {
+                    name = JwtUtil.getClaims(token).getStringClaim("name");
+                    tokenEmail = JwtUtil.getClaims(token).getStringClaim("email");
+                } catch (Exception e) {
+                    System.out.println("[DEBUG] Error extrayendo claims del token: " + e.getMessage());
+                }
+            }
             // Validar el token temporal y el email
             if (!JwtUtil.validateToken(token)) {
+                expireRegisterTokenCookie();
                 return ResponseEntity.status(401).body("Token inválido o expirado");
             }
-            String tokenEmail = JwtUtil.getClaims(token).getStringClaim("email");
             if (!email.equals(tokenEmail)) {
+                expireRegisterTokenCookie();
                 return ResponseEntity.status(401).body("El email no coincide con el token");
             }
             // Verificar que el usuario no exista (En teoria nunca se ejeuta esto)
             if (userService.findByEmail(email).isPresent()) {
+                expireRegisterTokenCookie();
                 return ResponseEntity.status(409).body("El usuario ya existe");
             }
             // Crear el usuario
@@ -43,7 +65,6 @@ public class RegistrationController {
             user.setUsername(username);
             user.setName(name);
             userService.save(user);
-            System.out.println("usuario creado");
             // Autenticar automáticamente: generar JWT y setear cookie httpOnly
             try {
                 String jwt = JwtUtil.generateTokenWithName(user.getId(), user.getEmail(), user.getName(), user.getUsername(), jwtSessionDurationSeconds * 1000L);
@@ -51,7 +72,9 @@ public class RegistrationController {
                 cookie.setHttpOnly(true);
                 cookie.setPath("/");
                 cookie.setMaxAge(jwtSessionDurationSeconds);
-                ((jakarta.servlet.http.HttpServletResponse) ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.getRequestAttributes()).getResponse()).addCookie(cookie);
+                jakarta.servlet.http.HttpServletResponse resp = (jakarta.servlet.http.HttpServletResponse) ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.getRequestAttributes()).getResponse();
+                resp.addCookie(cookie); // JWT de sesión
+                expireRegisterTokenCookie();
             } catch (Exception e) {
                 return ResponseEntity.status(500).body("Usuario creado pero error generando JWT: " + e.getMessage());
             }
