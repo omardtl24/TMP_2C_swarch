@@ -8,15 +8,15 @@ import com.cuentas_claras.backend.models.sql.EventEntity;
 import com.cuentas_claras.backend.repositories.mongo.ExpenseDocumentRepository;
 import com.cuentas_claras.backend.repositories.sql.ExpenseRepository;
 import com.cuentas_claras.backend.repositories.sql.EventRepository;
-import com.cuentas_claras.backend.models.UserCache;
+import com.cuentas_claras.backend.security.JwtUserDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,16 +24,25 @@ import java.util.stream.Collectors;
 public class ExpenseService {
 
     @Autowired
-    private ExpenseRepository expenseRepository;       // SQL 
+    private ExpenseRepository expenseRepository;             // SQL
 
     @Autowired
-    private ExpenseDocumentRepository expenseDocumentRepository; // Mongo 
+    private ExpenseDocumentRepository expenseDocumentRepository; // Mongo
 
     @Autowired
     private EventRepository eventRepository;
 
-    @Autowired
-    private UserCache userCache;
+    /**
+     * Obtiene el ID del usuario autenticado desde el SecurityContext.
+     */
+    private String getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof JwtUserDetails) {
+            Long userId = ((JwtUserDetails) auth.getPrincipal()).getUserId();
+            return userId.toString();
+        }
+        throw new IllegalStateException("No authenticated user found");
+    }
 
     /**
      * Crea un nuevo gasto grupal: primero guarda el documento en MongoDB y luego el registro SQL.
@@ -44,7 +53,7 @@ public class ExpenseService {
      */
     @Transactional
     public ExpenseEntity createExpense(Long eventId, ExpenseDocument document) throws EntityNotFoundException {
-        String creatorId = userCache.getUserId();
+        String creatorId = getCurrentUserId();
         log.info("Creando gasto para evento {} por usuario {}", eventId, creatorId);
 
         EventEntity event = eventRepository.findById(eventId)
@@ -83,7 +92,7 @@ public class ExpenseService {
      */
     @Transactional(readOnly = true)
     public List<ExpenseDocument> getExpensesPaidByMe() {
-        String userId = userCache.getUserId();
+        String userId = getCurrentUserId();
         log.info("Listando documentos de gastos pagados por {}", userId);
         return expenseDocumentRepository.findByPayerId(userId);
     }
@@ -94,7 +103,7 @@ public class ExpenseService {
      */
     @Transactional(readOnly = true)
     public List<ExpenseDocument> getExpensesParticipatedByMe() {
-        String userId = userCache.getUserId();
+        String userId = getCurrentUserId();
         log.info("Listando documentos de gastos donde participa {}", userId);
         return expenseDocumentRepository.findByParticipationUserId(userId);
     }

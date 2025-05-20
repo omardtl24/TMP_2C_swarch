@@ -128,6 +128,22 @@
 			<artifactId>jjwt</artifactId>
 			<version>0.6.0</version>
 		</dependency>
+
+		<!-- Nimbus JOSE JWT (if not included by JwtUtil shared lib) -->
+		<dependency>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>nimbus-jose-jwt</artifactId>
+			<version>9.31</version>
+		</dependency>
+
+		<dependency>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<version>6.0.0</version> <!-- or match your Spring Boot version -->
+			<scope>provided</scope>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>

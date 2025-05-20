@@ -2,15 +2,15 @@ package com.cuentas_claras.backend.services;
 
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.exceptions.IllegalOperationException;
-import com.cuentas_claras.backend.models.UserCache;
 import com.cuentas_claras.backend.models.sql.EventEntity;
 import com.cuentas_claras.backend.models.sql.EventParticipantsEntity;
 import com.cuentas_claras.backend.repositories.sql.EventParticipantsRepository;
 import com.cuentas_claras.backend.repositories.sql.EventRepository;
-
+import com.cuentas_claras.backend.security.JwtUserDetails;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +26,17 @@ public class EventParticipantsService {
     @Autowired
     private EventRepository eventRepository;
 
-    @Autowired
-    private UserCache userCache;
+    /**
+     * Obtiene el ID del usuario autenticado desde el SecurityContext.
+     */
+    private String getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof JwtUserDetails) {
+            Long userId = ((JwtUserDetails) auth.getPrincipal()).getUserId();
+            return userId.toString();
+        }
+        throw new IllegalStateException("No authenticated user found");
+    }
 
     /**
      * Permite que el usuario autenticado se una a un evento mediante un código de invitación.
@@ -39,7 +48,7 @@ public class EventParticipantsService {
 
     @Transactional
     public void joinEventByInvitationCode(String invitationCode) throws EntityNotFoundException, IllegalOperationException {
-        String userId = userCache.getUserId();
+        String userId = getCurrentUserId();
         log.info("Usuario {} intenta unirse con código {}", userId, invitationCode);
 
         EventEntity event = eventRepository.findByInvitationCode(invitationCode)
@@ -110,7 +119,7 @@ public class EventParticipantsService {
      */
     @Transactional(readOnly = true)
     public boolean isUserParticipant(Long eventId) throws EntityNotFoundException {
-        String userId = userCache.getUserId();
+        String userId = getCurrentUserId();
         EventEntity event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado"));
         return participantsRepository.existsByEventAndParticipantId(event, userId);

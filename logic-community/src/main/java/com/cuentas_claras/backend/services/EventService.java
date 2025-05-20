@@ -4,12 +4,14 @@ import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.exceptions.IllegalOperationException;
 import com.cuentas_claras.backend.models.sql.EventEntity;
 import com.cuentas_claras.backend.repositories.sql.EventRepository;
-import com.cuentas_claras.backend.models.UserCache;
 import com.cuentas_claras.backend.utils.InvitationCodeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.cuentas_claras.backend.security.JwtUserDetails;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -25,8 +27,19 @@ public class EventService {
     @Autowired
     private EventRepository eventRepository;
 
-    @Autowired
-    private UserCache userCache;
+    
+    /**
+     * Obtiene el ID del usuario autenticado desde el SecurityContext.
+     */
+    private String getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof JwtUserDetails) {
+            Long userId = ((JwtUserDetails) auth.getPrincipal()).getUserId();
+            return userId.toString();
+        }
+        throw new IllegalStateException("No authenticated user found in context");
+    }
+
 
 
     /**
@@ -38,7 +51,7 @@ public class EventService {
      */
     @Transactional
     public EventEntity createEvent(EventEntity event) throws IllegalOperationException {
-        String creatorId = userCache.getUserId();
+        String creatorId = getCurrentUserId();
         log.info("Creando evento para usuario {}", creatorId);
 
         validateEvent(event);
@@ -60,7 +73,7 @@ public class EventService {
      */
     @Transactional(readOnly = true)
     public List<EventEntity> getMyEvents() {
-        String creatorId = userCache.getUserId();
+       String creatorId = getCurrentUserId();
         log.info("Listando eventos creados por {}", creatorId);
         return eventRepository.findByCreatorId(creatorId);
     }
@@ -162,7 +175,7 @@ public class EventService {
     @Transactional
     public EventEntity setInvitationEnabled(Long eventId, boolean enabled)
             throws EntityNotFoundException, IllegalOperationException {
-        String userId = userCache.getUserId();
+        String userId = getCurrentUserId();
         log.info("{} invitaciones para evento {}", enabled ? "Habilitando" : "Deshabilitando", eventId);
 
         EventEntity event = eventRepository.findById(eventId)
