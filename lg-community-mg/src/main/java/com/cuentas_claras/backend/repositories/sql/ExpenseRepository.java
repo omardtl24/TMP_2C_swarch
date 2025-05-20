@@ -18,7 +18,7 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long> {
     List<ExpenseEntity> findByEvent(EventEntity event);
     
     //2. Obtiene todos los gastos creados por un usuario (creatorId).
-    List<ExpenseEntity> findByCreator_Id(String creatorId);
+    List<ExpenseEntity> findByCreatorId(String creatorId);
 
     // 3. Encuentra un gasto a partir de su externalDocId (clave al documento Mongo).
     Optional<ExpenseEntity> findByExternalDocId(String externalDocId);

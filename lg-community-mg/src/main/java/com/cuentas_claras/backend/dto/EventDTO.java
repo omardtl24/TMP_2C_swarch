@@ -8,6 +8,7 @@ import java.util.Date;
  */
 @Data
 public class EventDTO {
+    private Long id;
     private String name;
     private String description;
     private Date beginDate;

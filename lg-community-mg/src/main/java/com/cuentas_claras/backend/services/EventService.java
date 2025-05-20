@@ -3,7 +3,9 @@ package com.cuentas_claras.backend.services;
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.exceptions.IllegalOperationException;
 import com.cuentas_claras.backend.models.sql.EventEntity;
+import com.cuentas_claras.backend.models.sql.EventParticipantsEntity;
 import com.cuentas_claras.backend.repositories.sql.EventRepository;
+import com.cuentas_claras.backend.repositories.sql.EventParticipantsRepository;
 import com.cuentas_claras.backend.utils.InvitationCodeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,9 @@ public class EventService {
     @Autowired
     private EventRepository eventRepository;
 
-    
+    @Autowired
+    private EventParticipantsRepository eventParticipantsRepository;
+
     /**
      * Obtiene el ID del usuario autenticado desde el SecurityContext.
      */
@@ -61,6 +65,12 @@ public class EventService {
         event.setInvitationCode(InvitationCodeUtil.generateCodeFromId(event.getId()));
 
         EventEntity saved = eventRepository.save(event);
+        
+        EventParticipantsEntity participant = new EventParticipantsEntity();
+        participant.setEvent(saved);
+        participant.setParticipantId(creatorId);
+        eventParticipantsRepository.save(participant);
+
         log.info("Evento {} creado", saved.getId());
         return saved;
     }
