@@ -1,70 +1,66 @@
 services:
 
-  #Container related to presentation layer
-  
-  frontend:
-    container_name: frontend
+  # Presentation Layer
+  pr-frontend-dp:
+    container_name: pr-frontend-dp
     build:
-      context: ./frontend
+      context: ./pr-frontend-dp
       dockerfile: dev.Dockerfile
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend/app:/app/app
-      - ./frontend/public:/app/public
+      - ./pr-frontend-dp/app:/app/app
+      - ./pr-frontend-dp/public:/app/public
     env_file:
-      - ./frontend/.env
+      - ./pr-frontend-dp/.env
     restart: always
-    
-  #Containers related to logic microservices
 
-  logic-users:
-    container_name: logic-users
+  # Logic Layer (business logic microservices)
+  lg-users-mg:
+    container_name: lg-users-mg
     build:
-      context: ./logic-users
+      context: ./lg-users-mg
       dockerfile: Dockerfile
     ports:
       - "8082:8082"
     env_file:
-      - ./logic-users/.env
+      - ./lg-users-mg/.env
     depends_on:
-      - data-postgres-users
+      - db-users-ps
     restart: always
 
-  logic-community:
-    container_name: logic-community
+  lg-community-mg:
+    container_name: lg-community-mg
     build:
-      context: ./logic-community
+      context: ./lg-community-mg
       dockerfile: Dockerfile
     ports:
       - "8083:8083"
     env_file:
-      - ./logic-community/.env
+      - ./lg-community-mg/.env
     depends_on:
-      - data-mongo-community
-      - data-postgres-community
+      - db-community-ms
+      - db-community-ps
     restart: always
 
-  logic-personal:
-    container_name: logic-personal
+  lg-personal-mg:
+    container_name: lg-personal-mg
     build:
-      context: ./logic-personal
+      context: ./lg-personal-mg
       dockerfile: Dockerfile
     ports:
       - "8084:8084"
     env_file:
-      - ./logic-personal/.env
+      - ./lg-personal-mg/.env
     depends_on:
-      - data-postgres-personal
+      - db-personal-ps
     restart: always
-   
-   
-  #Containers related to databases
 
-  data-mongo-community:
-    container_name: CommunityMongoDB
+  # Database Layer
+  db-community-ms:
+    container_name: db-community-ms
     build:
-      context: ./data-mongo-community
+      context: ./db-community-ms
       dockerfile: Dockerfile
     ports:
       - "27017:27017"
@@ -72,70 +68,69 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     env_file:
-      - ./data-mongo-community/.env
+      - ./db-community-ms/.env
     volumes:
-      - mongo_data:/data/db
+      - db-community-ms:/data/db
     restart: unless-stopped
 
-  data-postgres-users:
-    container_name: UsersPostgresDB
+  db-users-ps:
+    container_name: db-users-ps
     build:
-      context: ./data-postgres-users
+      context: ./db-users-ps
       dockerfile: Dockerfile
     ports:
       - "5432:5432"
     env_file:
-      - ./data-postgres-users/.env
+      - ./db-users-ps/.env
     volumes:
-      - postgres_data_user:/var/lib/postgresql/data
+      - db-users-ps:/var/lib/postgresql/data
     restart: unless-stopped
 
-  data-postgres-community:
-    container_name: CommunityPostgresDB
+  db-community-ps:
+    container_name: db-community-ps
     build:
-      context: ./data-postgres-community
+      context: ./db-community-ps
       dockerfile: Dockerfile
     ports:
-      - "5433:5433"
+      - "5433:5432"
     env_file:
-      - ./data-postgres-community/.env
+      - ./db-community-ps/.env
     volumes:
-      - postgres_data_community:/var/lib/postgresql/data
+      - db-community-ps:/var/lib/postgresql/data
     restart: unless-stopped
 
-  data-postgres-personal:
-    container_name: PersonalPostgresDB
+  db-personal-ps:
+    container_name: db-personal-ps
     build:
-      context: ./data-postgres-personal
+      context: ./db-personal-ps
       dockerfile: Dockerfile
     ports:
-      - "5434:5434"
+      - "5434:5432"
     env_file:
-      - ./data-postgres-personal/.env
+      - ./db-personal-ps/.env
     volumes:
-      - postgres_data_personal:/var/lib/postgresql/data
+      - db-personal-ps:/var/lib/postgresql/data
     restart: unless-stopped
-    
-  #Adminer done to set a console for relational databases
-  
+
+  # Adminer UI
   adminer:
-    container_name: Adminer
+    container_name: adminer
     image: adminer
     ports:
       - "8081:8080"
     restart: always
     depends_on:
-      - data-postgres-community
-      - data-postgres-users
-      - data-postgres-personal
+      - db-community-ps
+      - db-users-ps
+      - db-personal-ps
 
-# Volumes for databases
+# Volumes
 volumes:
-  mongo_data:
+  db-community-ms:
     driver: local
-  postgres_data_user:
+  db-users-ps:
     driver: local
-  postgres_data_community:
+  db-community-ps:
     driver: local
-  postgres_data_personal:
+  db-personal-ps:
     driver: local

@@ -48,7 +48,7 @@ Para desarrollo local, cada microservicio Java incluye un script PowerShell llam
 
 ### Pasos:
 
-1. Abre una terminal PowerShell en la carpeta del microservicio (por ejemplo, `logic-users`).
+1. Abre una terminal PowerShell en la carpeta del microservicio (por ejemplo, `lg-users-mg`).
 2. Ejecuta:
    ```powershell
    .\run_with_env.ps1
@@ -69,11 +69,11 @@ Para desarrollo local, cada microservicio Java incluye un script PowerShell llam
     NEXT_PUBLIC_USERS_MICROSERVICE_PUBLIC_URL=http://localhost:8082
     ```
 - **Con Docker Compose:**
-  - Las variables internas (`NEXT_PUBLIC_USERS_MICROSERVICE_URL`, etc.) deben apuntar al nombre del contenedor (ej: `http://logic-users:8082`).
+  - Las variables internas (`NEXT_PUBLIC_USERS_MICROSERVICE_URL`, etc.) deben apuntar al nombre del contenedor (ej: `http://lg-users-mg:8082`).
   - Las variables públicas (`NEXT_PUBLIC_USERS_MICROSERVICE_PUBLIC_URL`, etc.) deben seguir apuntando a `http://localhost:PUERTO` si el frontend se expone en tu máquina.
   - Ejemplo:
     ```env
-    NEXT_PUBLIC_USERS_MICROSERVICE_URL=http://logic-users:8082
+    NEXT_PUBLIC_USERS_MICROSERVICE_URL=http://lg-users-mg:8082
     NEXT_PUBLIC_USERS_MICROSERVICE_PUBLIC_URL=http://localhost:8082
     ```
 - **¿Por qué?**
@@ -81,3 +81,68 @@ Para desarrollo local, cada microservicio Java incluye un script PowerShell llam
   - El código que corre en el navegador (links, redirecciones) debe usar la URL pública (localhost o dominio real).
 - **En producción:**
   - Ajusta las variables públicas a la URL real de tu backend (por ejemplo, la de tu balanceador o dominio).
+
+# Convención de Nombres para los componentes del sistema
+
+Esta convención se usa para nombrar servicios y contenedores de manera consistente y legible.
+
+## Formato General
+
+<layer>-<module>-<responsibility>
+
+Aqui tenemos:
+  
+- Las tres partes  separadas por guiones.
+
+---
+
+## Componentes del Formato
+
+### 1. **Layer** (Capa)
+
+| Código | Descripción       |
+|--------|-------------------|
+| `pr`   | Presentation Layer (Frontend/UI) |
+| `lg`   | Logic Layer (Backend/Negocio)    |
+| `db`   | Database Layer (Bases de datos)  |
+
+---
+
+### 2. **Module** (Módulo)
+
+Debe escribirse **completo y en minúsculas**. Ejemplos:
+
+- `users`
+- `community`
+- `expenses`
+- `personal`
+
+---
+
+### 3. **Responsibility** (Responsabilidad)
+
+| Código | Descripción                           |
+|--------|---------------------------------------|
+| `dp`   | Display (Interfaz de usuario)         |
+| `mg`   | Manager (Lógica de negocio)           |
+| `ms`   | Mongo Storage (Base de datos MongoDB) |
+| `ps`   | Postgres Storage (Base de datos PostgreSQL) |
+
+---
+
+## Ejemplos
+
+| Nombre del Servicio    | Significado                                                  |
+|------------------------|--------------------------------------------------------------|
+| `pr-users-dp`          | Presentación del módulo `users` (frontend)                   |
+| `lg-community-mg`      | Lógica del módulo `community` (microservicio de negocio)     |
+| `db-users-ps`          | Base de datos PostgreSQL del módulo `users`                 |
+| `db-community-ms`      | Base de datos MongoDB del módulo `community`                |
+| `lg-expenses-mg`       | Lógica de negocio del módulo `expenses`                     |
+
+---
+
+## Buenas Prácticas
+
+- El nombre del `container_name` debe coincidir con el nombre del servicio.
+- Si agregas un nuevo módulo o tipo de servicio, define claramente su rol y aplica esta convención.
