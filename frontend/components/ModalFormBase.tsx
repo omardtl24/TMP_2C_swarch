@@ -18,7 +18,7 @@ type ModalContextType = {
   isOpen: boolean
 }
 
-// Create a global context to access the modal externally
+// Create a global context to store modal references
 const GlobalModalContext = createContext<{
   [key: string]: ModalContextType
 }>({})
@@ -58,7 +58,7 @@ export const useModalForm = () => {
 
 interface ModalFormBaseProps {
   trigger?: ReactNode // Optional element that triggers the modal
-  icono?: ReactNode // Optional element that triggers the modal
+  icono?: ReactNode 
   id: string // Required ID to reference this modal
   title: string
   description?: string
@@ -68,6 +68,8 @@ interface ModalFormBaseProps {
   headerClassName?: string 
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
+  open?: boolean
+  setOpen?: (open: boolean) => void
 }
 
 export default function ModalFormBase({
@@ -82,10 +84,19 @@ export default function ModalFormBase({
   headerClassName,
   defaultOpen,
   onOpenChange,
+  open: externalOpen,
+  setOpen: setExternalOpen,
 }: ModalFormBaseProps) {
-  const [open, setOpen] = useState(defaultOpen || false)
-  const modals = useContext(GlobalModalContext) 
+  // Use internal state if no external state is provided
+  const [internalOpen, setInternalOpen] = useState(defaultOpen || false)
   
+  // Determine which state to use
+  const open = externalOpen !== undefined ? externalOpen : internalOpen
+  const setOpen = setExternalOpen || setInternalOpen
+  
+  const modals = useContext(GlobalModalContext)
+  
+  // Define control functions
   const openModal = () => setOpen(true)
   const closeModal = () => setOpen(false)
 
@@ -93,14 +104,21 @@ export default function ModalFormBase({
   if (!modals[id]) {
     modals[id] = { openModal, closeModal, isOpen: open }
   } else {
+    // Update existing reference
     modals[id].openModal = openModal
     modals[id].closeModal = closeModal
     modals[id].isOpen = open
   }
 
+  // This is the critical handler that ensures state is updated when the Dialog changes
   const handleOpenChange = (newOpen: boolean) => {
+    // Update our state
     setOpen(newOpen)
-    onOpenChange?.(newOpen)
+    
+    // Call the optional callback
+    if (onOpenChange) {
+      onOpenChange(newOpen)
+    }
   }
 
   return (
@@ -112,7 +130,7 @@ export default function ModalFormBase({
       )}
       
       <DialogContent 
-        className={cn("sm:max-w-[500px] glass-effect bg-white/50  border-1 border-primary", contentClassName)}
+        className={cn("sm:max-w-[500px] glass-effect bg-white/50 border-1 border-primary", contentClassName)}
       >
         <DialogHeader className={headerClassName}>
           <DialogTitle className='text-2xl'>{title}</DialogTitle>
@@ -147,7 +165,7 @@ export function ModalSubmitButton({
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     onClick?.()
     closeModal()
-    e.preventDefault() // Prevent form submission if needed 
+    e.preventDefault()
   }
   
   return (

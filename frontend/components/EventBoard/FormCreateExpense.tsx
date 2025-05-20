@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -21,7 +21,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import ModalFormBase, { useModal } from "@/components/ModalFormBase"
+import ModalFormBase from "@/components/ModalFormBase"
 import { ExpenseType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import {
@@ -98,14 +98,6 @@ export default function FormCreateExpense({
     });
 
     const [loading, setLoading] = useState(false);
-    const { closeModal, openModal } = useModal(modalId);
-
-    // Add useEffect to handle external open state
-    useEffect(() => {
-        if (open) {
-            openModal();
-        }
-    }, [open, openModal]);
 
     // Handle form submission
     const onSubmit = async (values: ExpenseFormValues) => {
@@ -133,17 +125,11 @@ export default function FormCreateExpense({
                 onExpenseCreated(response.data);
             }
             
-            closeModal();
-            
-            // Reset external open state if provided
-            if (setOpen) {
-                setOpen(false);
-            }
+            if(setOpen) setOpen(false); // Close the modal
             
             form.reset();
         } catch (error) {
             console.error("Error submitting form:", error);
-            // You could add a toast notification here for user feedback
         } finally {
             setLoading(false);
         }
@@ -153,9 +139,11 @@ export default function FormCreateExpense({
         <ModalFormBase
             id={modalId}
             title="Nuevo gasto"
-            contentClassName="p-6 rounded-3xl bg-purple-100/40 overflow-y-auto max-h-[90vh] w-full " 
+            contentClassName="p-6 rounded-3xl bg-purple-100/40 overflow-y-auto max-h-[90vh] w-full"
             headerClassName="text-center text-primary flex items-center justify-center w-full mb-2"
             icono={<Database className="mx-auto text-primary mb-2" />}
+            open={open}
+            setOpen={setOpen}
         >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

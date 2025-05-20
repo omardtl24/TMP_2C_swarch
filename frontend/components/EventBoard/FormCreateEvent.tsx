@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -24,7 +24,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import ModalFormBase, { useModal } from "@/components/ModalFormBase"
+import ModalFormBase from "@/components/ModalFormBase"
 
 
 // Schema definition with zod
@@ -61,34 +61,36 @@ const FormCreateEvent = ({
     setOpen
 
 }: FormCreateEventProps) => {
+
+    console.log("fecha seleccionada", defaultBeginDate);
+    
     const form = useForm<EventFormValues>({
         resolver: zodResolver(eventFormSchema),
         defaultValues: {
             name: '',
-            beginDate: defaultBeginDate || undefined,
-            endDate: defaultBeginDate ? 
-                new Date(defaultBeginDate.getTime() + 24 * 60 * 60 * 1000) : 
-                new Date(Date.now() + 24 * 60 * 60 * 1000), 
+            beginDate: new Date(), // Use a default date initially
+            endDate: new Date(Date.now() + 24 * 60 * 60 * 1000), 
         },
         mode: "onSubmit", 
     });
 
-    const [loading, setLoading] = useState(false);
-    const { closeModal, openModal } = useModal(modalId);
-    
-
+    // Update form values when defaultBeginDate changes
     useEffect(() => {
-
-        if (open) {
-
-            if (defaultBeginDate) {
-                form.setValue("beginDate", defaultBeginDate);
-                form.setValue("endDate", new Date(defaultBeginDate.getTime() + 24 * 60 * 60 * 1000));
-            }
+        if (defaultBeginDate && open) {
+            console.log("Setting form values with date:", defaultBeginDate);
             
-            openModal();
+            // Ensure the date is a valid Date object
+            const beginDate = new Date(defaultBeginDate);
+            form.setValue("beginDate", beginDate);
+            
+            // Set end date to one day after begin date
+            const endDate = new Date(beginDate);
+            endDate.setDate(endDate.getDate() + 1);
+            form.setValue("endDate", endDate);
         }
-    }, [open, defaultBeginDate, form, openModal]);
+    }, [defaultBeginDate, form, open]);
+
+    const [loading, setLoading] = useState(false);
 
     // Handle form submission
     const onSubmit = async (values: EventFormValues) => {
@@ -100,10 +102,12 @@ const FormCreateEvent = ({
             await new Promise(resolve => setTimeout(resolve, 2000));
             
             alert(`Event created: ${JSON.stringify(values)}`);
-            closeModal();
+            
+            // Update external state if provided
             if (setOpen) {
                 setOpen(false);
             }
+            
             form.reset();
         } catch (error) {
             console.error("Error submitting form:", error);
@@ -118,6 +122,8 @@ const FormCreateEvent = ({
             title="Crea tu Evento"
             contentClassName="p-6 rounded-3xl" 
             headerClassName="text-center text-primary-20 text-3xl flex items-center justify-center w-full space-y-2"
+            open={open}
+            setOpen={setOpen}
         >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

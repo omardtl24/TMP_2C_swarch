@@ -12,10 +12,13 @@ export default function AddExpenseButton({ setOpen }: AddExpenseButtonProps) {
   const { openModal } = useModal("createExpense")
   
   const handleClick = () => {
+    console.log("Button clicked")
     if (setOpen) {
       setOpen(true);
+      console.log("Set open to true")
     } else {
       openModal();
+      console.log("Open modal")
     }
   }
 

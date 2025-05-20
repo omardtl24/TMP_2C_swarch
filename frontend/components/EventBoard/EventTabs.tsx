@@ -65,7 +65,7 @@ export default function EventTabs({
                 </TabsContent>
             </Tabs>
             
-            {/* Form for creating expenses with open state control */}
+            {/* Pass both open and setOpen props to the form */}
             <FormCreateExpense 
                 participants={participantList} 
                 onExpenseCreated={handleExpenseCreated}
