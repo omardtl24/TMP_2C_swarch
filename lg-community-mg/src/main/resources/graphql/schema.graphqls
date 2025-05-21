@@ -4,14 +4,13 @@ scalar Upload
 
 # Expense types
 enum ExpenseType {
-  COMIDA_BEBIDA
+  COMIDA_Y_BEBIDA
   COMPRAS
   HOGAR
   TRANSPORTE
   ENTRETENIMIENTO
   COMUNICACION
-  FINANZAS
-  INVERSIONES
+  GASTOS_FINANCIEROS
 }
 
 type Participation {
@@ -38,6 +37,11 @@ type ExpenseEntity {
   document: ExpenseDocument!
 }
 
+type Balance {
+  userId: String!
+  balance: Float!
+}
+
 # Queries
 type Query {
   expensesByEvent(eventId: ID!): [ExpenseEntity!]!
@@ -45,7 +49,10 @@ type Query {
   expensesParticipatedByMe: [ExpenseDocument!]!
   searchExpensesByType(type: ExpenseType!): [ExpenseDocument!]!
   searchExpensesByConcept(keyword: String!): [ExpenseDocument!]!
+  calcularBalances(eventId: ID!): [Balance!]!
   sumAllExpenses: Float!
+  sumarGastosPorEvento(eventId: ID!): Float!
+  sumarGastosPagadosPorMiEnEvento(eventId: ID!): Float!
 }
 
 # Mutations
@@ -78,8 +85,9 @@ input DeleteExpenseInput {
 }
 
 type Mutation {
-  createExpense(input: NewExpenseInput!): ExpenseEntity!
-  updateExpense(input: UpdateExpenseInput!): ExpenseDocument!
+  createExpense(input: NewExpenseInput!, supportImage: Upload): ExpenseEntity!
+  updateExpense(input: UpdateExpenseInput!, supportImage: Upload): ExpenseDocument!
   deleteExpense(input: DeleteExpenseInput!): Boolean!
   uploadSupportImage(eventId: ID!, expenseId: ID!, file: Upload!): String!
+
 }

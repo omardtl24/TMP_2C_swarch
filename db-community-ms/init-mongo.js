@@ -5,9 +5,9 @@ db.createCollection("expenses", {
         $and: [
             { $jsonSchema: {
                 "bsonType": "object",
-                "required": ["payer_id", "total", "concept", "type", "participation", "support_image_id"],
+                "required": ["payerId", "total", "concept", "type", "participation", "support_image_id"],
                 "properties": {
-                    "payer_id": {
+                    "payerId": {
                         "bsonType": "string",
                         "description": "ID of the user who actually paid the expense"
                     },
@@ -22,17 +22,17 @@ db.createCollection("expenses", {
                         "description": "Short description of the expense"
                     },
                     "type": {
-                        "bsonType": "int",
-                        "enum": [0, 1, 2, 3, 4, 5, 6],
-                        "description": "0: Food and Beverage, 1: Purchase, 2: Home, 3: Transport, 4: Entertainment, 5: Communication, 6: Finantial Expenses"
+                        "bsonType": "string",
+                        "enum": ["COMIDA_Y_BEBIDA", "COMPRAS", "HOGAR", "TRANSPORTE", "ENTRETENIMIENTO", "COMUNICACION", "GASTOS_FINANCIEROS"],
+                        "description": "Expense type as string (enum name)"
                     },
                     "participation": {
                         "bsonType": "array",
                         "items": {
                             "bsonType": "object",
-                            "required": ["user_id", "state", "portion"],
+                            "required": ["userId", "state", "portion"],
                             "properties": {
-                                "user_id": {
+                                "userId": {
                                     "bsonType": "string",
                                     "description": "ID of the user who participated in the expense"
                                 },
@@ -58,7 +58,6 @@ db.createCollection("expenses", {
             { $expr: {
                 $let: {
                     vars: {
-                        // convert the participation array to an array of portions
                         portions: { $map: {
                             input: "$participation",
                             as: "part",
@@ -67,7 +66,6 @@ db.createCollection("expenses", {
                     },
                     in: {
                         $and: [
-                            // check each portion is less than or equal to total
                             { $allElementsTrue: {
                                 $map: {
                                     input: "$$portions",
@@ -75,7 +73,6 @@ db.createCollection("expenses", {
                                     in: { $lte: ["$$p", "$total"] }
                                 }
                             }},
-                            // check that sum of portions doesn't exceed total
                             { $lte: [{ $sum: "$$portions" }, "$total"] }
                         ]
                     }
@@ -89,18 +86,18 @@ db.createCollection("expenses", {
 db.expenses.insertOne(
     {
         "_id": ObjectId("abc123abc123abc123abc123"),
-        "payer_id": "1",
+        "payerId": "1",
         "total": 95.75,
         "concept": "Dinner at Italian restaurant",
-        "type": 0,
+        "type": "COMIDA_Y_BEBIDA",
         "participation": [
           {
-            "user_id": "1",
+            "userId": "1",
             "state": 1,
             "portion": 0.5
           },
           {
-            "user_id": "2",
+            "userId": "2",
             "state": 0,
             "portion": 0.5
           }

@@ -149,12 +149,18 @@
 			<artifactId>spring-boot-starter-graphql</artifactId>
 		</dependency>
 
-		<!-- (Opcional) GraphQL multipart request support -->
-		<!-- <dependency>
+		<dependency>
 			<groupId>com.graphql-java</groupId>
-			<artifactId>graphql-java-servlet-spring-boot-starter</artifactId>
-			<version>11.1.0</version>
-		</dependency> -->
+			<artifactId>graphql-java-extended-scalars</artifactId>
+			<version>20.1</version>
+		</dependency>
+
+		<!-- Soporte multipart en Spring -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
 
 	</dependencies>
 
