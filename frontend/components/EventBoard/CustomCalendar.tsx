@@ -100,7 +100,6 @@ const CustomCalendar = ({ events }: CustomCalendarProps) => {
         mode="single"
         selected={selected}
         onSelect={day => {
-          
          handleCreateEvent(day);  
         }}
         month={month}

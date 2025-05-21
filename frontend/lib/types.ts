@@ -27,12 +27,22 @@ export type EventDetailType = EventType &  {
 }
 
 export type ExpenseType = {
-  id: number;
-  name: string;
-  amount: number;
-  category: string;
-  paidBy: string;
+  id: string;
+  concept: string;
+  total: number;
+  type: number;
+  payer_id: string;
+}
 
+export type ExpenseParticipation = {
+  user_id: string;
+  state: number;
+  portion: number;
+}
+
+export type ExpenseDetailedType = ExpenseType & {
+  participation: ExpenseParticipation[];
+  support_image_id?: string;
 }
 
 export type ParticipantType = {

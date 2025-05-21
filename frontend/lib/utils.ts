@@ -5,29 +5,48 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
-export const getCategoryColor = (category: string) => {
-    switch (category.toLowerCase()) {
-      case "comida":
-        return "text-red-500"
-      case "bebida":
-        return "text-green-500"
-      case "fruta":
-        return "text-orange-400"
-      default:
-        return "text-gray-500"
-    }
-  }
 
-  // Function to determine category background
-export const getCategoryBg = (category: string) => {
-    switch (category.toLowerCase()) {
-      case "comida":
-        return "bg-red-100"
-      case "bebida":
-        return "bg-green-100"
-      case "fruta":
-        return "bg-orange-100"
-      default:
-        return "bg-gray-100"
-    }
-  }
+export const expenseCategories = [
+    {
+      "value": 0, 
+      "label": "Alimentos y Bebidas",
+      "textColor": "text-red-500",
+      "bgColor": "bg-red-100"
+    },
+    {
+      "value": 1, 
+      "label": "Compras",
+      "textColor": "text-blue-500",
+      "bgColor": "bg-blue-100"
+    },
+    {
+      "value": 2, 
+      "label": "Hogar",
+      "textColor": "text-yellow-500",
+      "bgColor": "bg-yellow-100"
+    },
+    {
+      "value": 3, 
+      "label": "Transporte",
+      "textColor": "text-green-500",
+      "bgColor": "bg-green-100"
+    },
+    {
+      "value": 4, 
+      "label": "Entretenimiento",
+      "textColor": "text-purple-500",
+      "bgColor": "bg-purple-100"
+    },
+    {
+      "value": 5, 
+      "label": "Comunicación",
+      "textColor": "text-orange-500",
+      "bgColor": "bg-orange-100"
+    },
+    {
+      "value": 6, 
+      "label": "Gastos Financieros",
+      "textColor": "text-cyan-500",
+      "bgColor": "bg-cyan-100"
+    },
+]

@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/popover"
 import ModalFormBase from "@/components/ModalFormBase"
 import { ExpenseType } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import { cn, expenseCategories } from '@/lib/utils'
 import {
     Command,
     CommandEmpty,
@@ -32,18 +32,10 @@ import {
     CommandItem,
 } from "@/components/ui/command"
 import { Checkbox } from '@/components/ui/checkbox'
-import { createExpense } from '@/lib/actions/eventActions'
+import { createExpense } from '@/lib/actions/expenseActions'
 
 // Sample data for categories
-const expenseCategories = [
-    { label: "Comida", value: "comida" },
-    { label: "Bebida", value: "bebida" },
-    { label: "Transporte", value: "transporte" },
-    { label: "Alojamiento", value: "alojamiento" },
-    { label: "Entretenimiento", value: "entretenimiento" },
-    { label: "Compras", value: "compras" },
-    { label: "Otros", value: "otros" },
-]
+
 
 // Schema definition with zod
 const expenseFormSchema = z.object({
@@ -60,7 +52,7 @@ const expenseFormSchema = z.object({
             return !isNaN(Number(numericValue)) && Number(numericValue) > 0;
         }, { message: 'El monto debe ser mayor a 0' }),
     type: z
-        .string()
+        .number()
         .min(1, { message: 'Seleccione una categoría' }),
     payer_id: z
         .string() // Changed from number to string
@@ -97,7 +89,7 @@ export default function FormCreateExpense({
         defaultValues: {
             concept: '',
             total: '',
-            type: '',
+            type: 0,
             payer_id: "",
             participants: [],
         },
@@ -125,7 +117,7 @@ export default function FormCreateExpense({
             const response = await createExpense(
                 eventId || "0", 
                 {
-                    name: values.concept,
+                    concept: values.concept,
                     total: Number(values.total.replace(/\D/g, '')),
                     type: values.type,
                     payer_id: values.payer_id,
@@ -259,7 +251,7 @@ export default function FormCreateExpense({
                                                 {expenseCategories.map((type) => (
                                                     <CommandItem
                                                         key={type.value}
-                                                        value={type.value}
+                                                        value={String(type.value)}
                                                         onSelect={() => {
                                                             form.setValue("type", type.value);
                                                         }}
