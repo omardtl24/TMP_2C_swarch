@@ -7,7 +7,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
-import com.cuentas_claras.backend.security.JwtAuthenticationFilter;
+//import com.cuentas_claras.backend.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
