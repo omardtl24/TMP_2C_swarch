@@ -85,7 +85,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 - Las variables `NEXT_PUBLIC_USERS_MICROSERVICE_URL`, `NEXT_PUBLIC_COMMUNITY_MICROSERVICE_URL`, etc. deben apuntar a la URL interna del microservicio según el entorno:
   - **Desarrollo local:** usa `http://localhost:PUERTO` (ej: `http://localhost:8082`).
-  - **Docker Compose:** usa el nombre del servicio/contendor (ej: `http://logic-users:8082`).
+  - **Docker Compose:** usa el nombre del servicio/contendor (ej: `http://lg-users-mg:8082`).
 - La variable `FRONTEND_BASE_URL` debe ser la URL pública desde la que los usuarios acceden al frontend:
   - **Local o Docker Compose:** normalmente `http://localhost:3000` (si expones el puerto 3000).
   - **Producción (Vercel, etc):** la URL real del sitio, ej: `https://tudominio.vercel.app`.
