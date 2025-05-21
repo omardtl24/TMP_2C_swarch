@@ -139,10 +139,22 @@
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
-			<version>6.0.0</version> <!-- or match your Spring Boot version -->
+			<version>6.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- Spring Boot GraphQL -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-graphql</artifactId>
+		</dependency>
+
+		<!-- (Opcional) GraphQL multipart request support -->
+		<dependency>
+			<groupId>com.graphql-java</groupId>
+			<artifactId>graphql-java-servlet-spring-boot-starter</artifactId>
+			<version>11.1.0</version>
+		</dependency>
 
 	</dependencies>
 
