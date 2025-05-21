@@ -1,13 +1,14 @@
 'use server'
 import { ENDPOINTS } from "../endpoints";
-import mockEventsResponse, { mockEventDetailResponse, mockEventExpenses, mockEventParticipants } from "../mockData/eventMockData";
-import { EventDetailType, EventType, ExpenseType, ParticipantType } from "../types";
+import mockEventsResponse from "../mockData/eventMockData";
+import { EventDetailType, EventType } from "../types";
 import { cookies } from "next/headers";
 
 export async function getAuthToken(): Promise<string | undefined> {
   try {
     const cookieStore = await cookies();
     return  cookieStore.get('jwt')?.value;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     // This will catch errors when cookies() is called outside a request context
     console.log("Cookie access error - likely outside request context");
@@ -165,3 +166,125 @@ export async function createEvent(eventData: CreateEventData, token?: string): P
   }
 }
 
+// Define the type for join event response
+export type JoinEventResponse = {
+  success: boolean;
+  data?: {
+    id: string;  // Event ID
+  };
+  error?: string;
+};
+
+// Function to join an event using invitation code
+export async function joinEvent(invitationCode: string): Promise<JoinEventResponse> {
+  const authToken = await getAuthToken();
+  
+  // Check if token exists
+  if (!authToken) {
+    return {
+      success: false,
+      error: "Authentication required. No valid token found."
+    };
+  }
+  
+  try {
+    const res = await fetch(
+      ENDPOINTS.community.browser + "/api/events/join",
+      {
+        method: "POST",
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}` 
+        },
+        body: JSON.stringify({ invitationCode }),
+        cache: 'no-store'
+      }
+    );
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      return {
+        success: false,
+        error: errorData.apierror?.message || `Failed to join event. Status: ${res.status}`
+      };
+    }
+    
+    const data = await res.json();
+    return { 
+      success: true, 
+      data: {
+        id: data.id
+      }
+    };
+    
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+  }
+}
+
+export type InvitationStateResponse = {
+  success: boolean;
+  data?: {
+    enabled: boolean;
+    code?: string;
+  };
+  error?: string;
+};
+
+export async function ChangeInvitationState(
+  enabled: boolean, 
+  eventId: string
+): Promise<InvitationStateResponse> {
+  const authToken = await getAuthToken();
+  
+  // Check if token exists
+  if (!authToken) {
+    return {
+      success: false,
+      error: "Authentication required. No valid token found."
+    };
+  }
+  
+  try {
+    console.log(`Calling API to change invitation state for event ${eventId} to ${enabled}`);
+    
+    const res = await fetch(
+      `${ENDPOINTS.community.browser}/api/events/${eventId}/invite?enabled=${enabled}`,
+      {
+        method: "PATCH",
+        headers: { 
+          Authorization: `Bearer ${authToken}` 
+        },
+        cache: 'no-store'
+      }
+    );
+    
+    console.log("API response status:", res.status);
+    
+    if (!res.ok) {
+      return {
+        success: false,
+        error: `Failed to update invitation state. Status: ${res.status}`
+      };
+    }
+    
+    const data = await res.json();
+    return { 
+      success: true, 
+      data: {
+        enabled: data.invitationEnabled,
+        code: data.invitationCode
+      }
+    };
+    
+  } catch (error) {
+    console.error("Error in ChangeInvitationState:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+  }
+}

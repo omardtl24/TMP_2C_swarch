@@ -109,9 +109,10 @@ const FormCreateEvent = ({
             // Simulating API call
             const response = await createEvent(values);
             
+            if(!response.success) {
+                console.error("Error creating event:", response.error)
+            }
             
-            
-            // Update external state if provided
             if (setOpen) {
                 setOpen(false);
             }

@@ -4,8 +4,8 @@ import {
     fetchEventDetail
 } from "@/lib/actions/eventActions"
 import { fetchEventExpenses, fetchEventParticipants } from "@/lib/actions/expenseActions"
-import { notFound, redirect } from "next/navigation"
-import { cookies } from "next/headers"
+import { notFound } from "next/navigation"
+
 
 // Force server-side rendering for this page
 export const dynamic = 'force-dynamic'
@@ -42,6 +42,7 @@ export default async function EventDetailPage({
                 name={eventDetails.name} 
                 creatorName={eventDetails.creatorId} 
                 code={eventDetails.invitationCode} 
+                eventId={eventDetails.id}
             />
             <div className="px-4 md:px-16 mt-4 space-y-4 ">
                 <EventTabs 

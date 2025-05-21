@@ -14,7 +14,7 @@ import FormCreateEvent from "./FormCreateEvent"
 export interface EventItem {
   date: Date
   name: string
-  id: number
+  id: string
 }
 
 interface CustomCalendarProps {
@@ -131,7 +131,7 @@ const CustomCalendar = ({ events }: CustomCalendarProps) => {
 
       {/* Pass the selected date and the trigger counter */}
       <FormCreateEvent 
-        defaultbegin_date={selected} 
+        defaultbeginDate={selected} 
         open={openModalTrigger}
         setOpen={setOpenModalTrigger} // Use the trigger counter to open/close the modal
       />
