@@ -111,6 +111,24 @@ public class EventParticipantsService {
     }
 
     /**
+     * Obtiene todos los eventos en los que el usuario autenticado es participante.
+     *
+     * @return Lista de eventos en los que participa el usuario.
+     */
+    @Transactional(readOnly = true)
+    public List<EventEntity> getEventsWhereIParticipate() {
+        String userId = getCurrentUserId();
+        log.info("Listando eventos donde participa {}", userId);
+
+        List<EventParticipantsEntity> participations = participantsRepository.findByParticipantId(userId);
+
+        return participations.stream()
+                .map(EventParticipantsEntity::getEvent)
+                .toList();
+    }
+
+
+    /**
      * Verifica si el usuario autenticado es participante de un evento.
      *
      * @param eventId ID del evento a verificar.

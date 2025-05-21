@@ -44,7 +44,11 @@ public class SecurityConfig {
             .cors(cors -> {})
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
+                // allow unauthenticated access to GraphiQL UI and GraphQL endpoint
+                .requestMatchers("/api/graphiql/**", "/api/graphql/**", "/graphiql/**", "/graphql/**").permitAll()
+                // also keep your public endpoints
                 .requestMatchers("/public/**").permitAll()
+                // protect everything else
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

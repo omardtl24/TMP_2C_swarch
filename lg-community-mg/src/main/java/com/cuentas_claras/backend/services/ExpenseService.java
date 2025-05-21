@@ -82,7 +82,7 @@ public class ExpenseService {
         // Guardar imagen de soporte si existe
         ObjectId imageId = null;
         if (supportImage != null && !supportImage.isEmpty()) {
-            //imageId = expenseDocumentRepository.saveSupportImage(supportImage);
+            imageId = expenseDocumentRepository.saveSupportImage(supportImage);
         }
 
         // Construir documento Mongo
@@ -140,8 +140,8 @@ public class ExpenseService {
             .orElseThrow(() -> new EntityNotFoundException("Documento no encontrado: " + entity.getExternalDocId()));
 
         if (supportImage != null && !supportImage.isEmpty()) {
-            //ObjectId imageId = expenseDocumentRepository.saveSupportImage(supportImage);
-            //doc.setSupportImageId(imageId);
+            ObjectId imageId = expenseDocumentRepository.saveSupportImage(supportImage);
+            doc.setSupportImageId(imageId);
         }
 
         doc.setTotal(total);
@@ -169,10 +169,9 @@ public class ExpenseService {
      * @throws IOException si falla la subida
      */
     public String saveSupportImage(String eventId, String expenseId, MultipartFile file) throws IOException {
-        //ObjectId id = expenseDocumentRepository.saveSupportImage(file);
-        //log.info("Imagen de soporte guardada con ID {} para gasto {}", id.toHexString(), expenseId);
-        //return id.toHexString();
-        return null; // Placeholder, ya que la implementación de guardar imagen está comentada
+        ObjectId id = expenseDocumentRepository.saveSupportImage(file);
+        log.info("Imagen de soporte guardada con ID {} para gasto {}", id.toHexString(), expenseId);
+        return id.toHexString();
     }
 
     // Resto de métodos sin cambios para consultas y eliminación...
@@ -267,4 +266,41 @@ public class ExpenseService {
         Double total = expenseDocumentRepository.sumAllTotals();
         return total != null ? total : 0.0;
     }
-} 
+
+
+    /** Suma todos los totales de los gastos asociados a un evento */
+    @Transactional(readOnly = true)
+    public Double sumExpensesByEvent(Long eventId) throws EntityNotFoundException {
+        EventEntity event = eventRepository.findById(eventId)
+        .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
+        List<ExpenseEntity> expenses = expenseRepository.findByEvent(event);
+        double suma = 0;
+        for (ExpenseEntity e : expenses) {
+        ExpenseDocument doc = expenseDocumentRepository.findById(e.getExternalDocId())
+            .orElseThrow(() -> new EntityNotFoundException(
+            "Documento no encontrado: " + e.getExternalDocId()));
+        suma += doc.getTotal();
+        }
+        return suma;
+    }
+
+    /** Suma sólo los gastos que el usuario autenticado pagó en un evento */
+    @Transactional(readOnly = true)
+    public Double sumExpensesPaidByUserInEvent(Long eventId) throws EntityNotFoundException {
+        EventEntity event = eventRepository.findById(eventId)
+        .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
+        String me = getCurrentUserId();
+        List<ExpenseEntity> expenses = expenseRepository.findByEvent(event);
+        double suma = 0;
+        for (ExpenseEntity e : expenses) {
+        ExpenseDocument doc = expenseDocumentRepository.findById(e.getExternalDocId())
+            .orElseThrow(() -> new EntityNotFoundException(
+            "Documento no encontrado: " + e.getExternalDocId()));
+        if (me.equals(doc.getPayerId())) {
+            suma += doc.getTotal();
+        }
+        }
+        return suma;
+    }
+}
+

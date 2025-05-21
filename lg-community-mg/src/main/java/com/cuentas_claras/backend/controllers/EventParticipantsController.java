@@ -1,9 +1,11 @@
 package com.cuentas_claras.backend.controllers;
 
+import com.cuentas_claras.backend.dto.EventDTO;
 import com.cuentas_claras.backend.dto.JoinEventRequestDTO;
 import com.cuentas_claras.backend.dto.ParticipantDetailDTO;
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.exceptions.IllegalOperationException;
+import com.cuentas_claras.backend.models.sql.EventEntity;
 import com.cuentas_claras.backend.models.sql.EventParticipantsEntity;
 import com.cuentas_claras.backend.services.EventParticipantsService;
 
@@ -46,6 +48,18 @@ public class EventParticipantsController {
     ) throws EntityNotFoundException {
         participantsService.removeParticipant(eventId, participantId);
     }
+
+
+    /**
+     * Lista todos los eventos en los que el usuario autenticado es participante.
+     */
+    @GetMapping("/participating")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EventDTO> getEventsIParticipateIn() {
+        List<EventEntity> events = participantsService.getEventsWhereIParticipate();
+        return modelMapper.map(events, new TypeToken<List<EventDTO>>(){}.getType());
+    }
+
 
     /**
      * Lista los participantes de un evento.
