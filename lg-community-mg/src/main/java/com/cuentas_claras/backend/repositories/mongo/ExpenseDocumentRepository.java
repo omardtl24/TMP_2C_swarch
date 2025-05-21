@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.cuentas_claras.backend.models.mongo.ExpenseDocument;
 
 @Repository
-public interface ExpenseDocumentRepository extends MongoRepository<ExpenseDocument, String> {
+public interface ExpenseDocumentRepository extends MongoRepository<ExpenseDocument, String> , ExpenseDocumentRepositoryCustom {
     List<ExpenseDocument> findByPayerId(String payerId);
     List<ExpenseDocument> findByType(String type);
     List<ExpenseDocument> findByConceptContainingIgnoreCase(String keyword);
@@ -27,4 +27,6 @@ public interface ExpenseDocumentRepository extends MongoRepository<ExpenseDocume
 
     @Aggregation("{ $group: { _id: null, total: { $sum: \"$total\" } } }")
     Double sumAllTotals();
+
+    
 }

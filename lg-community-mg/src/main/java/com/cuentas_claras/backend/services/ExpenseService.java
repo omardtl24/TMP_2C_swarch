@@ -82,7 +82,7 @@ public class ExpenseService {
         // Guardar imagen de soporte si existe
         ObjectId imageId = null;
         if (supportImage != null && !supportImage.isEmpty()) {
-            //imageId = expenseDocumentRepository.saveSupportImage(supportImage);
+            imageId = expenseDocumentRepository.saveSupportImage(supportImage);
         }
 
         // Construir documento Mongo
@@ -140,8 +140,8 @@ public class ExpenseService {
             .orElseThrow(() -> new EntityNotFoundException("Documento no encontrado: " + entity.getExternalDocId()));
 
         if (supportImage != null && !supportImage.isEmpty()) {
-            //ObjectId imageId = expenseDocumentRepository.saveSupportImage(supportImage);
-            //doc.setSupportImageId(imageId);
+            ObjectId imageId = expenseDocumentRepository.saveSupportImage(supportImage);
+            doc.setSupportImageId(imageId);
         }
 
         doc.setTotal(total);
@@ -169,10 +169,9 @@ public class ExpenseService {
      * @throws IOException si falla la subida
      */
     public String saveSupportImage(String eventId, String expenseId, MultipartFile file) throws IOException {
-        //ObjectId id = expenseDocumentRepository.saveSupportImage(file);
-        //log.info("Imagen de soporte guardada con ID {} para gasto {}", id.toHexString(), expenseId);
-        //return id.toHexString();
-        return null; // Placeholder, ya que la implementación de guardar imagen está comentada
+        ObjectId id = expenseDocumentRepository.saveSupportImage(file);
+        log.info("Imagen de soporte guardada con ID {} para gasto {}", id.toHexString(), expenseId);
+        return id.toHexString();
     }
 
     // Resto de métodos sin cambios para consultas y eliminación...
