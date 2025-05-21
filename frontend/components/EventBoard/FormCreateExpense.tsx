@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -47,30 +47,37 @@ const expenseCategories = [
 
 // Schema definition with zod
 const expenseFormSchema = z.object({
-    name: z
+    concept: z
         .string()
         .min(3, { message: 'La descripción debe tener al menos 3 caracteres' })
         .max(50, { message: 'La descripción no puede exceder 50 caracteres' })
         .nonempty({ message: 'La descripción es obligatoria' }),
-    amount: z
-        .number({ required_error: "El monto es obligatorio", invalid_type_error: "Debe ser un número" })
-        .min(1, { message: 'El monto debe ser mayor a 0' }),
-    category: z
+    total: z
+        .string()
+        .min(1, { message: 'El monto es obligatorio' })
+        .refine(val => {
+            const numericValue = val.replace(/\D/g, '');
+            return !isNaN(Number(numericValue)) && Number(numericValue) > 0;
+        }, { message: 'El monto debe ser mayor a 0' }),
+    type: z
         .string()
         .min(1, { message: 'Seleccione una categoría' }),
-    paidBy: z
-        .string()
+    payer_id: z
+        .string() // Changed from number to string
         .min(1, { message: 'Seleccione quién paga' }),
     participants: z
-        .array(z.string())
+        .array(z.string()) // Changed from array of numbers to array of strings
         .min(1, { message: 'Seleccione al menos un participante' }),
+}).refine(data => data.participants.includes(data.payer_id), {
+    message: "El pagador debe ser incluido como participante",
+    path: ["participants"],
 });
 
 type ExpenseFormValues = z.infer<typeof expenseFormSchema>;
 
 interface FormCreateExpenseProps {
     eventId?: string;
-    participants: { id: string; name: string }[];
+    participants: { id: string; name: string }[]; // Changed id type to string
     onExpenseCreated?: (expense: ExpenseType) => void;
     modalId?: string;
     open?: boolean; 
@@ -88,31 +95,41 @@ export default function FormCreateExpense({
     const form = useForm<ExpenseFormValues>({
         resolver: zodResolver(expenseFormSchema),
         defaultValues: {
-            name: '',
-            amount: undefined,
-            category: '',
-            paidBy: '',
+            concept: '',
+            total: '',
+            type: '',
+            payer_id: "",
             participants: [],
         },
-        mode: "onSubmit",
+        mode: "onChange",
     });
 
     const [loading, setLoading] = useState(false);
+    const [formattedtotal, setFormattedtotal] = useState('');
+
+    // Reset the form when the modal is closed
+    useEffect(() => {
+        if (!open) {
+            form.reset();
+            setFormattedtotal('');
+        }
+    }, [open, form]);
 
     // Handle form submission
     const onSubmit = async (values: ExpenseFormValues) => {
         try {
             setLoading(true);
+            console.log("Submitting form with values expenses:", values);
             
-            // Call the GraphQL mutation to create a new expense
+            // Create expense with GraphQL mutation
             const response = await createExpense(
-                eventId || "0", // Use the provided eventId or a fallback
+                eventId || "0", 
                 {
-                    name: values.name,
-                    amount: values.amount,
-                    category: values.category,
-                    paidById: values.paidBy,  // ID of the person paying
-                    participantIds: values.participants // Array of participant IDs
+                    name: values.concept,
+                    total: Number(values.total.replace(/\D/g, '')),
+                    type: values.type,
+                    payer_id: values.payer_id,
+                    participants: values.participants
                 }
             );
             
@@ -120,14 +137,15 @@ export default function FormCreateExpense({
                 throw new Error(response.error || "Failed to create expense");
             }
             
-            // Call the callback with the returned data
+            // Update UI with new expense
             if (onExpenseCreated && response.data) {
                 onExpenseCreated(response.data);
             }
             
-            if(setOpen) setOpen(false); // Close the modal
-            
+            // Close modal and reset form
+            if (setOpen) setOpen(false);
             form.reset();
+            setFormattedtotal('');
         } catch (error) {
             console.error("Error submitting form:", error);
         } finally {
@@ -147,9 +165,10 @@ export default function FormCreateExpense({
         >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    {/* Name field */}
                     <FormField
                         control={form.control}
-                        name="name"
+                        name="concept"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel className="text-base">
@@ -167,9 +186,10 @@ export default function FormCreateExpense({
                         )}
                     />
 
+                    {/* total field */}
                     <FormField
                         control={form.control}
-                        name="amount"
+                        name="total"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel className="text-base">
@@ -177,11 +197,24 @@ export default function FormCreateExpense({
                                 </FormLabel>
                                 <FormControl>
                                     <Input
-                                        type="number"
-                                        placeholder="0"
+                                        type="text"
+                                        placeholder="$0"
                                         className="rounded-xl h-12"
-                                        {...field}
-                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        value={formattedtotal}
+                                        onChange={(e) => {
+                                            const numericValue = e.target.value.replace(/\D/g, '');
+                                            const formatted = numericValue ? 
+                                                Number(numericValue).toLocaleString('es-CO', {
+                                                    style: 'currency',
+                                                    currency: 'COP',
+                                                    minimumFractionDigits: 0,
+                                                    maximumFractionDigits: 0,
+                                                }) : '';
+                                            
+                                            setFormattedtotal(formatted);
+                                            field.onChange(numericValue);
+                                        }}
+                                        onBlur={field.onBlur}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -189,9 +222,10 @@ export default function FormCreateExpense({
                         )}
                     />
 
+                    {/* type field */}
                     <FormField
                         control={form.control}
-                        name="category"
+                        name="type"
                         render={({ field }) => (
                             <FormItem className="flex flex-col">
                                 <FormLabel className="text-base">
@@ -210,7 +244,7 @@ export default function FormCreateExpense({
                                             >
                                                 {field.value
                                                     ? expenseCategories.find(
-                                                        (category) => category.value === field.value
+                                                        (type) => type.value === field.value
                                                     )?.label
                                                     : "Selecciona una categoría"}
                                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -222,23 +256,23 @@ export default function FormCreateExpense({
                                             <CommandInput placeholder="Buscar categoría..." />
                                             <CommandEmpty>No se encontró.</CommandEmpty>
                                             <CommandGroup>
-                                                {expenseCategories.map((category) => (
+                                                {expenseCategories.map((type) => (
                                                     <CommandItem
-                                                        key={category.value}
-                                                        value={category.value}
+                                                        key={type.value}
+                                                        value={type.value}
                                                         onSelect={() => {
-                                                            form.setValue("category", category.value);
+                                                            form.setValue("type", type.value);
                                                         }}
                                                     >
                                                         <Check
                                                             className={cn(
                                                                 "mr-2 h-4 w-4",
-                                                                field.value === category.value
+                                                                field.value === type.value
                                                                     ? "opacity-100"
                                                                     : "opacity-0"
                                                             )}
                                                         />
-                                                        {category.label}
+                                                        {type.label}
                                                     </CommandItem>
                                                 ))}
                                             </CommandGroup>
@@ -250,9 +284,10 @@ export default function FormCreateExpense({
                         )}
                     />
                     
+                    {/* Payer field */}
                     <FormField
                         control={form.control}
-                        name="paidBy"
+                        name="payer_id"
                         render={({ field }) => (
                             <FormItem className="flex flex-col">
                                 <FormLabel className="text-base">
@@ -284,9 +319,10 @@ export default function FormCreateExpense({
                                                 {participants.map((participant) => (
                                                     <CommandItem
                                                         key={participant.id}
+                                                        
                                                         value={participant.id}
                                                         onSelect={() => {
-                                                            form.setValue("paidBy", participant.id);
+                                                            form.setValue("payer_id", participant.id);
                                                         }}
                                                     >
                                                         <Check
@@ -309,49 +345,49 @@ export default function FormCreateExpense({
                         )}
                     />
                     
+                    {/* Participants field */}
                     <FormField
                         control={form.control}
                         name="participants"
-                        render={() => (
+                        render={({ field }) => (
                             <FormItem>
-                                <div className="mb-2">
+                                <div className="flex justify-between items-center mb-2">
                                     <FormLabel className="text-base">Participantes</FormLabel>
                                 </div>
                                 <div className="rounded-md border p-4 bg-white">
                                     {participants.map((participant) => (
-                                        <FormField
-                                            key={participant.id}
-                                            control={form.control}
-                                            name="participants"
-                                            render={({ field }) => {
-                                                return (
-                                                    <FormItem
-                                                        key={participant.id}
-                                                        className="flex flex-row items-center space-x-3 space-y-0 py-1"
-                                                    >
-                                                        <FormControl>
-                                                            <Checkbox
-                                                                checked={field.value?.includes(participant.id)}
-                                                                onCheckedChange={(checked) => {
-                                                                    const currentValues = field.value || [];
-                                                                    return checked
-                                                                        ? field.onChange([...currentValues, participant.id])
-                                                                        : field.onChange(
-                                                                            currentValues.filter(
-                                                                                (value) => value !== participant.id
-                                                                            )
-                                                                        );
-                                                                }}
-                                                                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                                                            />
-                                                        </FormControl>
-                                                        <FormLabel className="font-normal cursor-pointer">
-                                                            {participant.name}
-                                                        </FormLabel>
-                                                    </FormItem>
-                                                );
-                                            }}
-                                        />
+                                        <div key={participant.id} className="flex flex-row items-center space-x-3 space-y-0 py-1">
+                                            <Checkbox
+                                                id={`participant-${participant.id}`}
+                                                checked={field.value?.includes(participant.id)}
+                                                onCheckedChange={(checked) => {
+                                                    const currentValues = [...field.value || []];
+                                                    
+                                                    if (checked) {
+                                                        if (!currentValues.includes(participant.id)) {
+                                                            currentValues.push(participant.id);
+                                                        }
+                                                    } else {
+                                                        const index = currentValues.indexOf(participant.id);
+                                                        if (index !== -1) {
+                                                            currentValues.splice(index, 1);
+                                                        }
+                                                    }
+                                                    
+                                                    field.onChange(currentValues);
+                                                }}
+                                                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                            />
+                                            <label
+                                                htmlFor={`participant-${participant.id}`}
+                                                className="font-normal cursor-pointer"
+                                            >
+                                                {participant.name}
+                                                {participant.id === form.getValues("payer_id") && (
+                                                    <span className="ml-2 text-xs text-primary">(Cajero)</span>
+                                                )}
+                                            </label>
+                                        </div>
                                     ))}
                                 </div>
                                 <FormMessage />

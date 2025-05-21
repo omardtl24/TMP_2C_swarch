@@ -36,10 +36,10 @@ export type ExpenseType = {
 }
 
 export type ParticipantType = {
-  id: string;
+  id: string; // Changed from number to string to match mockData
   mount: number;
-  debtorName:string;
-  debtorId:string;
-  LenderName:string;
-  LenderId:string;
+  debtorName: string;
+  debtorId: string;
+  LenderName: string;
+  LenderId: string;
 }

@@ -27,6 +27,7 @@ import {
 import ModalFormBase from "@/components/ModalFormBase"
 
 
+
 // Schema definition with zod
 const eventFormSchema = z.object({
     name: z
@@ -34,61 +35,67 @@ const eventFormSchema = z.object({
         .min(3, { message: 'El nombre debe tener al menos 3 caracteres' })
         .max(50, { message: 'El nombre no puede exceder 50 caracteres' })
         .nonempty({ message: 'El nombre es obligatorio' }),
-    beginDate: z.date({
+    description: z
+        .string()
+        .min(10, { message: 'La descripción debe tener al menos 10 caracteres' })
+        .max(200, { message: 'La descripción no puede exceder 200 caracteres' })
+        .optional(),
+    begin_date: z.date({
         required_error: 'La fecha de inicio es requerida',
     }),
-    endDate: z.date({
+    end_date: z.date({
         required_error: 'La fecha de finalización es requerida',
     }),
-}).refine(data => data.endDate >= data.beginDate, {
+}).refine(data => data.end_date >= data.begin_date, {
     message: "La fecha de finalización debe ser posterior a la fecha de inicio",
-    path: ["endDate"],
+    path: ["end_date"],
 });
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
 
 interface FormCreateEventProps {
-    defaultBeginDate?: Date;
+    defaultbegin_date?: Date;
     modalId?: string;
     open?: boolean; 
     setOpen?: (value: boolean) => void;
 }
 
 const FormCreateEvent = ({
-    defaultBeginDate,
+    defaultbegin_date,
     modalId = 'createEvent',
     open,
     setOpen
 
 }: FormCreateEventProps) => {
 
-    console.log("fecha seleccionada", defaultBeginDate);
+    console.log("fecha seleccionada", defaultbegin_date);
     
     const form = useForm<EventFormValues>({
         resolver: zodResolver(eventFormSchema),
         defaultValues: {
             name: '',
-            beginDate: new Date(), // Use a default date initially
-            endDate: new Date(Date.now() + 24 * 60 * 60 * 1000), 
+            description: undefined,
+            begin_date: new Date(), // Use a default date initially
+            end_date: new Date(Date.now() + 24 * 60 * 60 * 1000), 
         },
         mode: "onSubmit", 
     });
 
-    // Update form values when defaultBeginDate changes
+    // Update form values when defaultbegin_date changes
     useEffect(() => {
-        if (defaultBeginDate && open) {
-            console.log("Setting form values with date:", defaultBeginDate);
+        if (defaultbegin_date && open) {
+            console.log("Setting form values with date:", defaultbegin_date);
             
             // Ensure the date is a valid Date object
-            const beginDate = new Date(defaultBeginDate);
-            form.setValue("beginDate", beginDate);
+            const begin_date = new Date(defaultbegin_date);
+            form.setValue("begin_date", begin_date);
             
             // Set end date to one day after begin date
-            const endDate = new Date(beginDate);
-            endDate.setDate(endDate.getDate() + 1);
-            form.setValue("endDate", endDate);
+            const end_date = new Date(begin_date);
+            end_date.setDate(end_date.getDate() + 1);
+            form.setValue("end_date", end_date);
         }
-    }, [defaultBeginDate, form, open]);
+    }, [defaultbegin_date, form, open]);
 
     const [loading, setLoading] = useState(false);
 
@@ -147,11 +154,30 @@ const FormCreateEvent = ({
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-base font-semibold">
+                                    Descripción 
+                                </FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="Escribe el nombre del evento"
+                                        className="rounded-xl h-12"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
                     <div className="grid grid-cols-2 gap-4">
                         <FormField
                             control={form.control}
-                            name="beginDate"
+                            name="begin_date"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel className="text-base font-semibold">
@@ -191,7 +217,7 @@ const FormCreateEvent = ({
 
                         <FormField
                             control={form.control}
-                            name="endDate"
+                            name="end_date"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel className="text-base font-semibold">
@@ -222,7 +248,7 @@ const FormCreateEvent = ({
                                                 onSelect={field.onChange}
                                                 
                                                 locale={es}
-                                                disabled={(date) => date < form.getValues("beginDate")}
+                                                disabled={(date) => date < form.getValues("begin_date")}
                                             />
                                         </PopoverContent>
                                     </Popover>

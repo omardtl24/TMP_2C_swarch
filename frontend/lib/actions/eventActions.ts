@@ -221,21 +221,30 @@ export async function createExpense(
   eventId: string,
   expenseData: {
     name: string;
-    amount: number;
-    category: string;
-    paidById: string;  // ID of the person who paid
-    participantIds: string[];  // IDs of participants
+    total: number;
+    type: string;
+    payer_id: string;
+    participants: string[];
   }
 ): Promise<CreateExpenseResponse> {
+  // Ensure amount is a valid number
+  const amount = Number(expenseData.total);
+  if (isNaN(amount)) {
+    return {
+      success: false,
+      error: "Invalid amount provided"
+    };
+  }
+
   // Mock data for development - remove when API is ready
   return {
     success: true,
     data: {
       id: Math.floor(Math.random() * 10000),
       name: expenseData.name,
-      amount: expenseData.amount,
-      category: expenseData.category,
-      paidBy: `Usuario ${expenseData.paidById}`, // Simulated name lookup
+      amount, // Use validated amount
+      category: expenseData.type,
+      paidBy: `Usuario ${expenseData.payer_id}`,
     }
   };
   
