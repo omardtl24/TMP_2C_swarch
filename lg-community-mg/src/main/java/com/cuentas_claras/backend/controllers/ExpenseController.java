@@ -124,4 +124,17 @@ public class ExpenseController {
     ) throws Exception {
         return expenseService.saveSupportImage(eventId, expenseId, file);
     }
+
+    @QueryMapping
+    public Double sumExpensesByEvent(@Argument Long eventId) throws EntityNotFoundException {
+        return expenseService.sumExpensesByEvent(eventId);
+    }
+
+    @QueryMapping
+    public Double sumExpensesPaidByUserInEvent(@Argument Long eventId)
+        throws EntityNotFoundException {
+        return expenseService.sumExpensesPaidByUserInEvent(eventId);
+    }
+
+
 }

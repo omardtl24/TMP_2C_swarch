@@ -266,4 +266,41 @@ public class ExpenseService {
         Double total = expenseDocumentRepository.sumAllTotals();
         return total != null ? total : 0.0;
     }
-} 
+
+
+    /** Suma todos los totales de los gastos asociados a un evento */
+    @Transactional(readOnly = true)
+    public Double sumExpensesByEvent(Long eventId) throws EntityNotFoundException {
+        EventEntity event = eventRepository.findById(eventId)
+        .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
+        List<ExpenseEntity> expenses = expenseRepository.findByEvent(event);
+        double suma = 0;
+        for (ExpenseEntity e : expenses) {
+        ExpenseDocument doc = expenseDocumentRepository.findById(e.getExternalDocId())
+            .orElseThrow(() -> new EntityNotFoundException(
+            "Documento no encontrado: " + e.getExternalDocId()));
+        suma += doc.getTotal();
+        }
+        return suma;
+    }
+
+    /** Suma sólo los gastos que el usuario autenticado pagó en un evento */
+    @Transactional(readOnly = true)
+    public Double sumExpensesPaidByUserInEvent(Long eventId) throws EntityNotFoundException {
+        EventEntity event = eventRepository.findById(eventId)
+        .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
+        String me = getCurrentUserId();
+        List<ExpenseEntity> expenses = expenseRepository.findByEvent(event);
+        double suma = 0;
+        for (ExpenseEntity e : expenses) {
+        ExpenseDocument doc = expenseDocumentRepository.findById(e.getExternalDocId())
+            .orElseThrow(() -> new EntityNotFoundException(
+            "Documento no encontrado: " + e.getExternalDocId()));
+        if (me.equals(doc.getPayerId())) {
+            suma += doc.getTotal();
+        }
+        }
+        return suma;
+    }
+}
+
