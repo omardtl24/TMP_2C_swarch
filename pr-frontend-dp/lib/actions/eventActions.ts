@@ -1,8 +1,19 @@
 'use server'
-
 import { ENDPOINTS } from "../endpoints";
 import mockEventsResponse, { mockEventDetailResponse, mockEventExpenses, mockEventParticipants } from "../mockData/eventMockData";
 import { EventDetailType, EventType, ExpenseType, ParticipantType } from "../types";
+import { cookies } from "next/headers";
+
+export async function getAuthToken(): Promise<string | undefined> {
+  try {
+    const cookieStore = await cookies();
+    return  cookieStore.get('jwt')?.value;
+  } catch (error) {
+    // This will catch errors when cookies() is called outside a request context
+    console.log("Cookie access error - likely outside request context");
+    return undefined;
+  }
+}
 
 // Define a typed response structure
 export type EventsResponse = {
@@ -11,12 +22,24 @@ export type EventsResponse = {
   error?: string;
 };
 
-export async function fetchEvents(): Promise<EventsResponse> {
-    return mockEventsResponse
+export async function fetchEvents(token?: string): Promise<EventsResponse> {
   try {
+    const authToken = token || await getAuthToken();
+    
+    // If running in generateStaticParams (no auth token available),
+    // return mock data for static generation
+    if (!authToken) {
+      console.log("No auth token available, using mock data for static generation");
+      return mockEventsResponse;
+    }
+    
     const res = await fetch(
-      ENDPOINTS.community.ssr + "/events",
-      { cache: 'no-store' } // Ensure server-side fetch without caching
+      ENDPOINTS.community.browser + "/api/events/me",
+      { 
+        method: "GET",
+        headers: { Authorization: `Bearer ${authToken}` },
+        cache: 'no-store'
+      }
     );
     
     if (!res.ok) {
@@ -44,12 +67,24 @@ export type EventsResponseDetailed = {
 };
 
 
-export async function fetchEventDetail(id:string): Promise<EventsResponseDetailed> {
-    return mockEventDetailResponse
+export async function fetchEventDetail(id:string,token?:string): Promise<EventsResponseDetailed> {
+    //return mockEventDetailResponse
   try {
+
+    const authToken = token || await getAuthToken();
+    
+    // If running in generateStaticParams (no auth token available),
+    // return mock data for static generation
+    if (!authToken) {
+      console.log("No auth token available, using mock data for static generation");
+    }
     const res = await fetch(
-      ENDPOINTS.community.ssr + "/events/" + id,
-      { cache: 'no-store' } // Ensure server-side fetch without caching
+      ENDPOINTS.community.browser + "/api/events/" + id,
+       { 
+        method: "GET",
+        headers: { Authorization: `Bearer ${authToken}` },
+        cache: 'no-store'
+      }
     );
     
     if (!res.ok) {
@@ -70,139 +105,58 @@ export async function fetchEventDetail(id:string): Promise<EventsResponseDetaile
   }
 }
 
-export type ExpensesResponse = {
+
+
+// Define the type for event creation
+export type CreateEventData = {
+  name: string;
+  description?: string;
+  beginDate: Date; 
+  endDate: Date;   // ISO format date string
+};
+
+export type CreateEventResponse = {
   success: boolean;
-  data?: ExpenseType[];
+  data?: EventType;
   error?: string;
 };
 
-// New function to fetch expenses using GraphQL
-export async function fetchEventExpenses(eventId: string): Promise<ExpensesResponse> {
-  // Mock data for development - remove this line when API is ready
-  return mockEventExpenses;
+// Function to create a new event
+export async function createEvent(eventData: CreateEventData, token?: string): Promise<CreateEventResponse> {
+  const authToken = token || await getAuthToken();
   
-  try {
-    // GraphQL query to fetch expenses
-    const query = `
-      query GetEventExpenses($eventId: ID!) {
-        eventExpenses(eventId: $eventId) {
-          id
-          name
-          amount
-          category
-          paidBy
-        }
-      }
-    `;
-
-    const variables = {
-      eventId
-    };
-
-    const res = await fetch(ENDPOINTS.community + "/expenses", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query,
-        variables,
-      }),
-      cache: 'no-store' // Ensure server-side fetch without caching
-    });
-
-    if (!res.ok) {
-      return {
-        success: false,
-        error: `Failed to fetch expenses. Status: ${res.status}`
-      };
-    }
-
-    const { data, errors } = await res.json();
-
-    if (errors) {
-      return {
-        success: false,
-        error: errors[0].message || 'GraphQL error occurred'
-      };
-    }
-
-    return {
-      success: true,
-      data: data.eventExpenses
-    };
-  } catch (error) {
+  // Check if token exists
+  if (!authToken) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: "Authentication required. No valid token found."
     };
   }
-}
-
-export type ParticipantsResponse = {
-  success: boolean;
-  data?: ParticipantType[];
-  error?: string;
-};
-
-
-
-// Private function to fetch raw participant data
-export async function fetchEventParticipants(eventId: string): Promise<ParticipantsResponse> {
-  // Mock data for development - remove this line when API is ready
-  return mockEventParticipants;
   
   try {
-    // GraphQL query to fetch participants
-    const query = `
-      query GetEventParticipants($eventId: ID!) {
-        eventParticipants(eventId: $eventId) {
-          id
-          mount
-          debtorName
-          debtorId
-          LenderName
-          LenderId
-        }
+    const res = await fetch(
+      ENDPOINTS.community.browser + "/api/events",
+      {
+        method: "POST",
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}` 
+        },
+        body: JSON.stringify(eventData),
+        cache: 'no-store'
       }
-    `;
-
-    const variables = {
-      eventId
-    };
-
-    const res = await fetch(ENDPOINTS.community + "/participants", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query,
-        variables,
-      }),
-      cache: 'no-store'
-    });
-
+    );
+    
     if (!res.ok) {
       return {
         success: false,
-        error: `Failed to fetch participants. Status: ${res.status}`
+        error: `Failed to create event. Status: ${res.status}`
       };
     }
-
-    const { data, errors } = await res.json();
-
-    if (errors) {
-      return {
-        success: false,
-        error: errors[0].message || 'GraphQL error occurred'
-      };
-    }
-
-    return {
-      success: true,
-      data: data.eventParticipants
-    };
+    
+    const createdEvent = await res.json();
+    return { success: true, data: createdEvent };
+    
   } catch (error) {
     return {
       success: false,

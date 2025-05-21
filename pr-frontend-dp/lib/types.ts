@@ -13,7 +13,7 @@ export type Session = {
 // export type User = { ... }
 
 export type EventType = {
-  id:number
+  id:string
   name: string;
   description: string;
   beginDate: Date;
@@ -23,7 +23,7 @@ export type EventType = {
 export type EventDetailType = EventType &  {
   creatorId: string;
   invitacionEnabled: boolean;
-  invitationCode: string;
+  invitationCode: string | null;
 }
 
 export type ExpenseType = {

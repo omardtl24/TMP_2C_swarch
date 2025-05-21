@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { logout } from "@/lib/actions/authActions";
-import { useSession } from "@/contexts/SessionContext";
+import { useSession } from "../../contexts/SessionContext";
 
 
 

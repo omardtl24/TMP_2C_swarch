@@ -1,4 +1,5 @@
-import { EventsResponse, EventsResponseDetailed, ParticipantsResponse } from "../actions/eventActions";
+import { EventsResponse, EventsResponseDetailed } from "../actions/eventActions";
+import { ParticipantsResponse } from "../actions/expenseActions";
 import { EventType } from "../types";
 
 
@@ -36,7 +37,7 @@ export default mockEventsResponse;
 export const mockEventDetailResponse: EventsResponseDetailed = {
   success: true,
   data: {
-    id: 101,
+    id: "101",
     name: "AI Innovation Summit",
     description: "A summit focused on the future of Artificial Intelligence and its applications.",
     beginDate: new Date("2025-09-10T09:00:00Z"),
@@ -52,32 +53,32 @@ export const mockEventExpenses = {
   success: true,
   data: [
     {
-      id: 1,
-      name: "Cena Italiana",
-      amount: 200000,
-      category: "Comida",
-      paidBy: "Gian Karlo Lanziano",
+      id: "1",
+      concept: "Cena Italiana",
+      total: 200000,
+      type: 1, // 1 could represent "Comida" category
+      payer_id: "user_001", // Using user IDs instead of names
     },
     {
-      id: 2,
-      name: "Pola HidraPub",
-      amount: 100000,
-      category: "Bebida",
-      paidBy: "Maria Camila Sanchez",
+      id: "2",
+      concept: "Pola HidraPub",
+      total: 100000,
+      type: 2, // 2 could represent "Bebida" category
+      payer_id: "user_002",
     },
     {
-      id: 3,
-      name: "Compra en carulla",
-      amount: 500000,
-      category: "Fruta",
-      paidBy: "Omar David Toledo",
+      id: "3",
+      concept: "Compra en carulla",
+      total: 500000,
+      type: 3, // 3 could represent "Fruta" category
+      payer_id: "user_003",
     },
     {
-      id: 4,
-      name: "Guaro o miedo?",
-      amount: 70000,
-      category: "Bebida",
-      paidBy: "Juan David Palacios",
+      id: "4",
+      concept: "Guaro o miedo?",
+      total: 70000,
+      type: 2, // 2 could represent "Bebida" category
+      payer_id: "user_004",
     },
   ]
 };

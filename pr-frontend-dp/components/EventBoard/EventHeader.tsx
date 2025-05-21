@@ -3,7 +3,7 @@ import EventBalance from "./EventBalance"
 type EventHeaderProps = {
     name: string
     creatorName: string
-    code: string
+    code: string | null
 }
 
   const totalExpense = 10000

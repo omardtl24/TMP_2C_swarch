@@ -5,6 +5,7 @@ import { fetchEvents } from "@/lib/actions/eventActions";
 import Event from "@/components/EventBoard/Event";
 import { AlertCircle } from "lucide-react";
 import RetryButton from "@/components/RetryButton";
+import { getSession } from "@/lib/getSession";
 
 
 // Define the interface for calendar events
@@ -16,6 +17,7 @@ export interface EventItem {
 
 export default async function EventBoard() {
   const eventsResponse = await fetchEvents();
+  const session = await getSession();
  
 
   // Transform events for the calendar if available
@@ -32,7 +34,7 @@ export default async function EventBoard() {
   return (
     <div className="w-full h-full flex flex-col p-4 md:px-12 md:py-6  ">
       <div>
-        <h2 className="text-3xl font-semibold">Bienvenido <span className="text-primary">{"nombreUsuaario"}</span></h2>
+        <h2 className="text-3xl font-semibold">Bienvenido <span className="text-primary">{session?.name}</span></h2>
         <p className="text-gray-700 text-sm">Mira y crea los eventos que tienes con tus amigos para que dividas tus gatos rapido y sin complicaciones</p>
       </div>
 

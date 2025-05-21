@@ -1,66 +1,53 @@
 import EventHeader from "@/components/EventBoard/EventHeader"
 import EventTabs from "@/components/EventBoard/EventTabs"
 import { 
-    fetchEventDetail, 
-    fetchEventExpenses, 
-    fetchEventParticipants, 
-    fetchEvents 
+    fetchEventDetail
 } from "@/lib/actions/eventActions"
-import { notFound } from "next/navigation"
+import { fetchEventExpenses, fetchEventParticipants } from "@/lib/actions/expenseActions"
+import { notFound, redirect } from "next/navigation"
+import { cookies } from "next/headers"
 
-
-// This function generates all the possible paths at build time
-export async function generateStaticParams() {
-    const events = await fetchEvents()
-
-    if (!events.success || !events.data) {
-        // If API fails during build, log but continue with empty array
-        console.error("Failed to fetch events for static generation:", events.error)
-        return []
-    }
-
-    return events.data.map((event) => ({
-        id: String(event.id),
-    }))
-}
+// Force server-side rendering for this page
+export const dynamic = 'force-dynamic'
 
 export default async function EventDetailPage({
     params,
 }: {
-    params:Promise<{ id: string }>
+    params: { id: string }
 }) {
+    // Get auth token for authenticated requests
     const {id} = await params
     
     // Fetch the specific event using the ID from the route params
-    const eventResponse = await fetchEventDetail(id)
+    const eventResponse = await fetchEventDetail(id);
 
     // Handle error states appropriately
     if (!eventResponse.success || !eventResponse.data) {
-        notFound()
+        notFound();
     }
 
-    const eventDetails = eventResponse.data
+    const eventDetails = eventResponse.data;
 
     // Fetch expenses for this event using GraphQL
-    const expensesResponse = await fetchEventExpenses(id)
-    const expenses = expensesResponse.success ? expensesResponse.data || [] : []
+    const expensesResponse = await fetchEventExpenses(id );
+    const expenses = expensesResponse.success ? expensesResponse.data || [] : [];
 
     // Fetch participants already formatted for UI
-    const participantsResponse = await fetchEventParticipants(id)
-    const participants = participantsResponse.success ? participantsResponse.data || [] : []
+    const participantsResponse = await fetchEventParticipants(id );
+    const participants = participantsResponse.success ? participantsResponse.data || [] : [];
 
     return (
         <div className="w-full h-full">
             <EventHeader 
                 name={eventDetails.name} 
                 creatorName={eventDetails.creatorId} 
-                code={id} 
+                code={eventDetails.invitationCode} 
             />
             <div className="px-4 md:px-16 mt-4 space-y-4 ">
                 <EventTabs 
                     expenses={expenses} 
                     participants={participants} 
-                    eventId={id} 
+                    eventId={eventDetails.id} 
                 />
             </div>
         </div>
