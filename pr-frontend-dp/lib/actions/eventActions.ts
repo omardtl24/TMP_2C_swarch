@@ -288,3 +288,53 @@ export async function ChangeInvitationState(
     };
   }
 }
+
+export type DeleteEventResponse = {
+  success: boolean;
+  error?: string;
+};
+
+export async function deleteEvent(eventId: string): Promise<DeleteEventResponse> {
+  const authToken = await getAuthToken();
+  
+  // Check if token exists
+  if (!authToken) {
+    return {
+      success: false,
+      error: "Authentication required. No valid token found."
+    };
+  }
+  
+  try {
+    console.log(`Deleting event with ID: ${eventId}`);
+    
+    const res = await fetch(
+      `${ENDPOINTS.community.browser}/api/events/${eventId}`,
+      {
+        method: "DELETE",
+        headers: { 
+          Authorization: `Bearer ${authToken}` 
+        },
+        cache: 'no-store'
+      }
+    );
+    
+    if (!res.ok) {
+      return {
+        success: false,
+        error: `Failed to delete event. Status: ${res.status}`
+      };
+    }
+    
+    return { success: true };
+    
+  } catch (error) {
+    console.error("Error in deleteEvent:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+  }
+}
+
+// Function to get current user information

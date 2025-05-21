@@ -40,7 +40,7 @@ export default async function EventDetailPage({
         <div className="w-full h-full">
             <EventHeader 
                 name={eventDetails.name} 
-                creatorName={eventDetails.creatorId} 
+                creatorId={eventDetails.creatorId} 
                 code={eventDetails.invitationCode} 
                 eventId={eventDetails.id}
             />

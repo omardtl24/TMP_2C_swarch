@@ -2,33 +2,63 @@
 
 import EventBalance from "./EventBalance"
 import { Label } from "@radix-ui/react-label"
-import { useState } from "react"
-import { ChangeInvitationState } from "@/lib/actions/eventActions"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { ChangeInvitationState, deleteEvent } from "@/lib/actions/eventActions"
 import { Switch } from "../ui/switch"
+import { Button } from "../ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { useSession } from "@/contexts/SessionContext"
 
 type EventHeaderProps = {
     name: string
-    creatorName: string
+    creatorId: string
     code: string | null
     eventId: string
-
 }
 
-  const totalExpense = 10000
+const totalExpense = 10000
+const userBalance = 100000
 
-  // Mock user balance
-  const userBalance = 100000
-
-export default function EventHeader({ name, creatorName, code, eventId }: EventHeaderProps) {
+export default function EventHeader({ name, creatorId, code, eventId }: EventHeaderProps) {
     const [checked, setChecked] = useState(code === null ? false : true)
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
+    const [isCreator, setIsCreator] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const router = useRouter()
 
+    const {session} = useSession()
+    
+    
+    // Check if current user is the creator
+    useEffect(() => {
+        async function checkCreator() {
+            try {
+               
+                setIsCreator(session?.id === creatorId)
+            } catch (error) {
+                console.error("Error checking creator status:", error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        
+        checkCreator()
+    }, [ session, creatorId ])
+    
     const handleCheckedChange = async (newState: boolean) => {
         try {
-            // Call API with the new state
             const response = await ChangeInvitationState(newState, eventId)
             
             if (response.success) {
-                // Update local state to match new state
                 setChecked(newState)
             } else {
                 console.error("Error changing invitation state:", response.error)
@@ -38,36 +68,92 @@ export default function EventHeader({ name, creatorName, code, eventId }: EventH
         }
     }
     
+    const handleDeleteEvent = async () => {
+        try {
+            setIsDeleting(true)
+            const response = await deleteEvent(eventId)
+            
+            if (response.success) {
+                router.push('/eventBoard')
+            } else {
+                console.error("Error deleting event:", response.error)
+            }
+        } catch (error) {
+            console.error("Failed to delete event:", error)
+        } finally {
+            setIsDeleting(false)
+            setIsDeleteDialogOpen(false)
+        }
+    }
+    
     return (
-        <div className="w-full h-56 md:52 bg-linear-to-b from-primary-50 to-surface-95  flex flex-col md:flex-row  md:justify-between items-start p-4 pt-6 md:p-12 md:pt-8 rounded-b-lg ">
+        <div className="w-full h-56 md:52 bg-linear-to-b from-primary-50 to-surface-95 flex flex-col md:flex-row md:justify-between items-start p-4 pt-6 md:p-12 md:pt-8 rounded-b-lg">
             <div className="text-white flex flex-col gap-2 flex-2">
                 <h1 className="text-2xl font-bold">{name}</h1>
-                <p className="text-sm font-semibold">Creado por: <span className="text-primary-20">{creatorName}</span></p>
+                <p className="text-sm font-semibold">Creado por: <span className="text-primary-20">{creatorId}</span></p>
                 <div className="flex flex-row items-center gap-2">
-                    <p className="text-sm font-semibold bg-primary-50 rounded-md p-1">Codigo de invitacion: <span className="text-primary-20 ">{code}</span></p>
+                    <p className="text-sm font-semibold bg-primary-50 rounded-md p-1">Codigo de invitacion: <span className="text-primary-20">{code}</span></p>
                     
-                    {/* Properly styled Switch component */}
-                    <div className="flex items-center">
-                        <Switch 
-                            id="switchInvitation" 
-                            checked={checked} 
-                            onCheckedChange={handleCheckedChange}
-                           
-                        >
-                            <span 
-                                className="pointer-events-none block h-[20px] w-[20px] rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ease-in-out data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+                    {/* Only show the switch for the creator */}
+                    {!isLoading && isCreator && (
+                        <div className="flex items-center">
+                            <Switch 
+                                id="switchInvitation" 
+                                checked={checked} 
+                                onCheckedChange={handleCheckedChange}
                             />
-                        </Switch>
-                        <Label className="text-sm font-semibold text-white ml-2" htmlFor="switchInvitation">
-                            {checked ? 'Activo' : 'Inactivo'}
-                        </Label>
-                    </div>
+                            <Label className="text-sm font-semibold text-white ml-2" htmlFor="switchInvitation">
+                                {checked ? 'Activo' : 'Inactivo'}
+                            </Label>
+                        </div>
+                    )}
                 </div>
+                
+                {/* Only show delete button for the creator */}
+                {!isLoading && isCreator && (
+                    <div className="mt-4">
+                        <Button 
+                            variant="destructive" 
+                            onClick={() => setIsDeleteDialogOpen(true)}
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            Eliminar Evento
+                        </Button>
+                    </div>
+                )}
             </div>
             
             <div className="mt-4 md:mt-0 flex justify-between items-center gap-2 w-full md:flex-1 md:flex-col md:gap-2">
-              <EventBalance totalExpense={totalExpense} userBalance={userBalance} />
+                <EventBalance totalExpense={totalExpense} userBalance={userBalance} />
             </div>
+            
+            {/* Delete confirmation dialog */}
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirmar eliminación</DialogTitle>
+                        <DialogDescription>
+                            ¿Estás seguro que deseas eliminar el evento &quot;{name}&quot;? Esta acción no se puede deshacer.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                            disabled={isDeleting}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button 
+                            variant="destructive" 
+                            onClick={handleDeleteEvent}
+                            disabled={isDeleting}
+                        >
+                            {isDeleting ? "Eliminando..." : "Eliminar"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
