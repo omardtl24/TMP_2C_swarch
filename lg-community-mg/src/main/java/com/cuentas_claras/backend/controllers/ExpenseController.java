@@ -1,5 +1,6 @@
 package com.cuentas_claras.backend.controllers;
 
+import com.cuentas_claras.backend.dto.Balance;
 import com.cuentas_claras.backend.dto.DeleteExpenseInput;
 import com.cuentas_claras.backend.dto.NewExpenseInput;
 import com.cuentas_claras.backend.dto.UpdateExpenseInput;
@@ -8,22 +9,37 @@ import com.cuentas_claras.backend.exceptions.IllegalOperationException;
 import com.cuentas_claras.backend.models.enums.ExpenseType;
 import com.cuentas_claras.backend.models.mongo.ExpenseDocument;
 import com.cuentas_claras.backend.models.sql.ExpenseEntity;
+import com.cuentas_claras.backend.repositories.mongo.ExpenseDocumentRepository;
 import com.cuentas_claras.backend.services.ExpenseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class ExpenseController {
 
     @Autowired
     private ExpenseService expenseService;
+
+    @Autowired
+    private ExpenseDocumentRepository expenseDocumentRepository;
+
+    @SchemaMapping(typeName = "ExpenseEntity", field = "document")
+    public ExpenseDocument document(ExpenseEntity expense) throws EntityNotFoundException {
+        return expenseDocumentRepository.findById(expense.getExternalDocId())
+        .orElseThrow(() -> new EntityNotFoundException(
+            "Documento no encontrado: " + expense.getExternalDocId()
+        ));
+    }
 
     @QueryMapping
     public List<ExpenseEntity> expensesByEvent(@Argument("eventId") Long eventId) throws Exception {
@@ -55,6 +71,14 @@ public class ExpenseController {
         return expenseService.sumAllExpenses();
     }
 
+    @QueryMapping
+    public List<Balance> calcularBalances(@Argument Long eventId) throws EntityNotFoundException {
+        Map<String, Double> balances = expenseService.calculateBalances(eventId);
+      
+        return balances.entrySet().stream()
+        .map(e -> new Balance(e.getKey(), e.getValue()))
+        .collect(Collectors.toList());
+    }
     @MutationMapping
     public ExpenseEntity createExpense(
         @Argument("input") NewExpenseInput input,

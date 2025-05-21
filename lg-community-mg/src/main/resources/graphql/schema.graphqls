@@ -4,7 +4,7 @@ scalar Upload
 
 # Expense types
 enum ExpenseType {
-  COMIDA_BEBIDA
+  COMIDA_Y_BEBIDA
   COMPRAS
   HOGAR
   TRANSPORTE
@@ -37,6 +37,11 @@ type ExpenseEntity {
   document: ExpenseDocument!
 }
 
+type Balance {
+  userId: String!
+  balance: Float!
+}
+
 # Queries
 type Query {
   expensesByEvent(eventId: ID!): [ExpenseEntity!]!
@@ -44,6 +49,7 @@ type Query {
   expensesParticipatedByMe: [ExpenseDocument!]!
   searchExpensesByType(type: ExpenseType!): [ExpenseDocument!]!
   searchExpensesByConcept(keyword: String!): [ExpenseDocument!]!
+  calcularBalances(eventId: ID!): [Balance!]!
   sumAllExpenses: Float!
 }
 
