@@ -1,0 +1,13 @@
+# docker compose -f compose.prod.yaml up --build
+
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: prod.Dockerfile
+    ports:
+      - "3000:3000"
+    restart: always
+    env_file:
+      - ./frontend/.env.local

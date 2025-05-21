@@ -1,5 +1,0 @@
-{"properties": [{
-  "name": "frontend.base-url",
-  "type": "java.lang.String",
-  "description": "despliegue del front para hacer redirects a donde es'"
-}]}

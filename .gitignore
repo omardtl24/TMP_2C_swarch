@@ -1,3 +1,5 @@
+secret
+
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
@@ -31,4 +33,10 @@ build/
 
 ### VS Code ###
 .vscode
+# No subir secretos desencriptados ni los .env
 .env
+**/.env
+*.env
+**/*.env
+env.secrets.json
+PASSPHRASE.txt

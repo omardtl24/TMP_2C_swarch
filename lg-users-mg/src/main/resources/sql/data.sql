@@ -1,0 +1,1 @@
+INSERT INTO user_entity (name, email, username) VALUES ('Omar Toledo', 'omardtoledol@gmail.com', 'omardtl24');
