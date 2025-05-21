@@ -62,7 +62,7 @@ public class EventService {
         event.setCreatorId(creatorId);
         event.setInvitationEnabled(false);
         // Generar código de invitación (inicialmente inactivo)
-        event.setInvitationCode(InvitationCodeUtil.generateCodeFromId(event.getId()));
+        event.setInvitationCode(null);
 
         EventEntity saved = eventRepository.save(event);
         
@@ -165,11 +165,16 @@ public class EventService {
      * @throws EntityNotFoundException si el evento no existe.
      */
     @Transactional
-    public void deleteEvent(Long eventId) throws EntityNotFoundException {
+    public void deleteEvent(Long eventId) throws EntityNotFoundException, IllegalOperationException {
+        String userId = getCurrentUserId();
         log.info("Eliminando evento {}", eventId);
         if (!eventRepository.existsById(eventId)) {
             throw new EntityNotFoundException("Evento no encontrado: " + eventId);
         }
+        if (!eventRepository.findById(eventId).get().getCreatorId().equals(userId)) {
+            throw new IllegalOperationException("Solo el creador puede eliminar el evento");
+        }
+
         eventRepository.deleteById(eventId);
     }
 

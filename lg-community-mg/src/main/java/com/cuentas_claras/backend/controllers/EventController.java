@@ -114,7 +114,7 @@ public class EventController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) throws EntityNotFoundException {
+    public void delete(@PathVariable("id") Long id) throws EntityNotFoundException, IllegalOperationException {
         eventService.deleteEvent(id);
     }
 }
