@@ -132,7 +132,7 @@ const CustomCalendar = ({ events }: CustomCalendarProps) => {
 
       {/* Pass the selected date and the trigger counter */}
       <FormCreateEvent 
-        defaultBeginDate={selected} 
+        defaultbegin_date={selected} 
         open={openModalTrigger}
         setOpen={setOpenModalTrigger} // Use the trigger counter to open/close the modal
       />

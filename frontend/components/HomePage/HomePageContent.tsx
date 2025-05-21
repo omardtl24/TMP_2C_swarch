@@ -3,13 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { logout } from "@/lib/actions/authActions";
-import type { Session } from "@/lib/types";
+import { useSession } from "@/contexts/SessionContext";
 
-interface HomePageContentProps {
-	session: Session | null;
-}
 
-export default function HomePageContent({ session }: HomePageContentProps) {
+
+export default function HomePageContent() {
+	const { session } = useSession();
 	const router = useRouter();
 	const [codigo, setCodigo] = useState("");
 	const [inputCodigo, setInputCodigo] = useState("");
