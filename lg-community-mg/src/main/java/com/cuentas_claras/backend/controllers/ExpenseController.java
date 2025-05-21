@@ -1,5 +1,11 @@
 package com.cuentas_claras.backend.controllers;
 
+import com.cuentas_claras.backend.dto.DeleteExpenseInput;
+import com.cuentas_claras.backend.dto.NewExpenseInput;
+import com.cuentas_claras.backend.dto.UpdateExpenseInput;
+import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
+import com.cuentas_claras.backend.exceptions.IllegalOperationException;
+import com.cuentas_claras.backend.models.enums.ExpenseType;
 import com.cuentas_claras.backend.models.mongo.ExpenseDocument;
 import com.cuentas_claras.backend.models.sql.ExpenseEntity;
 import com.cuentas_claras.backend.services.ExpenseService;
@@ -79,7 +85,7 @@ public class ExpenseController {
     }
 
     @MutationMapping
-    public Boolean deleteExpense(@Argument DeleteExpenseInput input) {
+    public Boolean deleteExpense(@Argument DeleteExpenseInput input) throws EntityNotFoundException, IllegalOperationException {
         expenseService.deleteExpense(input.getExpenseId());
         return true;
     }

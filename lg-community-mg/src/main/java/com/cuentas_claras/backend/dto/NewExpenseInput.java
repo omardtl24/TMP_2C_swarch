@@ -2,6 +2,9 @@ package com.cuentas_claras.backend.dto;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.cuentas_claras.backend.models.enums.ExpenseType;
+
 import java.util.List;
 
 @Data

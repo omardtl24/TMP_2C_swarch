@@ -150,11 +150,11 @@
 		</dependency>
 
 		<!-- (Opcional) GraphQL multipart request support -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.graphql-java</groupId>
 			<artifactId>graphql-java-servlet-spring-boot-starter</artifactId>
 			<version>11.1.0</version>
-		</dependency>
+		</dependency> -->
 
 	</dependencies>
 

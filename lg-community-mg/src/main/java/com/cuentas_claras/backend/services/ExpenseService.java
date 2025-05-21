@@ -1,8 +1,9 @@
 package com.cuentas_claras.backend.services;
 
+ 
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.exceptions.IllegalOperationException;
-import com.cuentas_claras.backend.graphql.NewParticipationInput;
+import com.cuentas_claras.backend.dto.NewParticipationInput;
 import com.cuentas_claras.backend.models.mongo.ExpenseDocument;
 import com.cuentas_claras.backend.models.mongo.ExpenseDocument.Participation;
 import com.cuentas_claras.backend.models.sql.ExpenseEntity;
@@ -81,7 +82,7 @@ public class ExpenseService {
         // Guardar imagen de soporte si existe
         ObjectId imageId = null;
         if (supportImage != null && !supportImage.isEmpty()) {
-            imageId = expenseDocumentRepository.saveSupportImage(supportImage);
+            //imageId = expenseDocumentRepository.saveSupportImage(supportImage);
         }
 
         // Construir documento Mongo
@@ -139,8 +140,8 @@ public class ExpenseService {
             .orElseThrow(() -> new EntityNotFoundException("Documento no encontrado: " + entity.getExternalDocId()));
 
         if (supportImage != null && !supportImage.isEmpty()) {
-            ObjectId imageId = expenseDocumentRepository.saveSupportImage(supportImage);
-            doc.setSupportImageId(imageId);
+            //ObjectId imageId = expenseDocumentRepository.saveSupportImage(supportImage);
+            //doc.setSupportImageId(imageId);
         }
 
         doc.setTotal(total);
@@ -168,9 +169,10 @@ public class ExpenseService {
      * @throws IOException si falla la subida
      */
     public String saveSupportImage(String eventId, String expenseId, MultipartFile file) throws IOException {
-        ObjectId id = expenseDocumentRepository.saveSupportImage(file);
-        log.info("Imagen de soporte guardada con ID {} para gasto {}", id.toHexString(), expenseId);
-        return id.toHexString();
+        //ObjectId id = expenseDocumentRepository.saveSupportImage(file);
+        //log.info("Imagen de soporte guardada con ID {} para gasto {}", id.toHexString(), expenseId);
+        //return id.toHexString();
+        return null; // Placeholder, ya que la implementación de guardar imagen está comentada
     }
 
     // Resto de métodos sin cambios para consultas y eliminación...
@@ -265,4 +267,4 @@ public class ExpenseService {
         Double total = expenseDocumentRepository.sumAllTotals();
         return total != null ? total : 0.0;
     }
-}
+} 
