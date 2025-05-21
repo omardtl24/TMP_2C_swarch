@@ -152,15 +152,15 @@
 		<dependency>
 			<groupId>com.graphql-java</groupId>
 			<artifactId>graphql-java-extended-scalars</artifactId>
-			<version>21.0</version>
+			<version>20.1</version>
 		</dependency>
 
-		<!-- (Opcional) GraphQL multipart request support -->
-		<!-- <dependency>
-			<groupId>com.graphql-java</groupId>
-			<artifactId>graphql-java-servlet-spring-boot-starter</artifactId>
-			<version>11.1.0</version>
-		</dependency> -->
+		<!-- Soporte multipart en Spring -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
 
 	</dependencies>
 

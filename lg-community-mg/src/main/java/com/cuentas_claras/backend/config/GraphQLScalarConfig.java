@@ -7,12 +7,10 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class GraphQLScalarConfig {
-    @Bean
-    public GraphQLScalarType uploadScalar() {
-        return ExtendedScalars.Upload;
-    }
-    @Bean
-    public GraphQLScalarType dateScalar() {
-        return ExtendedScalars.Date;
-    }
+
+  @Bean
+  public GraphQLScalarType dateScalar() {
+    return ExtendedScalars.Date;
+  }
 }
+

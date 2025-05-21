@@ -78,8 +78,9 @@ input DeleteExpenseInput {
 }
 
 type Mutation {
-  createExpense(input: NewExpenseInput!): ExpenseEntity!
-  updateExpense(input: UpdateExpenseInput!): ExpenseDocument!
+  createExpense(input: NewExpenseInput!, supportImage: Upload): ExpenseEntity!
+  updateExpense(input: UpdateExpenseInput!, supportImage: Upload): ExpenseDocument!
   deleteExpense(input: DeleteExpenseInput!): Boolean!
   uploadSupportImage(eventId: ID!, expenseId: ID!, file: Upload!): String!
+
 }

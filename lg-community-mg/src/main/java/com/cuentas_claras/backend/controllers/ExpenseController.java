@@ -9,6 +9,7 @@ import com.cuentas_claras.backend.models.enums.ExpenseType;
 import com.cuentas_claras.backend.models.mongo.ExpenseDocument;
 import com.cuentas_claras.backend.models.sql.ExpenseEntity;
 import com.cuentas_claras.backend.services.ExpenseService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -25,7 +26,7 @@ public class ExpenseController {
     private ExpenseService expenseService;
 
     @QueryMapping
-    public List<ExpenseEntity> expensesByEvent(@Argument Long eventId) throws Exception {
+    public List<ExpenseEntity> expensesByEvent(@Argument("eventId") Long eventId) throws Exception {
         return expenseService.getExpensesByEvent(eventId);
     }
 
@@ -40,12 +41,12 @@ public class ExpenseController {
     }
 
     @QueryMapping
-    public List<ExpenseDocument> searchExpensesByType(@Argument ExpenseType type) {
+    public List<ExpenseDocument> searchExpensesByType(@Argument("type") ExpenseType type) {
         return expenseService.searchByType(type.name());
     }
 
     @QueryMapping
-    public List<ExpenseDocument> searchExpensesByConcept(@Argument String keyword) {
+    public List<ExpenseDocument> searchExpensesByConcept(@Argument("keyword") String keyword) {
         return expenseService.searchByConcept(keyword);
     }
 
@@ -56,8 +57,8 @@ public class ExpenseController {
 
     @MutationMapping
     public ExpenseEntity createExpense(
-        @Argument NewExpenseInput input,
-        @Argument MultipartFile supportImage
+        @Argument("input") NewExpenseInput input,
+        @Argument("supportImage") MultipartFile supportImage
     ) throws Exception {
         return expenseService.createExpense(
             input.getEventId(),
@@ -71,8 +72,8 @@ public class ExpenseController {
 
     @MutationMapping
     public ExpenseDocument updateExpense(
-        @Argument UpdateExpenseInput input,
-        @Argument MultipartFile supportImage
+        @Argument("input") UpdateExpenseInput input,
+        @Argument("supportImage") MultipartFile supportImage
     ) throws Exception {
         return expenseService.updateExpense(
             input.getExpenseId(),
@@ -85,16 +86,17 @@ public class ExpenseController {
     }
 
     @MutationMapping
-    public Boolean deleteExpense(@Argument DeleteExpenseInput input) throws EntityNotFoundException, IllegalOperationException {
+    public Boolean deleteExpense(@Argument("input") DeleteExpenseInput input)
+            throws EntityNotFoundException, IllegalOperationException {
         expenseService.deleteExpense(input.getExpenseId());
         return true;
     }
 
     @MutationMapping
     public String uploadSupportImage(
-        @Argument String eventId,
-        @Argument String expenseId,
-        @Argument MultipartFile file
+        @Argument("eventId") String eventId,
+        @Argument("expenseId") String expenseId,
+        @Argument("file") MultipartFile file
     ) throws Exception {
         return expenseService.saveSupportImage(eventId, expenseId, file);
     }
