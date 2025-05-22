@@ -108,8 +108,8 @@ Debe escribirse **completo y en minúsculas**. Ejemplos:
 |--------|---------------------------------------|
 | `dp`   | Display (Interfaz de usuario)         |
 | `mg`   | Manager (Lógica de negocio)           |
-| `ms`   | Mongo Storage (Base de datos MongoDB) |
-| `ps`   | Postgres Storage (Base de datos PostgreSQL) |
+| `ms`   | Module Storage (Bases de datos)|
+| `ps`   | Principal Storage (Bases de  datos)|
 
 ---
 
@@ -119,13 +119,6 @@ Debe escribirse **completo y en minúsculas**. Ejemplos:
 |------------------------|--------------------------------------------------------------|
 | `pr-users-dp`          | Presentación del módulo `users` (frontend)                   |
 | `lg-community-mg`      | Lógica del módulo `community` (microservicio de negocio)     |
-| `db-users-ps`          | Base de datos PostgreSQL del módulo `users`                 |
-| `db-community-ms`      | Base de datos MongoDB del módulo `community`                |
+| `db-users-ps`          | Base de datos principal de `users`                 |
+| `db-community-ms`      | Base de datos del módulo `community`                |
 | `lg-expenses-mg`       | Lógica de negocio del módulo `expenses`                     |
-
----
-
-## Buenas Prácticas
-
-- El nombre del `container_name` debe coincidir con el nombre del servicio.
-- Si agregas un nuevo módulo o tipo de servicio, define claramente su rol y aplica esta convención.
