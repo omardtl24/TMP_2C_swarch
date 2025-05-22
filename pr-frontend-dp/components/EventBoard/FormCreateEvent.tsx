@@ -5,8 +5,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
-import { Calendar as CalendarIcon } from 'lucide-react'
+
 
 import {
     Form,
@@ -18,12 +17,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
+
 import ModalFormBase from "@/components/ModalFormBase"
 import { createEvent } from '@/lib/actions/eventActions'
 
