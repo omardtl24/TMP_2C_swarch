@@ -174,7 +174,6 @@ public class ExpenseService {
         return id.toHexString();
     }
 
-    // Resto de métodos sin cambios para consultas y eliminación...
 
     @Transactional(readOnly = true)
     public List<ExpenseEntity> getExpensesByEvent(Long eventId) throws EntityNotFoundException {
@@ -182,6 +181,16 @@ public class ExpenseService {
         EventEntity event = eventRepository.findById(eventId)
             .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
         return expenseRepository.findByEvent(event);
+    }
+
+    /**
+     * Obtiene el detalle de un gasto
+     * @throws EntityNotFoundException 
+     */
+    @Transactional(readOnly = true)
+    public ExpenseEntity getExpenseDetail(Long expenseId) throws EntityNotFoundException {
+        return expenseRepository.findById(expenseId)
+            .orElseThrow(() -> new EntityNotFoundException("Gasto no encontrado: " + expenseId));
     }
 
     @Transactional(readOnly = true)
@@ -275,12 +284,15 @@ public class ExpenseService {
         .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
         List<ExpenseEntity> expenses = expenseRepository.findByEvent(event);
         double suma = 0;
+        log.info("entro al for: " + eventId);
         for (ExpenseEntity e : expenses) {
+
         ExpenseDocument doc = expenseDocumentRepository.findById(e.getExternalDocId())
             .orElseThrow(() -> new EntityNotFoundException(
             "Documento no encontrado: " + e.getExternalDocId()));
         suma += doc.getTotal();
         }
+        log.info("encontre: " + eventId);
         return suma;
     }
 
