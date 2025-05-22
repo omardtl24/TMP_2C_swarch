@@ -1,9 +1,10 @@
 import EventHeader from "@/components/EventBoard/EventHeader"
 import EventTabs from "@/components/EventBoard/EventTabs"
 import { 
-    fetchEventDetail
+    fetchEventDetail,
+    participantsEvent
 } from "@/lib/actions/eventActions"
-import { fetchEventExpenses, fetchEventParticipants } from "@/lib/actions/expenseActions"
+import { fetchEventBalances, fetchEventExpenses } from "@/lib/actions/expenseActions"
 import { notFound } from "next/navigation"
 
 
@@ -16,26 +17,34 @@ export default async function EventDetailPage({
     params: { id: string }
 }) {
     // Get auth token for authenticated requests
-    const {id} = await params
+    const { id } = await params; // Fixed: Remove unnecessary await
     
     // Fetch the specific event using the ID from the route params
     const eventResponse = await fetchEventDetail(id);
 
+    // Add debugging to see what's happening
+    console.log("Event response:", eventResponse);
+
     // Handle error states appropriately
     if (!eventResponse.success || !eventResponse.data) {
+        console.error("Failed to fetch event:", eventResponse.error);
         notFound();
     }
 
     const eventDetails = eventResponse.data;
 
     // Fetch expenses for this event using GraphQL
-    const expensesResponse = await fetchEventExpenses(id );
+    const expensesResponse = await fetchEventExpenses(id);
+    console.log("expenses response:", expensesResponse);
     const expenses = expensesResponse.success ? expensesResponse.data || [] : [];
 
     // Fetch participants already formatted for UI
-    const participantsResponse = await fetchEventParticipants(id );
+    const participantsResponse = await participantsEvent(id);
     const participants = participantsResponse.success ? participantsResponse.data || [] : [];
+    //const totalSum = await getSumExpenses(expenses);
 
+    const BalanceParticipants = await fetchEventBalances(id)
+    
     return (
         <div className="w-full h-full">
             <EventHeader 
@@ -47,8 +56,10 @@ export default async function EventDetailPage({
             <div className="px-4 md:px-16 mt-4 space-y-4 ">
                 <EventTabs 
                     expenses={expenses} 
-                    participants={participants} 
+                    BalanceParticipants={BalanceParticipants} 
                     eventId={eventDetails.id} 
+                    participants={participants}
+                    
                 />
             </div>
         </div>

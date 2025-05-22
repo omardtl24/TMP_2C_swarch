@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, ChevronsUpDown, Database } from 'lucide-react'
+import { ChevronsUpDown, Database } from 'lucide-react'
 
 import {
     Form,
@@ -16,23 +16,26 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
+// import {
+//     Popover,
+//     PopoverContent,
+//     PopoverTrigger,
+// } from "@/components/ui/popover"
 import ModalFormBase from "@/components/ModalFormBase"
-import { ExpenseType } from '@/lib/types'
-import { cn, expenseCategories } from '@/lib/utils'
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-} from "@/components/ui/command"
+import { ExpenseType, ParticipantType } from '@/lib/types'
+import { cn } from '@/lib/utils'
+// import {
+//     Command,
+//     CommandEmpty,
+//     CommandGroup,
+//     CommandInput,
+//     CommandItem,
+// } from "@/components/ui/command"
 import { Checkbox } from '@/components/ui/checkbox'
 import { createExpense } from '@/lib/actions/expenseActions'
+import { expenseCategories } from '@/lib/utils'
+
+
 
 // Sample data for categories
 
@@ -52,7 +55,7 @@ const expenseFormSchema = z.object({
             return !isNaN(Number(numericValue)) && Number(numericValue) > 0;
         }, { message: 'El monto debe ser mayor a 0' }),
     type: z
-        .number()
+        .string()
         .min(1, { message: 'Seleccione una categoría' }),
     payer_id: z
         .string() // Changed from number to string
@@ -69,7 +72,7 @@ type ExpenseFormValues = z.infer<typeof expenseFormSchema>;
 
 interface FormCreateExpenseProps {
     eventId?: string;
-    participants: { id: string; name: string }[]; // Changed id type to string
+    participants: ParticipantType[]; // Changed id type to string
     onExpenseCreated?: (expense: ExpenseType) => void;
     modalId?: string;
     open?: boolean; 
@@ -89,7 +92,7 @@ export default function FormCreateExpense({
         defaultValues: {
             concept: '',
             total: '',
-            type: 0,
+            type: '',
             payer_id: "",
             participants: [],
         },
@@ -223,54 +226,24 @@ export default function FormCreateExpense({
                                 <FormLabel className="text-base">
                                     Tipo
                                 </FormLabel>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                                variant="outline"
-                                                role="combobox"
-                                                className={cn(
-                                                    "w-full justify-between rounded-xl h-12 pl-3 text-left font-normal",
-                                                    !field.value && "text-muted-foreground"
-                                                )}
-                                            >
-                                                {field.value
-                                                    ? expenseCategories.find(
-                                                        (type) => type.value === field.value
-                                                    )?.label
-                                                    : "Selecciona una categoría"}
-                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0">
-                                        <Command>
-                                            <CommandInput placeholder="Buscar categoría..." />
-                                            <CommandEmpty>No se encontró.</CommandEmpty>
-                                            <CommandGroup>
-                                                {expenseCategories.map((type) => (
-                                                    <CommandItem
-                                                        key={type.value}
-                                                        value={String(type.value)}
-                                                        onSelect={() => {
-                                                            form.setValue("type", type.value);
-                                                        }}
-                                                    >
-                                                        <Check
-                                                            className={cn(
-                                                                "mr-2 h-4 w-4",
-                                                                field.value === type.value
-                                                                    ? "opacity-100"
-                                                                    : "opacity-0"
-                                                            )}
-                                                        />
-                                                        {type.label}
-                                                    </CommandItem>
-                                                ))}
-                                            </CommandGroup>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
+                                <div className="relative">
+                                    <select
+                                        className={cn(
+                                            "w-full rounded-xl h-12 pl-3 pr-10 text-left font-normal appearance-none border border-input",
+                                            !field.value && "text-muted-foreground"
+                                        )}
+                                        value={field.value}
+                                        onChange={(e) => field.onChange(e.target.value)}
+                                    >
+                                        <option value="" disabled>Selecciona una categoría</option>
+                                        {expenseCategories.map((type) => (
+                                            <option key={type.value} value={type.label}>
+                                                {type.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ChevronsUpDown className="absolute right-3 top-3 h-4 w-4 opacity-50 pointer-events-none" />
+                                </div>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -285,53 +258,24 @@ export default function FormCreateExpense({
                                 <FormLabel className="text-base">
                                     ¿Quién paga?
                                 </FormLabel>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                                variant="outline"
-                                                role="combobox"
-                                                className={cn(
-                                                    "w-full justify-between rounded-xl h-12 pl-3 text-left font-normal",
-                                                    !field.value && "text-muted-foreground"
-                                                )}
-                                            >
-                                                {field.value
-                                                    ? participants.find(p => p.id === field.value)?.name
-                                                    : "Selecciona quién paga"}
-                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0">
-                                        <Command>
-                                            <CommandInput placeholder="Buscar participante..." />
-                                            <CommandEmpty>No se encontró.</CommandEmpty>
-                                            <CommandGroup>
-                                                {participants.map((participant) => (
-                                                    <CommandItem
-                                                        key={participant.id}
-                                                        
-                                                        value={participant.id}
-                                                        onSelect={() => {
-                                                            form.setValue("payer_id", participant.id);
-                                                        }}
-                                                    >
-                                                        <Check
-                                                            className={cn(
-                                                                "mr-2 h-4 w-4",
-                                                                field.value === participant.id
-                                                                    ? "opacity-100"
-                                                                    : "opacity-0"
-                                                            )}
-                                                        />
-                                                        {participant.name}
-                                                    </CommandItem>
-                                                ))}
-                                            </CommandGroup>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
+                                <div className="relative">
+                                    <select
+                                        className={cn(
+                                            "w-full rounded-xl h-12 pl-3 pr-10 text-left font-normal appearance-none border border-input",
+                                            !field.value && "text-muted-foreground"
+                                        )}
+                                        value={field.value}
+                                        onChange={(e) => field.onChange(e.target.value)}
+                                    >
+                                        <option value="" disabled>Selecciona quién paga</option>
+                                        {participants.map((participant) => (
+                                            <option key={participant.participantId} value={participant.participantId}>
+                                                {participant.participantId}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ChevronsUpDown className="absolute right-3 top-3 h-4 w-4 opacity-50 pointer-events-none" />
+                                </div>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -348,19 +292,19 @@ export default function FormCreateExpense({
                                 </div>
                                 <div className="rounded-md border p-4 bg-white">
                                     {participants.map((participant) => (
-                                        <div key={participant.id} className="flex flex-row items-center space-x-3 space-y-0 py-1">
+                                        <div key={participant.participantId} className="flex flex-row items-center space-x-3 space-y-0 py-1">
                                             <Checkbox
-                                                id={`participant-${participant.id}`}
-                                                checked={field.value?.includes(participant.id)}
+                                                id={`participant-${participant.participantId}`}
+                                                checked={field.value?.includes(participant.participantId)}
                                                 onCheckedChange={(checked) => {
                                                     const currentValues = [...field.value || []];
                                                     
                                                     if (checked) {
-                                                        if (!currentValues.includes(participant.id)) {
-                                                            currentValues.push(participant.id);
+                                                        if (!currentValues.includes(participant.participantId)) {
+                                                            currentValues.push(participant.participantId);
                                                         }
                                                     } else {
-                                                        const index = currentValues.indexOf(participant.id);
+                                                        const index = currentValues.indexOf(participant.participantId);
                                                         if (index !== -1) {
                                                             currentValues.splice(index, 1);
                                                         }
@@ -371,11 +315,11 @@ export default function FormCreateExpense({
                                                 className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                             />
                                             <label
-                                                htmlFor={`participant-${participant.id}`}
+                                                htmlFor={`participant-${participant.participantId}`}
                                                 className="font-normal cursor-pointer"
                                             >
-                                                {participant.name}
-                                                {participant.id === form.getValues("payer_id") && (
+                                                {participant.participantId}
+                                                {participant.participantId === form.getValues("payer_id") && (
                                                     <span className="ml-2 text-xs text-primary">(Cajero)</span>
                                                 )}
                                             </label>

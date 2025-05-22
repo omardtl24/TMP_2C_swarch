@@ -1,24 +1,23 @@
-import { ParticipantType } from "@/lib/types"
+import { ParticipantBalance } from "@/lib/types"
 import Participant from "./Participant"
 
 
 type ParticipantsListProps = {
-  participants: ParticipantType[]
+  BalanceParticipants: ParticipantBalance[] | undefined;
 }
 
-export default function ParticipantList({ participants }: ParticipantsListProps) {
-    const session ={id: "1", name: "Juan", email: ""} // momentaneo
+export default function ParticipantList({ BalanceParticipants }: ParticipantsListProps) {
+   
   return (
     <div className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-      {participants.map((participant) => (
 
+      {BalanceParticipants && BalanceParticipants.map((participant) => (
         <Participant 
+          key={participant.userId}
           participant={participant}
-          key={participant.id} 
-          userId={session?.id}
           /> 
-        
       ))}
+
     </div>
   )
 }

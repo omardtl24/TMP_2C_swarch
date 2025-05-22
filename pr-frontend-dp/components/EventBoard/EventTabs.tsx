@@ -8,17 +8,20 @@ import ParticipantList from "./ParticipantList"
 import FormCreateExpense from "./FormCreateExpense"
 
 import { ExpenseType, ParticipantType } from "@/lib/types"
+import { BalancesResponse } from "@/lib/actions/expenseActions"
 
 interface EventTabsProps {
     expenses: ExpenseType[];
-    participants: ParticipantType[];
+    BalanceParticipants: BalancesResponse;
     eventId?: string;
+    participants:ParticipantType[]
 }
 
 export default function EventTabs({ 
     expenses: initialExpenses, 
-    participants,
-    eventId 
+    BalanceParticipants,
+    eventId,
+    participants
 }: EventTabsProps) {
     const [expenses, setExpenses] = useState<ExpenseType[]>(initialExpenses);
     const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
@@ -29,13 +32,7 @@ export default function EventTabs({
     };
 
     // Format participants for the UI
-    const participantList = participants.map((participant) => ({
-        id: participant.id,
-        name: participant.debtorId !== "0" ? participant.debtorName : participant.LenderName
-    })).filter((p, index, self) => 
-        // Remove duplicates
-        index === self.findIndex((t) => t.id === p.id)
-    );
+   
 
     return (
         <>
@@ -61,17 +58,24 @@ export default function EventTabs({
                     </div>
                 </TabsContent>
                 <TabsContent value="participantes" className="mt-4">
-                    <ParticipantList participants={participants} />
+                    {BalanceParticipants.success ? (
+                        <ParticipantList BalanceParticipants={BalanceParticipants.data} />
+                    ) : (
+                        <p>ha sucedido un error</p>
+                    )
+                    }
+                    
                 </TabsContent>
             </Tabs>
             
             {/* Pass both open and setOpen props to the form */}
             <FormCreateExpense 
-                participants={participantList} 
+                participants={participants} 
                 onExpenseCreated={handleExpenseCreated}
                 open={isExpenseFormOpen}
                 setOpen={setIsExpenseFormOpen}
                 eventId={eventId}
+                modalId={`expense-form-${eventId}`} // Add unique ID to prevent conflicts
             />
         </>
     );

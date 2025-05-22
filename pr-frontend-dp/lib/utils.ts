@@ -13,7 +13,7 @@ export function cn(...inputs: ClassValue[]) {
 export const expenseCategories = [
     {
       "value": 0, 
-      "label": "Alimentos y Bebidas",
+      "label": "Comida y Bebida",
       "textColor": "text-red-500",
       "bgColor": "bg-red-100"
     },
@@ -43,7 +43,7 @@ export const expenseCategories = [
     },
     {
       "value": 5, 
-      "label": "Comunicación",
+      "label": "Comunicacion",
       "textColor": "text-orange-500",
       "bgColor": "bg-orange-100"
     },

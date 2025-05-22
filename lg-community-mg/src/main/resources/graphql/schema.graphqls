@@ -51,8 +51,8 @@ type Query {
   searchExpensesByConcept(keyword: String!): [ExpenseDocument!]!
   calcularBalances(eventId: ID!): [Balance!]!
   sumAllExpenses: Float!
-  sumarGastosPorEvento(eventId: ID!): Float!
-  sumarGastosPagadosPorMiEnEvento(eventId: ID!): Float!
+  sumExpensesByEvent(eventId: ID!): Float!
+  sumExpensesPaidByUserInEvent(eventId: ID!): Float!
 }
 
 # Mutations

@@ -30,7 +30,7 @@ export type ExpenseType = {
   id: string;
   concept: string;
   total: number;
-  type: number;
+  type: string;
   payer_id: string;
 }
 
@@ -46,10 +46,10 @@ export type ExpenseDetailedType = ExpenseType & {
 }
 
 export type ParticipantType = {
-  id: string; // Changed from number to string to match mockData
-  mount: number;
-  debtorName: string;
-  debtorId: string;
-  LenderName: string;
-  LenderId: string;
+  participantId:string // Changed from number to string to match mockData
 }
+
+export type ParticipantBalance = {
+  userId: string;
+  balance: number;
+};

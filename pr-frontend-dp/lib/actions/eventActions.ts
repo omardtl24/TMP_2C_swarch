@@ -1,7 +1,7 @@
 'use server'
 import { ENDPOINTS } from "../endpoints";
 import mockEventsResponse from "../mockData/eventMockData";
-import { EventDetailType, EventType } from "../types";
+import { EventDetailType, EventType, ParticipantType } from "../types";
 import { cookies } from "next/headers";
 
 export async function getAuthToken(): Promise<string | undefined> {
@@ -338,3 +338,51 @@ export async function deleteEvent(eventId: string): Promise<DeleteEventResponse>
 }
 
 // Function to get current user information
+
+interface ParticipantsResponse{
+  success: boolean;
+  data?: ParticipantType[]
+  error?: string;
+}
+
+export async function participantsEvent(id: string): Promise<ParticipantsResponse> {
+  const authToken = await getAuthToken();
+  
+  // Check if token exists
+  if (!authToken) {
+    return {
+      success: false,
+      error: "Authentication required. No valid token found."
+    };
+  }
+  
+  try {
+    const res = await fetch(
+      `${ENDPOINTS.community.browser}/api/events/${id}/participants`,
+      {
+        method: "GET",
+        headers: { 
+          Authorization: `Bearer ${authToken}` 
+        },
+        cache: 'no-store'
+      }
+    );
+    
+    if (!res.ok) {
+      return {
+        success: false,
+        error: `Failed to fetch participants. Status: ${res.status}`
+      };
+    }
+    
+    const data = await res.json();
+    return { success: true, data };
+    
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+  }
+
+}

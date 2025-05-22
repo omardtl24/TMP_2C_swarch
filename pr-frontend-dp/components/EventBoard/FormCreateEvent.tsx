@@ -187,31 +187,17 @@ const FormCreateEvent = ({
                                             <span className="text-primary">1</span> Fecha Inicio <span className="text-red-500">*</span>
                                         </div>
                                     </FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant="outline"
-                                                    className="rounded-xl bg-transparent h-12 pl-3 border-primary text-left font-normal"
-                                                >
-                                                    {field.value ? (
-                                                        format(field.value, "PP", { locale: es })
-                                                    ) : (
-                                                        <span>Seleccione una fecha</span>
-                                                    )}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value}
-                                                onSelect={field.onChange}
-                                                locale={es}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
+                                    <div className="relative">
+                                        <input
+                                            type="date"
+                                            className="rounded-xl bg-transparent h-12 pl-3 border-primary text-left font-normal w-full"
+                                            value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
+                                            onChange={(e) => {
+                                                const date = e.target.value ? new Date(e.target.value) : null;
+                                                if (date) field.onChange(date);
+                                            }}
+                                        />
+                                    </div>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -227,33 +213,18 @@ const FormCreateEvent = ({
                                             <span className="text-primary">2</span> Fecha Fin <span className="text-red-500">*</span>
                                         </div>
                                     </FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant="outline"
-                                                    className="rounded-xl bg-transparent border-primary h-12 pl-3 text-left font-normal"
-                                                >
-                                                    {field.value ? (
-                                                        format(field.value, "PP", { locale: es })
-                                                    ) : (
-                                                        <span>Seleccione una fecha</span>
-                                                    )}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value}
-                                                onSelect={field.onChange}
-                                                
-                                                locale={es}
-                                                disabled={(date) => date < form.getValues("beginDate")}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
+                                    <div className="relative">
+                                        <input
+                                            type="date"
+                                            className="rounded-xl bg-transparent border-primary h-12 pl-3 text-left font-normal w-full"
+                                            value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
+                                            onChange={(e) => {
+                                                const date = e.target.value ? new Date(e.target.value) : null;
+                                                if (date) field.onChange(date);
+                                            }}
+                                            min={form.getValues("beginDate") ? format(form.getValues("beginDate"), "yyyy-MM-dd") : undefined}
+                                        />
+                                    </div>
                                     <FormMessage />
                                 </FormItem>
                             )}

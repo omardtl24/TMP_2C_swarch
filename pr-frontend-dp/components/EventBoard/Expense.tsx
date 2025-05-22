@@ -1,5 +1,5 @@
 import { ExpenseType } from "@/lib/types"
-import { expenseCategories } from "@/lib/utils"
+
 
 interface ExpenseProps {
   expense: ExpenseType;
@@ -18,7 +18,7 @@ const Expense = ({expense,handleClickExpense}:ExpenseProps) => {
               </p>
             </div>
             <span
-              className={`px-2 py-1 rounded-md text-xs ${expenseCategories[expense.type].bgColor} ${expenseCategories[expense.type].textColor}`}
+              //className={`px-2 py-1 rounded-md text-xs ${expenseCategories[expense.type].bgColor} ${expenseCategories[expense.type].textColor}`}
             >
               {expense.type}
             </span>

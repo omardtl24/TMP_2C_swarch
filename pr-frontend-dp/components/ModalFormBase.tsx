@@ -131,6 +131,8 @@ export default function ModalFormBase({
       
       <DialogContent 
         className={cn("sm:max-w-[500px] glass-effect bg-white/50 border-1 border-primary", contentClassName)}
+        // Add forceMount to ensure content remains in DOM, which helps with nested interactive elements
+        forceMount
       >
         <DialogHeader className={headerClassName}>
           <DialogTitle className='text-2xl'>{title}</DialogTitle>

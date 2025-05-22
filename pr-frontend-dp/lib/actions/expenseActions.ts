@@ -1,7 +1,9 @@
-import { ExpenseType, ExpenseDetailedType, ParticipantType } from "../types";
+import { ExpenseType, ExpenseDetailedType, ParticipantType, ParticipantBalance } from "../types";
 import { mockExpenses, mockDetailedExpenses } from "../mockData/expenseMockData";
 import { mockEventExpenses, mockEventParticipants } from "../mockData/eventMockData";
-import {getAuthToken} from "./eventActions";
+import { getAuthToken } from "./eventActions";
+import { ENDPOINTS } from "../endpoints";
+import Expense from "@/components/EventBoard/Expense";
 export type CreateExpenseResponse = {
   success: boolean;
   data?: ExpenseType;
@@ -31,11 +33,20 @@ export async function createExpense(
   expenseData: {
     concept: string;
     total: number;
-    type: number;
+    type:string;
     payer_id: string;
     participants: string[];
   }
 ): Promise<CreateExpenseResponse> {
+  const authToken = await getAuthToken();
+
+  // Check if token exists
+  if (!authToken) {
+    return {
+      success: false,
+      error: "Authentication required. No valid token found."
+    };
+  }
   // Ensure amount is a valid number
   const total = Number(expenseData.total);
   if (isNaN(total)) {
@@ -46,60 +57,60 @@ export async function createExpense(
   }
 
   // Mock data for development - remove when API is ready
-  return {
-    success: true,
-    data: {
-      id: "mocked_id",
-      concept: expenseData.concept,
-      total: total,
-      type: expenseData.type,
-      payer_id: expenseData.payer_id
-    }
-  };
+  // return {
+  //   success: true,
+  //   data: {
+  //     id: "mocked_id",
+  //     concept: expenseData.concept,
+  //     total: total,
+  //     type: expenseData.type,
+  //     payer_id: expenseData.payer_id
+  //   }
+  // };
 
-  /* GraphQL mutation para cuando se implemente la API
+  //GraphQL mutation para cuando se implemente la API
   try {
     const mutation = `
-      mutation CreateExpense(
-        $eventId: ID!, 
-        $concept: String!, 
-        $total: Float!, 
-        $type: Int!, 
-        $payer_id: ID!,
-        $participants: [ID!]!
-      ) {
-        createExpense(
-          eventId: $eventId, 
-          input: {
-            concept: $concept,
-            total: $total,
-            type: $type,
-            payer_id: $payer_id,
-            participants: $participants
-          }
-        ) {
-          id
-          concept
-          total
-          type
-          payer_id
-        }
+      mutation($input: NewExpenseInput!) { 
+        createExpense(input: $input) { 
+          id 
+          externalDocId 
+          eventId 
+        } 
       }
     `;
 
+    // Transform participants into participation structure
+    const participation = expenseData.participants.map(userId => ({
+      userId,
+      state: 0,
+      portion: total / expenseData.participants.length // Split evenly by default
+    }));
+
+    // Include payer with full amount
+    if (!participation.some(p => p.userId === expenseData.payer_id)) {
+      participation.push({
+        userId: expenseData.payer_id,
+        state: 0,
+        portion: 0 // Payer doesn't owe anything
+      });
+    }
+
     const variables = {
-      eventId,
-      concept: expenseData.concept,
-      total: expenseData.total,
-      type: expenseData.type,
-      payer_id: expenseData.payer_id,
-      participants: expenseData.participants
+      input: {
+        eventId,
+        concept: expenseData.concept,
+        total,
+        type:  expenseData.type.toString().toUpperCase().replaceAll(" ", "_"),
+        participation
+      }
     };
 
-    const res = await fetch('/api/graphql', {
+    const res = await fetch(`${ENDPOINTS.community.browser}/api/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
       },
       body: JSON.stringify({
         query: mutation,
@@ -134,45 +145,45 @@ export async function createExpense(
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
-  */
+
 }
 
-/**
- * Retrieves all expenses for a specific event
- * @param eventId Event ID to retrieve expenses for
- * @returns Promise with array of expense data
- */
-export async function getExpensesByEvent(eventId: string): Promise<GetExpensesResponse> {
-  // Siempre devuelve datos mock por ahora
-  return {
-    success: true,
-    data: mockExpenses
-  };
+export async function fetchEventExpenses(eventId: string, token?: string): Promise<ExpensesResponse> {
+  // Get token from cookies if not provided
+  const authToken = token || getAuthToken();
 
-  /* GraphQL query para cuando se implemente la API
+  // Mock data for development - remove this line when API is ready
+  //return mockEventExpenses;
+
   try {
+    // GraphQL query to fetch expenses
     const query = `
-      query GetEventExpenses($eventId: ID!) {
-        eventExpenses(eventId: $eventId) {
-          id
-          concept
-          total
-          type
-          payer_id
+      query ($eventId: ID!) {
+        expensesByEvent(eventId: $eventId){
+          document {
+            id
+            concept
+            total
+            type
+            payerId
+          }
         }
       }
     `;
 
-    const variables = { eventId };
+    const variables = {
+      eventId
+    };
 
-    const res = await fetch('/api/graphql', {
+    const res = await fetch(ENDPOINTS.community.browser + "/api/graphql", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
       },
       body: JSON.stringify({
         query,
-        variables
+        variables,
       }),
       cache: 'no-store'
     });
@@ -184,18 +195,40 @@ export async function getExpensesByEvent(eventId: string): Promise<GetExpensesRe
       };
     }
 
-    const { data, errors } = await res.json();
-
-    if (errors) {
+    const response = await res.json();
+    console.log("Raw GraphQL Response:", response);
+    
+    // Check for GraphQL errors
+    if (response.errors) {
       return {
         success: false,
-        error: errors[0].message || 'GraphQL error occurred'
+        error: response.errors[0]?.message || 'GraphQL error occurred'
+      };
+    }
+
+    let mappedExpenses: ExpenseType[] = [];
+
+    // Correctly access the nested data structure
+    if (response.data?.expensesByEvent && Array.isArray(response.data.expensesByEvent)) {
+        mappedExpenses = response.data.expensesByEvent.map(item => ({
+        id: item.document.id,
+        concept: item.document.concept,
+        total: item.document.total,
+        type: item.document.type,
+        payer_id: item.document.payerId
+      }));
+
+      console.log("Mapped Expenses:", mappedExpenses);
+      
+      return {
+        success: true,
+        data: mappedExpenses
       };
     }
 
     return {
-      success: true,
-      data: data.eventExpenses
+      success: false,
+      error: 'Unexpected response format from API'
     };
   } catch (error) {
     return {
@@ -203,89 +236,13 @@ export async function getExpensesByEvent(eventId: string): Promise<GetExpensesRe
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
-  */
 }
 
-/**
- * Retrieves a single expense by its ID
- * @param id Expense ID to retrieve
- * @returns Promise with expense data
- */
-export async function getExpenseById(id: string): Promise<GetExpenseResponse> {
-  // Siempre devuelve datos mock por ahora
-  const mockExpense = mockExpenses.find(exp => exp.id === id) || mockExpenses[0];
-  
-  return {
-    success: true,
-    data: mockExpense
-  };
 
-  /* GraphQL query para cuando se implemente la API
-  try {
-    const query = `
-      query GetExpense($id: ID!) {
-        expense(id: $id) {
-          id
-          concept
-          total
-          type
-          payer_id
-        }
-      }
-    `;
-
-    const variables = { id };
-
-    const res = await fetch('/api/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query,
-        variables
-      }),
-      cache: 'no-store'
-    });
-
-    if (!res.ok) {
-      return {
-        success: false,
-        error: `Failed to fetch expense. Status: ${res.status}`
-      };
-    }
-
-    const { data, errors } = await res.json();
-
-    if (errors) {
-      return {
-        success: false,
-        error: errors[0].message || 'GraphQL error occurred'
-      };
-    }
-
-    return {
-      success: true,
-      data: data.expense
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
-    };
-  }
-  */
-}
-
-/**
- * Retrieves detailed expense information including participation data
- * @param id Expense ID to retrieve
- * @returns Promise with detailed expense data
- */
 export async function getExpenseDetailed(id: string): Promise<GetExpenseDetailedResponse> {
   // Siempre devuelve datos mock por ahora
   const mockDetailedExpense = mockDetailedExpenses.find(exp => exp.id === id) || mockDetailedExpenses[0];
-  
+
   return {
     success: true,
     data: mockDetailedExpense
@@ -361,23 +318,37 @@ export type ExpensesResponse = {
 };
 
 // New function to fetch expenses using GraphQL
-export async function fetchEventExpenses(eventId: string, token?: string): Promise<ExpensesResponse> {
+
+export type ParticipantsResponse = {
+  success: boolean;
+  data?: ParticipantType[];
+  error?: string;
+};
+
+// New response type for balances
+export type BalancesResponse = {
+  success: boolean;
+  data?: ParticipantBalance[];
+  error?: string;
+};
+
+/**
+ * Fetches balance information for all participants in an event
+ * @param eventId ID of the event to fetch balances for
+ * @param token Optional auth token (will use cookies if not provided)
+ * @returns Promise with balance data for each participant
+ */
+export async function fetchEventBalances(eventId: string, token?: string): Promise<BalancesResponse> {
   // Get token from cookies if not provided
   const authToken = token || getAuthToken();
-  
-  // Mock data for development - remove this line when API is ready
-  return mockEventExpenses;
-  
+
   try {
-    // GraphQL query to fetch expenses
+    // GraphQL query to fetch balances
     const query = `
-      query GetEventExpenses($eventId: ID!) {
-        eventExpenses(eventId: $eventId) {
-          id
-          name
-          amount
-          category
-          paidBy
+      query($eventId: ID!){ 
+        calcularBalances(eventId:$eventId){ 
+          userId 
+          balance 
         }
       }
     `;
@@ -386,7 +357,7 @@ export async function fetchEventExpenses(eventId: string, token?: string): Promi
       eventId
     };
 
-    const res = await fetch(ENDPOINTS.community.ssr + "/graphql", {
+    const res = await fetch(`${ENDPOINTS.community.browser}/api/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -396,101 +367,38 @@ export async function fetchEventExpenses(eventId: string, token?: string): Promi
         query,
         variables,
       }),
-      credentials: authToken ? undefined : "include",
       cache: 'no-store'
     });
 
     if (!res.ok) {
       return {
         success: false,
-        error: `Failed to fetch expenses. Status: ${res.status}`
+        error: `Failed to fetch balances. Status: ${res.status}`
       };
     }
 
-    const { data, errors } = await res.json();
-
-    if (errors) {
+    const response = await res.json();
+    console.log("Balance Response:", response);
+    
+    // Check for GraphQL errors
+    if (response.errors) {
       return {
         success: false,
-        error: errors[0].message || 'GraphQL error occurred'
+        error: response.errors[0]?.message || 'GraphQL error occurred'
       };
     }
 
-    return {
-      success: true,
-      data: data.eventExpenses
-    };
-  } catch (error) {
+    // Access the nested data
+    if (response.data?.calcularBalances) {
+      return {
+        success: true,
+        data: response.data.calcularBalances
+      };
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
-    };
-  }
-}
-
-export type ParticipantsResponse = {
-  success: boolean;
-  data?: ParticipantType[];
-  error?: string;
-};
-
-
-
-// Private function to fetch raw participant data
-export async function fetchEventParticipants(eventId: string): Promise<ParticipantsResponse> {
-  // Mock data for development - remove this line when API is ready
-  return mockEventParticipants;
-  
-  try {
-    // GraphQL query to fetch participants
-    const query = `
-      query GetEventParticipants($eventId: ID!) {
-        eventParticipants(eventId: $eventId) {
-          id
-          mount
-          debtorName
-          debtorId
-          LenderName
-          LenderId
-        }
-      }
-    `;
-
-    const variables = {
-      eventId
-    };
-
-    const res = await fetch(ENDPOINTS.community + "/participants", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query,
-        variables,
-      }),
-      cache: 'no-store'
-    });
-
-    if (!res.ok) {
-      return {
-        success: false,
-        error: `Failed to fetch participants. Status: ${res.status}`
-      };
-    }
-
-    const { data, errors } = await res.json();
-
-    if (errors) {
-      return {
-        success: false,
-        error: errors[0].message || 'GraphQL error occurred'
-      };
-    }
-
-    return {
-      success: true,
-      data: data.eventParticipants
+      error: 'Unexpected response format from API'
     };
   } catch (error) {
     return {
