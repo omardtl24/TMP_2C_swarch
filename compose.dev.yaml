@@ -43,19 +43,6 @@ services:
       - db-community-ps
     restart: always
 
-  lg-personal-mg:
-    container_name: lg-personal-mg
-    build:
-      context: ./lg-personal-mg
-      dockerfile: Dockerfile
-    ports:
-      - "8084:8084"
-    env_file:
-      - ./lg-personal-mg/.env
-    depends_on:
-      - db-personal-ps
-    restart: always
-
   # Database Layer
   db-community-ms:
     container_name: db-community-ms
@@ -96,19 +83,6 @@ services:
       - db-community-ps:/var/lib/postgresql/data
     restart: unless-stopped
 
-  db-personal-ps:
-    container_name: db-personal-ps
-    build:
-      context: ./db-personal-ps
-      dockerfile: Dockerfile
-    ports:
-      - "5434:5432"
-    env_file:
-      - ./db-personal-ps/.env
-    volumes:
-      - db-personal-ps:/var/lib/postgresql/data
-    restart: unless-stopped
-
   # Adminer UI
   adminer:
     container_name: adminer
@@ -119,7 +93,6 @@ services:
     depends_on:
       - db-community-ps
       - db-users-ps
-      - db-personal-ps
 
 # Volumes
 volumes:
@@ -128,6 +101,4 @@ volumes:
   db-users-ps:
     driver: local
   db-community-ps:
-    driver: local
-  db-personal-ps:
     driver: local
