@@ -79,6 +79,15 @@ public class ExpenseController {
         .map(e -> new Balance(e.getKey(), e.getValue()))
         .collect(Collectors.toList());
     }
+
+
+    @QueryMapping
+    public ExpenseEntity expenseDetail(@Argument("expenseId") Long expenseId)
+            throws EntityNotFoundException {
+        return expenseService.getExpenseDetail(expenseId);
+    }
+
+
     @MutationMapping
     public ExpenseEntity createExpense(
         @Argument("input") NewExpenseInput input,

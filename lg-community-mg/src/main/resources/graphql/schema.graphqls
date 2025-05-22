@@ -53,6 +53,7 @@ type Query {
   sumAllExpenses: Float!
   sumExpensesByEvent(eventId: ID!): Float!
   sumExpensesPaidByUserInEvent(eventId: ID!): Float!
+  expenseDetail(eventId: ID!): Float!
 }
 
 # Mutations
