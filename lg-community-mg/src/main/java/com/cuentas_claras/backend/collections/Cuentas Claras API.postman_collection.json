@@ -1,0 +1,1458 @@
+{
+	"info": {
+		"_postman_id": "a98b90eb-9015-47a2-934a-d637add0b672",
+		"name": "Cuentas Claras API",
+		"description": "Colección de pruebas para Eventos, Participantes y Gastos de la aplicacions Cuentas Claras.  \nAsegurese en cada resquest qeu tenga las variables de entorno `token1` y `token2` (representan cada uno a un usuario autenticado) y cuando haga las requets ponga en el header Authorization: Bearer {{token1}} o {{token2}} segun el usuario autorizado.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45003679"
+	},
+	"item": [
+		{
+			"name": "Eventos",
+			"item": [
+				{
+					"name": "Crear evento 1 (Usuario 1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();\r",
+									"pm.globals.set(\"evento_1\", data.id);\r",
+									"pm.globals.set(\"nombre_evento_1\", data.name);\r",
+									"\r",
+									"pm.test(\"Código de estado es 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"El evento creado tiene un ID\", function () {\r",
+									"    pm.expect(data.id).to.not.be.undefined;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Maratón de series\",\n    \"description\": \"Maratón de la serie favorita con snacks y bebidas\",\n    \"beginDate\": \"2025-06-25\",\n    \"endDate\": \"2025-06-25\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/events",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear evento 2 (Usuario 1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();\r",
+									"pm.globals.set(\"evento_2\", data.id);\r",
+									"pm.globals.set(\"nombre_evento_2\", data.name);\r",
+									"\r",
+									"pm.test(\"Código de estado es 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"El evento creado tiene un ID\", function () {\r",
+									"    pm.expect(data.id).to.not.be.undefined;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"name\": \"Noche de juegos\",\n   \"description\": \"Juegos de mesa y pizza en la sala de Pedro\",\n   \"beginDate\": \"2025-06-07\",\n   \"endDate\": \"2025-06-07\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/events",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear evento 1 (Usuario 2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();\r",
+									"pm.globals.set(\"evento_3\", data.id);\r",
+									"pm.globals.set(\"nombre_evento_3\", data.name);\r",
+									"\r",
+									"pm.test(\"Código de estado es 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"El evento creado tiene un ID\", function () {\r",
+									"    pm.expect(data.id).to.not.be.undefined;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Excursión al campo\",\n    \"description\": \"Picnic y caminata en la montaña con el grupo\",\n    \"beginDate\": \"2025-06-20\",\n    \"endDate\": \"2025-06-20\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/events",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear evento (error: nombre muy corto)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"AB\",\n  \"description\": \"Test\",\n  \"beginDate\": \"2025-06-01\",\n  \"endDate\": \"2025-06-01\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/events",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar mis eventos (Usuario 1)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar mis eventos (Usuario 2)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener evento 1 por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/{{evento_1}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"{{evento_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener evento por ID (error 404)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/9999",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"9999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar evento 1 por nombre",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/search?q={{nombre_evento_1}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "{{nombre_evento_1}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eventos futuros",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/upcoming?from=2025-06-01",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"upcoming"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "2025-06-01"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eventos entre fechas",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/between?start=2025-06-01&end=2025-06-30",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"between"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "2025-06-01"
+								},
+								{
+									"key": "end",
+									"value": "2025-06-30"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Habilitar invitaciones evento 1",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/{{evento_1}}/invite?enabled=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"{{evento_1}}",
+								"invite"
+							],
+							"query": [
+								{
+									"key": "enabled",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar mis eventos (Usuario 1)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Habilitar invitaciones evento 1(error not creator)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token2}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/{{evento_1}}/invite?enabled=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"{{evento_1}}",
+								"invite"
+							],
+							"query": [
+								{
+									"key": "enabled",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar evento 1 (error not creator)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token2}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/{{evento_1}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"{{evento_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar evento 1 (Usuario 1)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/{{evento_1}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"{{evento_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar evento 2 (Usuario 1)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/{{evento_2}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"{{evento_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar evento 1 (Usuario 2)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/{{evento_3}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"{{evento_3}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Participantes",
+			"item": [
+				{
+					"name": "Usuario 2 se une a evento 1",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token2}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"invitationCode\": \"RSNUDx\" }"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/events/join",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"join"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unirse a evento (error invalid code)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token2}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"invitationCode\": \"WRONG\" }"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/events/join",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"join"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar eventos (Usuario 2)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token2}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/participating",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"participating"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar participantes de evento (Usuario 2)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/{{evento_1}}/participants",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"{{evento_1}}",
+								"participants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verificar si soy participante (Usuario 2)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token2}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/{{evento_1}}/participants/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"{{evento_1}}",
+								"participants",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar participante (Usuario 1 a Usuario 2)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/1/participants/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"1",
+								"participants",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar participante (error not found)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/events/1/participants/999",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"events",
+								"1",
+								"participants",
+								"999"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Gastos",
+			"item": [
+				{
+					"name": "Crear gasto 1 (Evento 1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation($input: NewExpenseInput!) { createExpense(input: $input) { id externalDocId eventId } }\",\n  \"variables\": {\n    \"input\": {\n      \"eventId\": \"17\",\n      \"total\": 15000,\n      \"concept\": \"Almuerzo equipo\",\n      \"type\": \"COMIDA_Y_BEBIDA\",\n      \"participation\": [\n        {\n          \"userId\": \"1\",\n          \"state\": 0,\n          \"portion\": 7500\n        },\n        {\n          \"userId\": \"2\",\n          \"state\": 1,\n          \"portion\": 7500\n        }\n      ]\n    }\n  }\n}\n"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear gasto 2 (Evento 1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation($input: NewExpenseInput!) { createExpense(input: $input) { id externalDocId eventId } }\",\n  \"variables\": {\n    \"input\": {\n      \"eventId\": \"17\",\n      \"total\": 22000,\n      \"concept\": \"Taxi desde aeropuerto\",\n      \"type\": \"TRANSPORTE\",\n      \"participation\": [\n        {\n          \"userId\": \"1\",\n          \"state\": 0,\n          \"portion\": 11000\n        },\n        {\n          \"userId\": \"2\",\n          \"state\": 0,\n          \"portion\": 11000\n        }\n      ]\n    }\n  }\n}\n"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar gastos de un evento",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"query\":\"query($eventId: ID!){ expensesByEvent(eventId:$eventId){ id creatorId externalDocId eventId document{ id concept total type } }}\",\"variables\":{\"eventId\":\"17\"}}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar gastos pagados por mi",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"query\":\"query{ expensesPaidByMe{ id payerId total concept type participation{ userId state portion } supportImageId }}\"}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar gastos de los que soy participe",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"query\":\"query{ expensesParticipatedByMe{ id payerId total concept type participation{ userId state portion } supportImageId }}\"}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar  Gastos Por Tipo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"query\":\"query($type: ExpenseType!){ searchExpensesByType(type:$type){ id payerId total concept type participation{ userId state portion } supportImageId }}\",\"variables\":{\"type\":\"COMIDA_Y_BEBIDA\"}}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar Gastos Por Concepto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"query\":\"query($keyword: String!){ searchExpensesByConcept(keyword:$keyword){ id payerId total concept type participation{ userId state portion } supportImageId }}\",\"variables\":{\"keyword\":\"equipo\"}}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sumar Todos Los Gastos",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"query\":\"query{ sumAllExpenses }\"}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sumar Todos Los Gastos por evento",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"query($eventId: ID!){ sumarGastosPorEvento(eventId:$eventId) }\",\r\n  \"variables\": { \"eventId\": \"17\" }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sumar Todos Los Gastos que he gastado en un evento",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"query($eventId: ID!){ sumarGastosPagadosPorMiEnEvento(eventId:$eventId) }\",\r\n  \"variables\": { \"eventId\": \"17\" }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Calcular balances",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"query($eventId: ID!){ calcularBalances(eventId:$eventId){ userId balance }}\",\r\n  \"variables\": { \"eventId\": \"17\" }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Gasto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"query\":\"mutation($input: UpdateExpenseInput!){ updateExpense(input:$input){ id payerId total concept type participation{ userId state portion } supportImageId }}\",\"variables\":{\"input\":{\"expenseId\":\"1\",\"total\":25000,\"concept\":\"Actualizado Postman\",\"type\":\"COMIDA_Y_BEBIDA\",\"participation\":[{\"userId\":\"2\",\"state\":1,\"portion\":12500},{\"userId\":\"3\",\"state\":0,\"portion\":12500}]}}}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Gasto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"query\":\"mutation($input: DeleteExpenseInput!){ deleteExpense(input:$input) }\",\"variables\":{\"input\":{\"expenseId\":\"1\"}}}"
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subir imagen del gasto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token1}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "operations",
+									"value": "{\"query\":\"mutation($eventId: ID!, $expenseId: ID!, $file: Upload!){ uploadSupportImage(eventId:$eventId, expenseId:$expenseId, file:$file) }\",\"variables\":{\"eventId\":\"1\",\"expenseId\":\"1\",\"file\":null}}"
+								},
+								{
+									"key": "map",
+									"value": "{\"0\":[\"variables.file\"]}"
+								},
+								{
+									"key": "0",
+									"type": "file",
+									"src": "<RUTA_A_TU_IMAGEN>"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8083/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token1}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

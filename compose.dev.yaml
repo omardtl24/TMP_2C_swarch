@@ -1,0 +1,104 @@
+services:
+
+  # Presentation Layer
+  pr-frontend-dp:
+    container_name: pr-frontend-dp
+    build:
+      context: ./pr-frontend-dp
+      dockerfile: dev.Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./pr-frontend-dp/app:/app/app
+      - ./pr-frontend-dp/public:/app/public
+    env_file:
+      - ./pr-frontend-dp/.env
+    restart: always
+
+  # Logic Layer (business logic microservices)
+  lg-users-mg:
+    container_name: lg-users-mg
+    build:
+      context: ./lg-users-mg
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    env_file:
+      - ./lg-users-mg/.env
+    depends_on:
+      - db-users-ps
+    restart: always
+
+  lg-community-mg:
+    container_name: lg-community-mg
+    build:
+      context: ./lg-community-mg
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    env_file:
+      - ./lg-community-mg/.env
+    depends_on:
+      - db-community-ms
+      - db-community-ps
+    restart: always
+
+  # Database Layer
+  db-community-ms:
+    container_name: db-community-ms
+    build:
+      context: ./db-community-ms
+      dockerfile: Dockerfile
+    ports:
+      - "27017:27017"
+    env_file:
+      - ./db-community-ms/.env
+    volumes:
+      - db-community-ms:/data/db
+    restart: unless-stopped
+
+  db-users-ps:
+    container_name: db-users-ps
+    build:
+      context: ./db-users-ps
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./db-users-ps/.env
+    volumes:
+      - db-users-ps:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  db-community-ps:
+    container_name: db-community-ps
+    build:
+      context: ./db-community-ps
+      dockerfile: Dockerfile
+    ports:
+      - "5433:5432"
+    env_file:
+      - ./db-community-ps/.env
+    volumes:
+      - db-community-ps:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Adminer UI
+  adminer:
+    container_name: adminer
+    image: adminer
+    ports:
+      - "8081:8080"
+    restart: always
+    depends_on:
+      - db-community-ps
+      - db-users-ps
+
+# Volumes
+volumes:
+  db-community-ms:
+    driver: local
+  db-users-ps:
+    driver: local
+  db-community-ps:
+    driver: local

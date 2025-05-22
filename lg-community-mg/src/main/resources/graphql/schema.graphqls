@@ -1,0 +1,94 @@
+# Scalars
+scalar Date
+scalar Upload
+
+# Expense types
+enum ExpenseType {
+  COMIDA_Y_BEBIDA
+  COMPRAS
+  HOGAR
+  TRANSPORTE
+  ENTRETENIMIENTO
+  COMUNICACION
+  GASTOS_FINANCIEROS
+}
+
+type Participation {
+  userId: String!
+  state: Int!
+  portion: Float!
+}
+
+type ExpenseDocument {
+  id: ID!
+  payerId: String!
+  total: Float!
+  concept: String!
+  type: ExpenseType!
+  participation: [Participation!]!
+  supportImageId: String
+}
+
+type ExpenseEntity {
+  id: ID!
+  creatorId: String!
+  externalDocId: String!
+  eventId: ID!
+  document: ExpenseDocument!
+}
+
+type Balance {
+  userId: String!
+  balance: Float!
+}
+
+# Queries
+type Query {
+  expensesByEvent(eventId: ID!): [ExpenseEntity!]!
+  expensesPaidByMe: [ExpenseDocument!]!
+  expensesParticipatedByMe: [ExpenseDocument!]!
+  searchExpensesByType(type: ExpenseType!): [ExpenseDocument!]!
+  searchExpensesByConcept(keyword: String!): [ExpenseDocument!]!
+  calcularBalances(eventId: ID!): [Balance!]!
+  sumAllExpenses: Float!
+  sumExpensesByEvent(eventId: ID!): Float!
+  sumExpensesPaidByUserInEvent(eventId: ID!): Float!
+  expenseDetail(eventId: ID!): Float!
+}
+
+# Mutations
+input NewExpenseInput {
+  eventId: ID!
+  total: Float!
+  concept: String!
+  type: ExpenseType!
+  participation: [NewParticipationInput!]!
+  supportImage: Upload
+}
+
+input NewParticipationInput {
+  userId: String!
+  state: Int!
+  portion: Float!
+}
+
+input UpdateExpenseInput {
+  expenseId: ID!
+  total: Float!
+  concept: String!
+  type: ExpenseType!
+  participation: [NewParticipationInput!]!
+  supportImage: Upload
+}
+
+input DeleteExpenseInput {
+  expenseId: ID!
+}
+
+type Mutation {
+  createExpense(input: NewExpenseInput!, supportImage: Upload): ExpenseEntity!
+  updateExpense(input: UpdateExpenseInput!, supportImage: Upload): ExpenseDocument!
+  deleteExpense(input: DeleteExpenseInput!): Boolean!
+  uploadSupportImage(eventId: ID!, expenseId: ID!, file: Upload!): String!
+
+}
