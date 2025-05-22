@@ -1,12 +1,12 @@
 type EventFinancialsProps = {
-  totalExpense: number
-  userBalance: number
+  totalExpense: number | undefined
+  userBalance: number | undefined
 }
 
 export default function EventBalance({ totalExpense, userBalance }: EventFinancialsProps) {
-  const formattedTotal = new Intl.NumberFormat("es-CO").format(totalExpense)
-  const formattedBalance = new Intl.NumberFormat("es-CO").format(userBalance)
-  const isPositiveBalance = userBalance >= 0
+  const formattedTotal = totalExpense ? new Intl.NumberFormat("es-CO").format(totalExpense): "error"
+  const formattedBalance = userBalance ? new Intl.NumberFormat("es-CO").format(userBalance) : "error"
+  const isPositiveBalance = userBalance !== undefined && userBalance >= 0
 
   return (
     <>

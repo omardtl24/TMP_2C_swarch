@@ -317,6 +317,85 @@ export type ExpensesResponse = {
   error?: string;
 };
 
+// New response type for sum of expenses
+export type ExpensesSumResponse = {
+  success: boolean;
+  data?: number;
+  error?: string;
+};
+
+/**
+ * Fetches the sum of all expenses for a specific event
+ * @param eventId ID of the event to calculate expenses sum for
+ * @param token Optional auth token (will use cookies if not provided)
+ * @returns Promise with the total sum of all expenses
+ */
+export async function getSumExpensesByEvent(eventId: string, token?: string): Promise<ExpensesSumResponse> {
+  // Get token from cookies if not provided
+  const authToken = token || getAuthToken();
+
+  try {
+    // GraphQL query to fetch sum of expenses
+    const query = `
+      query($eventId: ID!){
+        sumExpensesByEvent(eventId:$eventId)
+      }
+    `;
+
+    const variables = {
+      eventId
+    };
+
+    const res = await fetch(`${ENDPOINTS.community.browser}/api/graphql`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+      cache: 'no-store'
+    });
+
+    if (!res.ok) {
+      return {
+        success: false,
+        error: `Failed to fetch expenses sum. Status: ${res.status}`
+      };
+    }
+
+    const response = await res.json();
+    
+    // Check for GraphQL errors
+    if (response.errors) {
+      return {
+        success: false,
+        error: response.errors[0]?.message || 'GraphQL error occurred'
+      };
+    }
+
+    // Access the data from the response
+    if (response.data?.sumExpensesByEvent !== undefined) {
+      return {
+        success: true,
+        data: response.data.sumExpensesByEvent
+      };
+    }
+
+    return {
+      success: false,
+      error: 'Unexpected response format from API'
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+  }
+}
+
 // New function to fetch expenses using GraphQL
 
 export type ParticipantsResponse = {

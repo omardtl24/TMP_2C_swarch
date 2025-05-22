@@ -16,18 +16,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useSession } from "@/contexts/SessionContext"
+import { ParticipantBalance } from "@/lib/types"
 
 type EventHeaderProps = {
     name: string
     creatorId: string
     code: string | null
     eventId: string
+    total:number | undefined
+    balance: ParticipantBalance[] | undefined
 }
 
-const totalExpense = 10000
-const userBalance = 100000
 
-export default function EventHeader({ name, creatorId, code, eventId }: EventHeaderProps) {
+
+export default function EventHeader({ name, creatorId, code, eventId, total, balance }: EventHeaderProps) {
     const [checked, setChecked] = useState(code === null ? false : true)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
@@ -35,15 +37,53 @@ export default function EventHeader({ name, creatorId, code, eventId }: EventHea
     const [isLoading, setIsLoading] = useState(true)
     const router = useRouter()
 
-    const {session} = useSession()
+    const [userBalance, setUserBalance] = useState<number|undefined>(undefined)
     
+    // Use a local state to store the session ID for more reliable access
+    const [userId, setUserId] = useState<string | undefined>(undefined)
     
-    // Check if current user is the creator
+    // Get session with better error handling
+    const sessionData = useSession()
+    const session = sessionData?.session
+    const isSessionLoading = sessionData?.isLoading || false
+    
+    // First effect to safely extract and store the user ID when session is available
+    useEffect(() => {
+        if (!isSessionLoading && session && session.id) {
+            console.log("Session loaded successfully. User ID:", session.id)
+            setUserId(session.id)
+        } else if (!isSessionLoading) {
+            console.warn("Session loaded but ID is missing. Full session:", session)
+        }
+    }, [session, isSessionLoading])
+    
+    // Now use the local userId state for operations
     useEffect(() => {
         async function checkCreator() {
             try {
-               
-                setIsCreator(session?.id === creatorId)
+                // Set loading state and creator status
+                if (!userId) {
+                    console.warn("User ID is still undefined - can't check creator status")
+                    setIsCreator(false)
+                    setIsLoading(false)
+                    return
+                }
+                
+                console.log("Comparing User ID:", userId, "with Creator ID:", creatorId)
+                setIsCreator(userId === creatorId)
+                
+                // Find the balance for the current user
+                if (balance && balance.length > 0) {
+                    console.log("Searching for balance with user ID:", userId)
+                    console.log("Available balances:", balance)
+                    
+                    const currentUserBalance = balance.find(
+                        (participant) => participant.userId === userId
+                    )?.balance
+                    
+                    console.log("Found balance:", currentUserBalance, "for user ID:", userId)
+                    setUserBalance(currentUserBalance)
+                }
             } catch (error) {
                 console.error("Error checking creator status:", error)
             } finally {
@@ -52,7 +92,12 @@ export default function EventHeader({ name, creatorId, code, eventId }: EventHea
         }
         
         checkCreator()
-    }, [ session, creatorId ])
+    }, [userId, creatorId, balance]) 
+    
+    // Add a separate effect to log the updated balance
+    useEffect(() => {
+        console.log("User balance updated:", userBalance)
+    }, [userBalance])
     
     const handleCheckedChange = async (newState: boolean) => {
         try {
@@ -124,7 +169,7 @@ export default function EventHeader({ name, creatorId, code, eventId }: EventHea
             </div>
             
             <div className="mt-4 md:mt-0 flex justify-between items-center gap-2 w-full md:flex-1 md:flex-col md:gap-2">
-                <EventBalance totalExpense={totalExpense} userBalance={userBalance} />
+                <EventBalance totalExpense={total} userBalance={userBalance} />
             </div>
             
             {/* Delete confirmation dialog */}

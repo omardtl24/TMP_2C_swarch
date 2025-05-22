@@ -4,7 +4,7 @@ import {
     fetchEventDetail,
     participantsEvent
 } from "@/lib/actions/eventActions"
-import { fetchEventBalances, fetchEventExpenses } from "@/lib/actions/expenseActions"
+import { fetchEventBalances, fetchEventExpenses, getSumExpensesByEvent } from "@/lib/actions/expenseActions"
 import { notFound } from "next/navigation"
 
 
@@ -22,9 +22,6 @@ export default async function EventDetailPage({
     // Fetch the specific event using the ID from the route params
     const eventResponse = await fetchEventDetail(id);
 
-    // Add debugging to see what's happening
-    console.log("Event response:", eventResponse);
-
     // Handle error states appropriately
     if (!eventResponse.success || !eventResponse.data) {
         console.error("Failed to fetch event:", eventResponse.error);
@@ -35,15 +32,15 @@ export default async function EventDetailPage({
 
     // Fetch expenses for this event using GraphQL
     const expensesResponse = await fetchEventExpenses(id);
-    console.log("expenses response:", expensesResponse);
     const expenses = expensesResponse.success ? expensesResponse.data || [] : [];
 
     // Fetch participants already formatted for UI
     const participantsResponse = await participantsEvent(id);
     const participants = participantsResponse.success ? participantsResponse.data || [] : [];
-    //const totalSum = await getSumExpenses(expenses);
+    const totalSum = await getSumExpensesByEvent(id);
 
     const BalanceParticipants = await fetchEventBalances(id)
+    console.log("Balance participants response:", BalanceParticipants);
     
     return (
         <div className="w-full h-full">
@@ -52,6 +49,8 @@ export default async function EventDetailPage({
                 creatorId={eventDetails.creatorId} 
                 code={eventDetails.invitationCode} 
                 eventId={eventDetails.id}
+                total={totalSum.data}
+                balance={BalanceParticipants.data}
             />
             <div className="px-4 md:px-16 mt-4 space-y-4 ">
                 <EventTabs 
