@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { logout } from "@/lib/actions/authActions";
-import { useSession } from "../../contexts/SessionContext";
+import { logout, deleteAccount } from "@/lib/actions/authActions";
+import type { Session } from "@/lib/types";
 
 
 
@@ -135,7 +135,6 @@ export default function HomePageContent() {
 					className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
 					onClick={async () => {
 						await logout();
-						router.replace("/");
 					}}
 				>
 					Cerrar sesión
@@ -146,6 +145,24 @@ export default function HomePageContent() {
 					onClick={() => router.push(`/login`)}
 				>
 					Iniciar sesión
+				</button>
+			)}
+
+			{session && (
+				<button
+					className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-900 transition"
+					onClick={async () => {
+						if (confirm("¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer.")) {
+							const res = await deleteAccount();
+							if (res.ok) {
+								await logout();
+							} else {
+								alert(res.error || "Error eliminando cuenta");
+							}
+						}
+					}}
+				>
+					Eliminar cuenta
 				</button>
 			)}
 		</main>
