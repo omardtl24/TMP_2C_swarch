@@ -35,7 +35,7 @@ export async function fetchEvents(token?: string): Promise<EventsResponse> {
     }
     
     const res = await fetch(
-      ENDPOINTS.community.browser + "/api/events/me",
+      ENDPOINTS.community.ssr + "/api/events/me",
       { 
         method: "GET",
         headers: { Authorization: `Bearer ${authToken}` },
@@ -80,7 +80,7 @@ export async function fetchEventDetail(id:string,token?:string): Promise<EventsR
       console.log("No auth token available, using mock data for static generation");
     }
     const res = await fetch(
-      ENDPOINTS.community.browser + "/api/events/" + id,
+      ENDPOINTS.community.ssr + "/api/events/" + id,
        { 
         method: "GET",
         headers: { Authorization: `Bearer ${authToken}` },
@@ -136,7 +136,7 @@ export async function createEvent(eventData: CreateEventData, token?: string): P
   
   try {
     const res = await fetch(
-      ENDPOINTS.community.browser + "/api/events",
+      ENDPOINTS.community.ssr + "/api/events",
       {
         method: "POST",
         headers: { 
@@ -189,7 +189,7 @@ export async function joinEvent(invitationCode: string): Promise<JoinEventRespon
   
   try {
     const res = await fetch(
-      ENDPOINTS.community.browser + "/api/events/join",
+      ENDPOINTS.community.ssr + "/api/events/join",
       {
         method: "POST",
         headers: { 
@@ -252,7 +252,7 @@ export async function ChangeInvitationState(
     console.log(`Calling API to change invitation state for event ${eventId} to ${enabled}`);
     
     const res = await fetch(
-      `${ENDPOINTS.community.browser}/api/events/${eventId}/invite?enabled=${enabled}`,
+      `${ENDPOINTS.community.ssr}/api/events/${eventId}/invite?enabled=${enabled}`,
       {
         method: "PATCH",
         headers: { 
@@ -309,7 +309,7 @@ export async function deleteEvent(eventId: string): Promise<DeleteEventResponse>
     console.log(`Deleting event with ID: ${eventId}`);
     
     const res = await fetch(
-      `${ENDPOINTS.community.browser}/api/events/${eventId}`,
+      `${ENDPOINTS.community.ssr}/api/events/${eventId}`,
       {
         method: "DELETE",
         headers: { 
@@ -358,7 +358,7 @@ export async function participantsEvent(id: string): Promise<ParticipantsRespons
   
   try {
     const res = await fetch(
-      `${ENDPOINTS.community.browser}/api/events/${id}/participants`,
+      `${ENDPOINTS.community.ssr}/api/events/${id}/participants`,
       {
         method: "GET",
         headers: { 

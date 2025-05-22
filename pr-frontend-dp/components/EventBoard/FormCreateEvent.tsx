@@ -69,7 +69,7 @@ const FormCreateEvent = ({
         resolver: zodResolver(eventFormSchema),
         defaultValues: {
             name: '',
-            description: undefined,
+            description: "",
             beginDate: new Date(), // Use a default date initially
             endDate: new Date(Date.now() + 24 * 60 * 60 * 1000), 
         },

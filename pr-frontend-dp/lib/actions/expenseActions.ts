@@ -106,7 +106,7 @@ export async function createExpense(
       }
     };
 
-    const res = await fetch(`${ENDPOINTS.community.browser}/api/graphql`, {
+    const res = await fetch(`${ENDPOINTS.community.ssr}/api/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -175,7 +175,7 @@ export async function fetchEventExpenses(eventId: string, token?: string): Promi
       eventId
     };
 
-    const res = await fetch(ENDPOINTS.community.browser + "/api/graphql", {
+    const res = await fetch(ENDPOINTS.community.ssr + "/api/graphql", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -346,7 +346,7 @@ export async function getSumExpensesByEvent(eventId: string, token?: string): Pr
       eventId
     };
 
-    const res = await fetch(`${ENDPOINTS.community.browser}/api/graphql`, {
+    const res = await fetch(`${ENDPOINTS.community.ssr}/api/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -436,7 +436,7 @@ export async function fetchEventBalances(eventId: string, token?: string): Promi
       eventId
     };
 
-    const res = await fetch(`${ENDPOINTS.community.browser}/api/graphql`, {
+    const res = await fetch(`${ENDPOINTS.community.ssr}/api/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
