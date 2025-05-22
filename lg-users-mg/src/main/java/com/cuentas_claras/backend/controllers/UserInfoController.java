@@ -2,14 +2,13 @@ package com.cuentas_claras.backend.controllers;
 
 import com.cuentas_claras.backend.models.UserEntity;
 import com.cuentas_claras.backend.services.UserService;
-import com.cuentas_claras.backend.utils.JwtUtil;
-import com.nimbusds.jwt.JWTClaimsSet;
+import com.cuentas_claras.backend.utils.JwtTokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.CookieValue;
 
 import java.util.Optional;
 
@@ -17,33 +16,38 @@ import java.util.Optional;
 public class UserInfoController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private JwtTokenService jwtTokenService;
 
     @GetMapping("/auth/me")
-    public ResponseEntity<?> getUserInfo(@RequestHeader(value = "Authorization", required = false) String authHeader,
-                                         @CookieValue(value = "jwt", required = false) String jwtCookie) {
+    public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         try {
-            String token = null;
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                token = authHeader.substring(7);
-            } else if (jwtCookie != null) {
-                token = jwtCookie;
-            } else {
-                return ResponseEntity.status(401).body(java.util.Map.of("error", "No JWT token provided"));
-            }
-            if (!JwtUtil.validateToken(token)) {
-                return ResponseEntity.status(401).body(java.util.Map.of("error", "Token inválido o expirado"));
-            }
-            JWTClaimsSet claims = JwtUtil.getClaims(token);
-            Long userId = Long.valueOf(claims.getSubject());
+            Long userId = jwtTokenService.getUserIdFromRequest(request);
             Optional<UserEntity> userOpt = userService.getUsers().stream().filter(u -> u.getId().equals(userId)).findFirst();
             if (userOpt.isEmpty()) {
                 return ResponseEntity.status(404).body(java.util.Map.of("error", "Usuario no encontrado"));
             }
             UserEntity user = userOpt.get();
-            // Devuelve solo info básica, no sensible
             return ResponseEntity.ok(new UserInfoResponse(user.getId(), user.getEmail(), user.getUsername(), user.getName()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(java.util.Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(java.util.Map.of("error", "Error consultando usuario: " + e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/auth/me")
+    public ResponseEntity<?> deleteUserAccount(HttpServletRequest request) {
+        try {
+            Long userId = jwtTokenService.getUserIdFromRequest(request);
+            userService.deleteUser(userId);
+            return ResponseEntity.ok(java.util.Map.of("message", "Usuario eliminado correctamente"));
+        } catch (com.cuentas_claras.backend.exceptions.EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(java.util.Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(java.util.Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(java.util.Map.of("error", "Error eliminando usuario: " + e.getMessage()));
         }
     }
 

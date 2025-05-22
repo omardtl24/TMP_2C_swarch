@@ -46,7 +46,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                     jwtCookie.setPath("/");
                     jwtCookie.setMaxAge(jwtSessionDurationSeconds);
                     response.addCookie(jwtCookie);
-                    String redirectUrl = frontendBaseUrl + "/";
+                    String redirectUrl = frontendBaseUrl + "/eventBoard";
                     response.sendRedirect(redirectUrl);
                 } catch (Exception e) {
                     throw new RuntimeException("Error generando JWT", e);

@@ -82,7 +82,7 @@ export default function RegisterPage() {
               if (res.ok) {
                 setSuccess("¡Registro exitoso! Redirigiendo...");
                 setTimeout(() => {
-                  router.push("/"); // Redirige al home en vez de /dashboard
+                  router.push("/eventBoard"); // Redirige a eventBoard tras registro exitoso
                 }, 1500);
               } else {
                 const msg = await res.text();

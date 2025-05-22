@@ -56,3 +56,21 @@ export async function logout() {
   // Redirige al landing (home)
   window.location.href = "/";
 }
+
+// Helper para eliminar la cuenta (DELETE /auth/me)
+export async function deleteAccount(): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await fetch(ENDPOINTS.users.browser + "/auth/me", {
+      method: "DELETE",
+      credentials: "include",
+    });
+    if (res.ok) {
+      return { ok: true };
+    } else {
+      const data = await res.json().catch(() => ({}));
+      return { ok: false, error: data?.error || "Error eliminando cuenta" };
+    }
+  } catch (e) {
+    return { ok: false, error: "Error eliminando cuenta" };
+  }
+}
