@@ -122,10 +122,3 @@ Debe escribirse **completo y en minúsculas**. Ejemplos:
 | `db-users-ps`          | Base de datos principal de `users`                 |
 | `db-community-ms`      | Base de datos del módulo `community`                |
 | `lg-expenses-mg`       | Lógica de negocio del módulo `expenses`                     |
-
----
-
-## Buenas Prácticas
-
-- El nombre del `container_name` debe coincidir con el nombre del servicio.
-- Si agregas un nuevo módulo o tipo de servicio, define claramente su rol y aplica esta convención.
