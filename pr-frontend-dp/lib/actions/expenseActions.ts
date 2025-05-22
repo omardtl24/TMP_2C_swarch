@@ -106,7 +106,7 @@ export async function createExpense(
       }
     };
 
-    const res = await fetch(`${ENDPOINTS.community.ssr}/api/graphql`, {
+    const res = await fetch(`${ENDPOINTS.community.browser}/api/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

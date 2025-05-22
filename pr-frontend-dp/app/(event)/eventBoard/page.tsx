@@ -1,3 +1,4 @@
+''
 import CustomCalendar from "@/components/EventBoard/CustomCalendar";
 import { fetchEvents } from "@/lib/actions/eventActions";
 import Event from "@/components/EventBoard/Event";
@@ -5,6 +6,7 @@ import { AlertCircle } from "lucide-react";
 import RetryButton from "@/components/RetryButton";
 import { getSession } from "@/lib/getSession";
 import InputCodeEvent from "@/components/EventBoard/InputCodeEvent";
+import ClientOnly from "@/components/EventBoard/ClientOnly";
 
 
 // Define the interface for calendar events
@@ -41,8 +43,10 @@ export default async function EventBoard() {
       <div className="flex flex-col md:flex-row gap-2 md:gap-6 mt-6 md:mt-10">
         <div className="flex flex-col w-full md:flex-1 ">
 
+          <ClientOnly>
+            <CustomCalendar events={calendarEvents} />
+          </ClientOnly>
 
-          <CustomCalendar events={calendarEvents} />
 
         </div>
 

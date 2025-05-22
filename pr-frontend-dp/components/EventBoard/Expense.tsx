@@ -6,9 +6,10 @@ interface ExpenseProps {
   handleClickExpense: (idExpense:string) => void;
 }
 
-const Expense = ({expense,handleClickExpense}:ExpenseProps) => {
+const Expense = ({expense}:ExpenseProps) => {
+
     return (
-        <div  className="border-2 border-[#E9DDFF] rounded-xl p-3 hover:bg-primary-80 hover:cursor-pointer" onClick={()=>handleClickExpense(expense.id)}>
+        <div  className="border-2 border-[#E9DDFF] rounded-xl p-3 hover:bg-primary-80 hover:cursor-pointer" >
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[#3A0092] font-bold">${new Intl.NumberFormat("es-CO").format(expense.total)}</p>
