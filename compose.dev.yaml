@@ -16,97 +16,111 @@ services:
     restart: always
 
   # Logic Layer (business logic microservices)
-  lg-users-mg:
-    container_name: lg-users-mg
+  lg-users-ms:
+    container_name: lg-users-ms
     build:
-      context: ./lg-users-mg
+      context: ./lg-users-ms
       dockerfile: Dockerfile
     ports:
       - "8082:8082"
     env_file:
-      - ./lg-users-mg/.env
+      - ./lg-users-ms/.env
     depends_on:
-      - db-users-ps
+      - data-users-db
     restart: always
 
-  lg-community-mg:
-    container_name: lg-community-mg
+  lg-events-ms:
+    container_name: lg-events-ms
     build:
-      context: ./lg-community-mg
+      context: ./lg-events-ms
       dockerfile: Dockerfile
     ports:
       - "8083:8083"
     env_file:
-      - ./lg-community-mg/.env
+      - ./lg-events-ms/.env
     depends_on:
-      - db-community-ms
-      - db-community-ps
+      - data-groupexpenses-db
+      - data-events-db
     restart: always
 
-  lg-personal-mg:
-    container_name: lg-personal-mg
+  lg-personalexpenses-ms:
+    container_name: lg-personalexpenses-ms
     build:
-      context: ./lg-personal-mg
+      context: ./lg-personalexpenses-ms
       dockerfile: Dockerfile
     ports:
       - "8084:8084"
     env_file:
-      - ./lg-personal-mg/.env
+      - ./lg-personalexpenses-ms/.env
     depends_on:
-      - db-personal-ps
+      - data-personalexpenses-db
+    restart: always
+
+  lg-groupexpenses-ms:
+    container_name: lg-groupexpenses-ms
+    build:
+      context: ./lg-groupexpenses-ms
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    env_file:
+      - ./lg-groupexpenses-ms/.env
+    depends_on:
+      - data-groupexpenses-db
+      - data-events-db
     restart: always
 
   # Database Layer
-  db-community-ms:
-    container_name: db-community-ms
+  data-groupexpenses-db:
+    container_name: data-groupexpenses-db
     build:
-      context: ./db-community-ms
+      context: ./data-groupexpenses-db
       dockerfile: Dockerfile
     ports:
       - "27017:27017"
     env_file:
-      - ./db-community-ms/.env
+      - ./data-groupexpenses-db/.env
     volumes:
-      - db-community-ms:/data/db
+      - data-groupexpenses-db:/data/db
     restart: unless-stopped
 
-  db-users-ps:
-    container_name: db-users-ps
+  data-users-db:
+    container_name: data-users-db
     build:
-      context: ./db-users-ps
+      context: ./data-users-db
       dockerfile: Dockerfile
     ports:
       - "5432:5432"
     env_file:
-      - ./db-users-ps/.env
+      - ./data-users-db/.env
     volumes:
-      - db-users-ps:/var/lib/postgresql/data
+      - data-users-db:/var/lib/postgresql/data
     restart: unless-stopped
 
-  db-community-ps:
-    container_name: db-community-ps
+  data-events-db:
+    container_name: data-events-db
     build:
-      context: ./db-community-ps
+      context: ./data-events-db
       dockerfile: Dockerfile
     ports:
       - "5433:5432"
     env_file:
-      - ./db-community-ps/.env
+      - ./data-events-db/.env
     volumes:
-      - db-community-ps:/var/lib/postgresql/data
+      - data-events-db:/var/lib/postgresql/data
     restart: unless-stopped
 
-  db-personal-ps:
-    container_name: db-personal-ps
+  data-personalexpenses-db:
+    container_name: data-personalexpenses-db
     build:
-      context: ./db-personal-ps
+      context: ./data-personalexpenses-db
       dockerfile: Dockerfile
     ports:
       - "5434:5432"
     env_file:
-      - ./db-personal-ps/.env
+      - ./data-personalexpenses-db/.env
     volumes:
-      - db-personal-ps:/var/lib/postgresql/data
+      - data-personalexpenses-db:/var/lib/postgresql/data
     restart: unless-stopped
 
   # Adminer UI
@@ -117,17 +131,17 @@ services:
       - "8081:8080"
     restart: always
     depends_on:
-      - db-community-ps
-      - db-users-ps
-      - db-personal-ps
+      - data-events-db
+      - data-users-db
+      - data-personalexpenses-db
 
 # Volumes
 volumes:
-  db-community-ms:
+  data-groupexpenses-db:
     driver: local
-  db-users-ps:
+  data-users-db:
     driver: local
-  db-community-ps:
+  data-events-db:
     driver: local
-  db-personal-ps:
+  data-personalexpenses-db:
     driver: local
