@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.cuentas_claras</groupId>
-	<artifactId>lg-community-mg</artifactId>
+	<artifactId>lg-groupexpenses-ms</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>lg-community-mg</name>
+	<name>lg-groupexpenses-ms</name>
 	<description>Servicio comunidad - Cuentas Claras</description>
 	<url/>
 	<licenses>
