@@ -1,18 +1,18 @@
 services:
 
   # Presentation Layer
-  pr-frontend-dp:
-    container_name: pr-frontend-dp
+  pr-frontend-web:
+    container_name: pr-frontend-web
     build:
-      context: ./pr-frontend-dp
+      context: ./pr-frontend-web
       dockerfile: dev.Dockerfile
     ports:
       - "3000:3000"
     volumes:
-      - ./pr-frontend-dp/app:/app/app
-      - ./pr-frontend-dp/public:/app/public
+      - ./pr-frontend-web/app:/app/app
+      - ./pr-frontend-web/public:/app/public
     env_file:
-      - ./pr-frontend-dp/.env
+      - ./pr-frontend-web/.env
     restart: always
 
   # Logic Layer (business logic microservices)
