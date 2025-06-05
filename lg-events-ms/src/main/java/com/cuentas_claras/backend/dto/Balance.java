@@ -1,14 +1,11 @@
 package com.cuentas_claras.backend.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
+@Data
+@AllArgsConstructor
 public class Balance {
-  private String userId;
-  private Double balance;
-
-  public Balance(String userId, Double balance) {
-    this.userId = userId;
-    this.balance = balance;
-  }
-  public String getUserId() { return userId; }
-  public Double getBalance() { return balance; }
+    private String userId;
+    private Double balance;
 }

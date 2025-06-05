@@ -1,319 +1,280 @@
 package com.cuentas_claras.backend.services;
 
- 
+import com.cuentas_claras.backend.dto.Balance;
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
-import com.cuentas_claras.backend.exceptions.IllegalOperationException;
-import com.cuentas_claras.backend.dto.NewParticipationInput;
-import com.cuentas_claras.backend.models.mongo.ExpenseDocument;
-import com.cuentas_claras.backend.models.mongo.ExpenseDocument.Participation;
-import com.cuentas_claras.backend.models.sql.ExpenseEntity;
 import com.cuentas_claras.backend.models.sql.EventEntity;
-import com.cuentas_claras.backend.repositories.mongo.ExpenseDocumentRepository;
-import com.cuentas_claras.backend.repositories.sql.ExpenseRepository;
+import com.cuentas_claras.backend.models.sql.ExpenseEntity;
 import com.cuentas_claras.backend.repositories.sql.EventRepository;
+import com.cuentas_claras.backend.repositories.sql.ExpenseRepository;
 import com.cuentas_claras.backend.security.JwtUserDetails;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ExpenseService {
 
-    @Autowired
-    private ExpenseRepository expenseRepository;
+    private final ExpenseRepository expenseRepository;
+    private final EventRepository eventRepository;
 
-    @Autowired
-    private ExpenseDocumentRepository expenseDocumentRepository;
+    /** URL del endpoint GraphQL del microservicio Mongo */
+    @Value("${mongo.service.graphql.url}")
+    private String mongoGraphqlUrl;
 
-    @Autowired
-    private EventRepository eventRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    /**
-     * Obtiene el ID del usuario autenticado desde el SecurityContext.
-     */
-    private String getCurrentUserId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof JwtUserDetails) {
-            Long userId = ((JwtUserDetails) auth.getPrincipal()).getUserId();
-            return userId.toString();
-        }
-        throw new IllegalStateException("No authenticated user found");
-    }
-
-    /**
-     * Crea un nuevo gasto grupal: guarda imagen si se proporciona, luego documento en MongoDB y registro SQL.
-     * @param eventId ID del evento al que pertenece el gasto
-     * @param total   Monto total del gasto
-     * @param concept Concepto/descripción del gasto
-     * @param type    Tipo de gasto (nombre del enum)
-     * @param participation Lista de participaciones con usuario, estado y porción
-     * @param supportImage Imagen de soporte (opcional)
-     * @return Entidad SQL guardada (ExpenseEntity)
-     * @throws EntityNotFoundException si el evento no existe
-     * @throws IOException si falla la subida de imagen
-     */
     @Transactional
-    public ExpenseEntity createExpense(
-            Long eventId,
-            // double total,
-            // String concept,
-            // String type,
-            // List<NewParticipationInput> participation,
-            String externalDocId
-            // MultipartFile supportImage
-    ) throws Exception {
+    public ExpenseEntity createExpense(Long eventId, String externalDocId) throws EntityNotFoundException {
         String creatorId = getCurrentUserId();
-        log.info("Creando gasto para evento {} por usuario {}", eventId, creatorId);
+        log.info("Creando ExpenseEntity (SQL) para eventId={} con externalDocId={} por user={}",
+                 eventId, externalDocId, creatorId);
 
         EventEntity event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
+            .orElseThrow(() -> new EntityNotFoundException("Event not found: " + eventId));
 
-        // // Guardar imagen de soporte si existe
-        // ObjectId imageId = null;
-        // if (supportImage != null && !supportImage.isEmpty()) {
-        //     imageId = expenseDocumentRepository.saveSupportImage(supportImage);
-        // }
-
-        // // Construir documento Mongo
-        // ExpenseDocument doc = new ExpenseDocument();
-        // doc.setPayerId(creatorId);
-        // doc.setTotal(total);
-        // doc.setConcept(concept);
-        // doc.setType(Enum.valueOf(com.cuentas_claras.backend.models.enums.ExpenseType.class, type));
-        // doc.setSupportImageId(imageId);
-        // participation.forEach(p -> {
-        //     Participation part = new Participation();
-        //     part.setUserId(p.getUserId());
-        //     part.setState(p.getState());
-        //     part.setPortion(p.getPortion());
-        //     doc.getParticipation().add(part);
-        // });
-        // ExpenseDocument savedDoc = expenseDocumentRepository.save(doc);
-
-        // Guardar entidad SQL
         ExpenseEntity expense = new ExpenseEntity();
-        expense.setExternalDocId(externalDocId);
         expense.setCreatorId(creatorId);
+        expense.setExternalDocId(externalDocId);
         expense.setEvent(event);
-        ExpenseEntity savedEntity = expenseRepository.save(expense);
 
-        log.info("Gasto {} creado con documento {}", savedEntity.getId(), externalDocId);
-        return savedEntity;
+        ExpenseEntity saved = expenseRepository.save(expense);
+        log.info("ExpenseEntity creado con id={} y externalDocId={}", saved.getId(), externalDocId);
+        return saved;
     }
 
-    /**
-     * Actualiza un gasto existente: actualiza imagen si se proporciona, luego documento Mongo.
-     * @param expenseId ID de la entidad SQL
-     * @param total   Monto total actualizado
-     * @param concept Concepto actualizado
-     * @param type    Tipo de gasto actualizado
-     * @param participation Lista de participaciones actualizadas
-     * @param supportImage Imagen nueva de soporte (opcional)
-     * @return Documento Mongo actualizado
-     * @throws EntityNotFoundException si no existe gasto o documento
-     * @throws IOException si falla la subida de imagen
-     */
     @Transactional
-    public ExpenseDocument updateExpense(
-            Long expenseId,
-            double total,
-            String concept,
-            String type,
-            List<NewParticipationInput> participation,
-            MultipartFile supportImage
-    ) throws Exception {
-        ExpenseEntity entity = expenseRepository.findById(expenseId)
-            .orElseThrow(() -> new EntityNotFoundException("Gasto no encontrado: " + expenseId));
-
-        ExpenseDocument doc = expenseDocumentRepository.findById(entity.getExternalDocId())
-            .orElseThrow(() -> new EntityNotFoundException("Documento no encontrado: " + entity.getExternalDocId()));
-
-        if (supportImage != null && !supportImage.isEmpty()) {
-            ObjectId imageId = expenseDocumentRepository.saveSupportImage(supportImage);
-            doc.setSupportImageId(imageId);
-        }
-
-        doc.setTotal(total);
-        doc.setConcept(concept);
-        doc.setType(Enum.valueOf(com.cuentas_claras.backend.models.enums.ExpenseType.class, type));
-        doc.getParticipation().clear();
-        participation.forEach(p -> {
-            Participation part = new Participation();
-            part.setUserId(p.getUserId());
-            part.setState(p.getState());
-            part.setPortion(p.getPortion());
-            doc.getParticipation().add(part);
-        });
-
-        log.info("Documento {} actualizado para gasto {}", doc.getId(), expenseId);
-        return expenseDocumentRepository.save(doc);
+    public void deleteExpense(Long expenseId) throws EntityNotFoundException {
+        log.info("Eliminando ExpenseEntity con id={}", expenseId);
+        ExpenseEntity existing = expenseRepository.findById(expenseId)
+            .orElseThrow(() -> new EntityNotFoundException("Expense not found: " + expenseId));
+        expenseRepository.delete(existing);
+        log.info("ExpenseEntity {} eliminado", expenseId);
     }
-
-    /**
-     * Guarda o reemplaza la imagen de soporte de un gasto existente.
-     * @param eventId   ID del evento (no usado directamente)
-     * @param expenseId ID de la entidad de gasto
-     * @param file      Imagen a subir
-     * @return String con el ID de la imagen almacenada
-     * @throws IOException si falla la subida
-     */
-    public String saveSupportImage(String eventId, String expenseId, MultipartFile file) throws IOException {
-        ObjectId id = expenseDocumentRepository.saveSupportImage(file);
-        log.info("Imagen de soporte guardada con ID {} para gasto {}", id.toHexString(), expenseId);
-        return id.toHexString();
-    }
-
 
     @Transactional(readOnly = true)
     public List<ExpenseEntity> getExpensesByEvent(Long eventId) throws EntityNotFoundException {
-        log.info("Listando gastos SQL del evento {}", eventId);
+        log.info("Obteniendo ExpenseEntity SQL por eventId={}", eventId);
         EventEntity event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
+            .orElseThrow(() -> new EntityNotFoundException("Event not found: " + eventId));
         return expenseRepository.findByEvent(event);
     }
 
-    /**
-     * Obtiene el detalle de un gasto
-     * @throws EntityNotFoundException 
-     */
     @Transactional(readOnly = true)
     public ExpenseEntity getExpenseDetail(Long expenseId) throws EntityNotFoundException {
         return expenseRepository.findById(expenseId)
-            .orElseThrow(() -> new EntityNotFoundException("Gasto no encontrado: " + expenseId));
+            .orElseThrow(() -> new EntityNotFoundException("Expense not found: " + expenseId));
+    }
+
+    // ----------------------------------------
+    //  Operaciones que requieren datos de Mongo
+    // ----------------------------------------
+
+    @Transactional(readOnly = true)
+    public Double sumExpensesByEvent(Long eventId) throws EntityNotFoundException {
+        log.info("Calculando sumExpensesByEvent para eventId={}", eventId);
+
+        List<ExpenseEntity> expenses = getExpensesByEvent(eventId);
+        double suma = 0.0;
+        for (ExpenseEntity e : expenses) {
+            Double totalDoc = fetchTotalFromMongo(e.getExternalDocId());
+            suma += (totalDoc != null ? totalDoc : 0.0);
+        }
+        log.info("sumExpensesByEvent para eventId={} = {}", eventId, suma);
+        return suma;
     }
 
     @Transactional(readOnly = true)
-    public List<ExpenseDocument> getExpensesPaidByMe() {
-        String userId = getCurrentUserId();
-        log.info("Listando documentos de gastos pagados por {}", userId);
-        return expenseDocumentRepository.findByPayerId(userId);
+    public Double sumExpensesPaidByUserInEvent(Long eventId) throws EntityNotFoundException {
+        String me = getCurrentUserId();
+        log.info("Calculando sumExpensesPaidByUserInEvent para eventId={} y user={}", eventId, me);
+
+        List<ExpenseEntity> expenses = getExpensesByEvent(eventId);
+        double suma = 0.0;
+        for (ExpenseEntity e : expenses) {
+            Map<String, Object> doc = fetchDocumentFromMongo(e.getExternalDocId());
+            if (doc != null && me.equals(doc.get("payerId"))) {
+                Object totalObj = doc.get("total");
+                if (totalObj instanceof Number) {
+                    suma += ((Number) totalObj).doubleValue();
+                }
+            }
+        }
+        log.info("sumExpensesPaidByUserInEvent para eventId={} y user={} = {}", eventId, me, suma);
+        return suma;
     }
 
     @Transactional(readOnly = true)
-    public List<ExpenseDocument> getExpensesParticipatedByMe() {
-        String userId = getCurrentUserId();
-        log.info("Listando documentos de gastos donde participa {}", userId);
-        return expenseDocumentRepository.findByParticipationUserId(userId);
-    }
+    public List<Balance> calculateBalances(Long eventId) throws EntityNotFoundException {
+        log.info("Calculando calculateBalances para eventId={}", eventId);
 
-    @Transactional(readOnly = true)
-    public List<ExpenseDocument> searchByType(String type) {
-        log.info("Buscando documentos de gastos con tipo {}", type);
-        return expenseDocumentRepository.findByType(type);
-    }
+        List<ExpenseEntity> expenses = getExpensesByEvent(eventId);
+        Map<String, Double> paid = new HashMap<>();
+        Map<String, Double> owed = new HashMap<>();
 
-    @Transactional(readOnly = true)
-    public List<ExpenseDocument> searchByConcept(String keyword) {
-        log.info("Buscando documentos de gastos con concepto que contenga '{}'", keyword);
-        return expenseDocumentRepository.findByConceptContainingIgnoreCase(keyword);
-    }
+        for (ExpenseEntity e : expenses) {
+            Map<String, Object> doc = fetchDocumentFromMongo(e.getExternalDocId());
+            if (doc == null) continue;
 
-    @Transactional
-    public void deleteExpense(Long expenseId) throws EntityNotFoundException, IllegalOperationException {
-        log.info("Intentando eliminar gasto {}", expenseId);
-        ExpenseEntity entity = expenseRepository.findById(expenseId)
-            .orElseThrow(() -> new EntityNotFoundException("Gasto no encontrado: " + expenseId));
+            String payerId = (String) doc.get("payerId");
+            Object totalObj = doc.get("total");
+            double total = (totalObj instanceof Number) ? ((Number) totalObj).doubleValue() : 0.0;
+            paid.put(payerId, paid.getOrDefault(payerId, 0.0) + total);
 
-        ExpenseDocument doc = expenseDocumentRepository.findById(entity.getExternalDocId())
-            .orElseThrow(() -> new EntityNotFoundException("Documento no encontrado: " + entity.getExternalDocId()));
-        boolean allPaid = doc.getParticipation().stream().allMatch(p -> p.getState() == 1);
-        if (allPaid) {
-            throw new IllegalOperationException("No se puede eliminar un gasto ya pagado completamente");
+            List<Map<String, Object>> parts = (List<Map<String, Object>>) doc.get("participation");
+            if (!CollectionUtils.isEmpty(parts)) {
+                for (Map<String, Object> p : parts) {
+                    String userId = (String) p.get("userId");
+                    Object portionObj = p.get("portion");
+                    double portion = (portionObj instanceof Number) ? ((Number) portionObj).doubleValue() : 0.0;
+                    owed.put(userId, owed.getOrDefault(userId, 0.0) + portion);
+                }
+            }
         }
 
-        expenseRepository.delete(entity);
-        expenseDocumentRepository.deleteById(entity.getExternalDocId());
-        log.info("Gasto {} eliminado", expenseId);
-    }
+        Set<String> allUsers = new HashSet<>();
+        allUsers.addAll(paid.keySet());
+        allUsers.addAll(owed.keySet());
 
-    @Transactional(readOnly = true)
-    public Map<String, Double> calculateBalances(Long eventId) throws EntityNotFoundException {
-        log.info("Calculando balances para evento {}", eventId);
-        EventEntity event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
-        List<ExpenseEntity> sqlExpenses = expenseRepository.findByEvent(event);
-        List<ExpenseDocument> docs = sqlExpenses.stream()
-            .map(e -> expenseDocumentRepository.findById(e.getExternalDocId()))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
+        List<Balance> result = allUsers.stream()
+            .map(u -> new Balance(u, paid.getOrDefault(u, 0.0) - owed.getOrDefault(u, 0.0)))
             .collect(Collectors.toList());
-        Map<String, Double> paid = docs.stream().collect(
-            Collectors.groupingBy(
-                ExpenseDocument::getPayerId,
-                Collectors.summingDouble(ExpenseDocument::getTotal)
-            )
-        );
-        Map<String, Double> owed = docs.stream()
-            .flatMap(doc -> doc.getParticipation().stream()
-                .map(p -> new Object[]{p.getUserId(), p.getPortion()}))
-            .collect(Collectors.groupingBy(
-                arr -> (String) arr[0],
-                Collectors.summingDouble(arr -> (double) arr[1])
-            ));
-        return owed.keySet().stream().collect(
-            Collectors.toMap(
-                userId -> userId,
-                userId -> paid.getOrDefault(userId, 0.0) - owed.get(userId)
-            )
-        );
+
+        log.info("calculateBalances para eventId={} = {}", eventId, result);
+        return result;
     }
 
     @Transactional(readOnly = true)
     public Double sumAllExpenses() {
-        log.info("Sumando todos los gastos registrados");
-        Double total = expenseDocumentRepository.sumAllTotals();
-        return total != null ? total : 0.0;
-    }
+        log.info("Calculando sumAllExpenses (todos los gastos globales)");
 
-
-    /** Suma todos los totales de los gastos asociados a un evento */
-    @Transactional(readOnly = true)
-    public Double sumExpensesByEvent(Long eventId) throws EntityNotFoundException {
-        EventEntity event = eventRepository.findById(eventId)
-        .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
-        List<ExpenseEntity> expenses = expenseRepository.findByEvent(event);
-        double suma = 0;
-        log.info("entro al for: " + eventId);
-        for (ExpenseEntity e : expenses) {
-
-        ExpenseDocument doc = expenseDocumentRepository.findById(e.getExternalDocId())
-            .orElseThrow(() -> new EntityNotFoundException(
-            "Documento no encontrado: " + e.getExternalDocId()));
-        suma += doc.getTotal();
+        List<ExpenseEntity> allExpenses = expenseRepository.findAll();
+        double suma = 0.0;
+        for (ExpenseEntity e : allExpenses) {
+            Double totalDoc = fetchTotalFromMongo(e.getExternalDocId());
+            suma += (totalDoc != null ? totalDoc : 0.0);
         }
-        log.info("encontre: " + eventId);
+        log.info("sumAllExpenses = {}", suma);
         return suma;
     }
+    //  Llamadas GraphQL al microservicio de expenses
 
-    /** Suma sólo los gastos que el usuario autenticado pagó en un evento */
-    @Transactional(readOnly = true)
-    public Double sumExpensesPaidByUserInEvent(Long eventId) throws EntityNotFoundException {
-        EventEntity event = eventRepository.findById(eventId)
-        .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
-        String me = getCurrentUserId();
-        List<ExpenseEntity> expenses = expenseRepository.findByEvent(event);
-        double suma = 0;
-        for (ExpenseEntity e : expenses) {
-        ExpenseDocument doc = expenseDocumentRepository.findById(e.getExternalDocId())
-            .orElseThrow(() -> new EntityNotFoundException(
-            "Documento no encontrado: " + e.getExternalDocId()));
-        if (me.equals(doc.getPayerId())) {
-            suma += doc.getTotal();
+    private Double fetchTotalFromMongo(String docId) {
+        String graphqlQuery = """
+        query ExpenseDocumentById($documentId: ID!) {
+          expenseDocumentById(documentId: $documentId) {
+            total
+          }
         }
+        """;
+
+        Map<String, Object> variables = Map.of("documentId", docId);
+        Map<String, Object> payload = Map.of(
+            "query", graphqlQuery,
+            "variables", variables
+        );
+
+        HttpHeaders headers = buildHeadersForMongo();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> entity = new HttpEntity<>(payload, headers);
+
+        try {
+            Map<String, Object> resp = restTemplate.postForObject(
+                mongoGraphqlUrl, entity, Map.class
+            );
+            if (resp == null || resp.get("errors") != null) return null;
+
+            Map<String, Object> data = (Map<String, Object>) resp.get("data");
+            Map<String, Object> doc = (Map<String, Object>) data.get("expenseDocumentById");
+            Object totalObj = doc.get("total");
+            return (totalObj instanceof Number) ? ((Number) totalObj).doubleValue() : null;
+        } catch (Exception ex) {
+            log.error("Error fetchTotalFromMongo para docId={}: {}", docId, ex.getMessage());
+            return null;
         }
-        return suma;
+    }
+
+    private Map<String, Object> fetchDocumentFromMongo(String docId) {
+        String graphqlQuery = """
+        query ExpenseDocumentById($documentId: ID!) {
+          expenseDocumentById(documentId: $documentId) {
+            payerId
+            total
+            participation {
+              userId
+              state
+              portion
+            }
+          }
+        }
+        """;
+
+        Map<String, Object> variables = Map.of("documentId", docId);
+        Map<String, Object> payload = Map.of(
+            "query", graphqlQuery,
+            "variables", variables
+        );
+
+        HttpHeaders headers = buildHeadersForMongo();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> entity = new HttpEntity<>(payload, headers);
+
+        try {
+            Map<String, Object> resp = restTemplate.postForObject(
+                mongoGraphqlUrl, entity, Map.class
+            );
+            if (resp == null || resp.get("errors") != null) return null;
+
+            Map<String, Object> data = (Map<String, Object>) resp.get("data");
+            return (Map<String, Object>) data.get("expenseDocumentById");
+        } catch (Exception ex) {
+            log.error("Error fetchDocumentFromMongo para docId={}: {}", docId, ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Construye HttpHeaders usando los datos del usuario autenticado
+     * (JwtUserDetails) que el filtro JwtAuthenticationFilter puso en el contexto.
+     */
+    private HttpHeaders buildHeadersForMongo() {
+        HttpHeaders headers = new HttpHeaders();
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof JwtUserDetails) {
+            JwtUserDetails user = (JwtUserDetails) auth.getPrincipal();
+            headers.set("x-user-id", String.valueOf(user.getUserId()));
+            headers.set("x-user-email", user.getEmail());
+            headers.set("x-user-username", user.getUsername());
+            headers.set("x-user-name", user.getFullName());
+        }
+
+        return headers;
+    }
+
+    /**
+     * Obtiene el ID del usuario autenticado desde JwtUserDetails en el SecurityContext.
+     */
+    private String getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof JwtUserDetails) {
+            return ((JwtUserDetails) auth.getPrincipal()).getUserId().toString();
+        }
+        throw new IllegalStateException("No authenticated user found");
     }
 }
-
