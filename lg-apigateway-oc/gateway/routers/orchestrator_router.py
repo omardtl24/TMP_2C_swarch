@@ -6,7 +6,7 @@ import httpx
 
 router = APIRouter(prefix="/orchestrator", tags=["orchestrator"])
 
-@router.post("/expenses")
+@router.post("/api/graphql")
 async def create_expense_orchestrated(
     request: Request,
     token_payload: dict = Depends(verify_jwt)
@@ -18,7 +18,7 @@ async def create_expense_orchestrated(
     user_id = token_payload.get("sub")
 
     # 2. Llamar a groupexpenses (Mongo)
-    mongo_url = f"{EXPENSES_SERVICE_URL}/expenses/create"  # Ajusta la ruta según tu microservicio
+    mongo_url = f"{EXPENSES_SERVICE_URL}/api/graphql"  # Ajusta la ruta según tu microservicio
     files = {"supportImage": (support_image.filename, await support_image.read())} if support_image else None
 
     async with httpx.AsyncClient() as client:

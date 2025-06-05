@@ -11,9 +11,16 @@ async def events_proxy(
     request: Request,
     token_payload: dict = Depends(verify_jwt)
 ):
-    user_id = token_payload.get("sub")
-    if user_id:
-
-        request.scope["headers"].append((b"x-user-id", user_id.encode()))
-
+    user_details = {
+        "x-user-id": token_payload.get("sub"),
+        "x-user-email": token_payload.get("email"),
+        "x-user-username": token_payload.get("name"),
+        "x-user-name": token_payload.get("userName"),
+    }
+    
+    for header_name, header_value in user_details.items():
+        if header_value:
+            request.scope["headers"].append(
+                (header_name.encode(), str(header_value).encode())
+            )
     return await proxy_request(request, EVENTS_SERVICE_URL)

@@ -99,7 +99,7 @@ public class ExpenseController {
             // input.getConcept(),
             // input.getType().name(),
             // input.getParticipation(),
-            input.getExternalDocId(),
+            input.getExternalDocId()
             // supportImage
         );
     }

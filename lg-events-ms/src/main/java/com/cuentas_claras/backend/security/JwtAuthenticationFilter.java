@@ -1,7 +1,5 @@
 package com.cuentas_claras.backend.security;
 
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -21,28 +19,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String userIdHeader = request.getHeader("x-user-id");
+        String userEmail = request.getHeader("x-user-email");
+        String userUsername = request.getHeader("x-user-username");
+        String userName = request.getHeader("x-user-name");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-
+        if (userIdHeader != null) {
             try {
-                JWTClaimsSet claims = SignedJWT.parse(token).getJWTClaimsSet();
+                Long userId = Long.parseLong(userIdHeader);
 
-                Long userId = Long.parseLong(claims.getSubject());
-                String email = (String) claims.getClaim("email");
-                String name = (String) claims.getClaim("name");
-                String username = (String) claims.getClaim("userName");
-
-                JwtUserDetails userDetails = new JwtUserDetails(userId, email, name, username);
+                JwtUserDetails userDetails = new JwtUserDetails(
+                        userId,
+                        userEmail != null ? userEmail : "",
+                        userName != null ? userName : "",
+                        userUsername != null ? userUsername : ""
+                );
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            } catch (NumberFormatException e) {
+                logger.error("Invalid user ID in header: " + userIdHeader, e);
             } catch (Exception e) {
-                logger.error("Failed to parse JWT token: " + e.getMessage());
+                logger.error("Failed to set authentication context: " + e.getMessage(), e);
             }
         }
 

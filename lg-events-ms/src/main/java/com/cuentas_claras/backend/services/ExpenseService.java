@@ -71,7 +71,7 @@ public class ExpenseService {
             // String concept,
             // String type,
             // List<NewParticipationInput> participation,
-            String externalDocId,
+            String externalDocId
             // MultipartFile supportImage
     ) throws Exception {
         String creatorId = getCurrentUserId();
