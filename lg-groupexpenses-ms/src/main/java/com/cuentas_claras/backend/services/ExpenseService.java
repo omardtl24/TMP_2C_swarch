@@ -65,8 +65,8 @@ public class ExpenseService {
      * @throws IOException si falla la subida de imagen
      */
     @Transactional
-    public ExpenseEntity createExpense(
-            Long eventId,
+    public ExpenseDocument createExpense(
+            // Long eventId,
             double total,
             String concept,
             String type,
@@ -74,10 +74,11 @@ public class ExpenseService {
             MultipartFile supportImage
     ) throws Exception {
         String creatorId = getCurrentUserId();
-        log.info("Creando gasto para evento {} por usuario {}", eventId, creatorId);
+        // log.info("Creando gasto para evento {} por usuario {}", eventId, creatorId);
+        log.info("Creando gasto por usuario {}", creatorId);
 
-        EventEntity event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
+        // EventEntity event = eventRepository.findById(eventId)
+        //     .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
 
         // Guardar imagen de soporte si existe
         ObjectId imageId = null;
@@ -102,14 +103,15 @@ public class ExpenseService {
         ExpenseDocument savedDoc = expenseDocumentRepository.save(doc);
 
         // Guardar entidad SQL
-        ExpenseEntity expense = new ExpenseEntity();
-        expense.setExternalDocId(savedDoc.getId());
-        expense.setCreatorId(creatorId);
-        expense.setEvent(event);
-        ExpenseEntity savedEntity = expenseRepository.save(expense);
+        // ExpenseEntity expense = new ExpenseEntity();
+        // expense.setExternalDocId(savedDoc.getId());
+        // expense.setCreatorId(creatorId);
+        // expense.setEvent(event);
+        // ExpenseEntity savedEntity = expenseRepository.save(expense);
 
-        log.info("Gasto {} creado con documento {}", savedEntity.getId(), savedDoc.getId());
-        return savedEntity;
+        // log.info("Gasto {} creado con documento {}", savedEntity.getId(), savedDoc.getId());
+         log.info("Gasto creado con id {}", savedDoc.getId());
+        return savedDoc;
     }
 
     /**

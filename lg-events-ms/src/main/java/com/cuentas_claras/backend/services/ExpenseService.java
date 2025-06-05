@@ -67,11 +67,12 @@ public class ExpenseService {
     @Transactional
     public ExpenseEntity createExpense(
             Long eventId,
-            double total,
-            String concept,
-            String type,
-            List<NewParticipationInput> participation,
-            MultipartFile supportImage
+            // double total,
+            // String concept,
+            // String type,
+            // List<NewParticipationInput> participation,
+            String externalDocId,
+            // MultipartFile supportImage
     ) throws Exception {
         String creatorId = getCurrentUserId();
         log.info("Creando gasto para evento {} por usuario {}", eventId, creatorId);
@@ -79,36 +80,36 @@ public class ExpenseService {
         EventEntity event = eventRepository.findById(eventId)
             .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado: " + eventId));
 
-        // Guardar imagen de soporte si existe
-        ObjectId imageId = null;
-        if (supportImage != null && !supportImage.isEmpty()) {
-            imageId = expenseDocumentRepository.saveSupportImage(supportImage);
-        }
+        // // Guardar imagen de soporte si existe
+        // ObjectId imageId = null;
+        // if (supportImage != null && !supportImage.isEmpty()) {
+        //     imageId = expenseDocumentRepository.saveSupportImage(supportImage);
+        // }
 
-        // Construir documento Mongo
-        ExpenseDocument doc = new ExpenseDocument();
-        doc.setPayerId(creatorId);
-        doc.setTotal(total);
-        doc.setConcept(concept);
-        doc.setType(Enum.valueOf(com.cuentas_claras.backend.models.enums.ExpenseType.class, type));
-        doc.setSupportImageId(imageId);
-        participation.forEach(p -> {
-            Participation part = new Participation();
-            part.setUserId(p.getUserId());
-            part.setState(p.getState());
-            part.setPortion(p.getPortion());
-            doc.getParticipation().add(part);
-        });
-        ExpenseDocument savedDoc = expenseDocumentRepository.save(doc);
+        // // Construir documento Mongo
+        // ExpenseDocument doc = new ExpenseDocument();
+        // doc.setPayerId(creatorId);
+        // doc.setTotal(total);
+        // doc.setConcept(concept);
+        // doc.setType(Enum.valueOf(com.cuentas_claras.backend.models.enums.ExpenseType.class, type));
+        // doc.setSupportImageId(imageId);
+        // participation.forEach(p -> {
+        //     Participation part = new Participation();
+        //     part.setUserId(p.getUserId());
+        //     part.setState(p.getState());
+        //     part.setPortion(p.getPortion());
+        //     doc.getParticipation().add(part);
+        // });
+        // ExpenseDocument savedDoc = expenseDocumentRepository.save(doc);
 
         // Guardar entidad SQL
         ExpenseEntity expense = new ExpenseEntity();
-        expense.setExternalDocId(savedDoc.getId());
+        expense.setExternalDocId(externalDocId);
         expense.setCreatorId(creatorId);
         expense.setEvent(event);
         ExpenseEntity savedEntity = expenseRepository.save(expense);
 
-        log.info("Gasto {} creado con documento {}", savedEntity.getId(), savedDoc.getId());
+        log.info("Gasto {} creado con documento {}", savedEntity.getId(), externalDocId);
         return savedEntity;
     }
 

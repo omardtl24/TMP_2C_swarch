@@ -89,12 +89,12 @@ public class ExpenseController {
 
 
     @MutationMapping
-    public ExpenseEntity createExpense(
+    public ExpenseDocument createExpense(
         @Argument("input") NewExpenseInput input,
         @Argument("supportImage") MultipartFile supportImage
     ) throws Exception {
         return expenseService.createExpense(
-            input.getEventId(),
+            // input.getEventId(),
             input.getTotal(),
             input.getConcept(),
             input.getType().name(),

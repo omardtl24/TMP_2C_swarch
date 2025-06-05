@@ -95,11 +95,12 @@ public class ExpenseController {
     ) throws Exception {
         return expenseService.createExpense(
             input.getEventId(),
-            input.getTotal(),
-            input.getConcept(),
-            input.getType().name(),
-            input.getParticipation(),
-            supportImage
+            // input.getTotal(),
+            // input.getConcept(),
+            // input.getType().name(),
+            // input.getParticipation(),
+            input.getExternalDocId(),
+            // supportImage
         );
     }
 

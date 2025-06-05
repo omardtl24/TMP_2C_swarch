@@ -14,5 +14,6 @@ public class NewExpenseInput {
     private String concept;
     private ExpenseType type;
     private List<NewParticipationInput> participation;
+    private String externalDocId;
     private MultipartFile supportImage;
 }
