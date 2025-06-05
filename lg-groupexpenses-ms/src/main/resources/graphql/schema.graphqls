@@ -21,7 +21,7 @@ type ExpenseDocument {
   payerId: String!
   total: Float!
   concept: String!
-  type: String!               # Usamos String aquí para que coincida con el modelo
+  type: String!           
   participation: [Participation!]!
   supportImageId: String
 }
