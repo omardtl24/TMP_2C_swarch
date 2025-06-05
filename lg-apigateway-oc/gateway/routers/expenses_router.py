@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, UploadFile, File, HTTPException
 from gateway.auth import verify_jwt
 from gateway.schemas import NewExpenseUnified
 import httpx
-from gateway.config import MONGO_GRAPHQL_URL, SQL_GRAPHQL_URL
+from gateway.config import EXPENSES_GRAPHQL_URL, EVENTS_GRAPHQL_URL
 
 router = APIRouter(prefix="/expenses", tags=["expenses"])
 
@@ -63,7 +63,7 @@ async def create_expense_unified(
                 "0": (supportImage.filename, supportImage.file, supportImage.content_type)
             }
             resp_mongo = await client.post(
-                MONGO_GRAPHQL_URL,
+                EXPENSES_GRAPHQL_URL,
                 files=files,
                 headers=forwarded_headers
             )
@@ -76,7 +76,7 @@ async def create_expense_unified(
                 }
             }
             resp_mongo = await client.post(
-                MONGO_GRAPHQL_URL,
+                EXPENSES_GRAPHQL_URL,
                 json=payload,
                 headers=forwarded_headers
             )
@@ -116,7 +116,7 @@ async def create_expense_unified(
 
     async with httpx.AsyncClient() as client:
         resp_sql = await client.post(
-            SQL_GRAPHQL_URL,
+            EVENTS_GRAPHQL_URL,
             json=payload_sql,
             headers=forwarded_headers
         )
@@ -133,7 +133,7 @@ async def create_expense_unified(
         }
         async with httpx.AsyncClient() as client:
             await client.post(
-                MONGO_GRAPHQL_URL,
+                EXPENSES_GRAPHQL_URL,
                 json=payload_del,
                 headers=forwarded_headers
             )
@@ -152,7 +152,7 @@ async def create_expense_unified(
         }
         async with httpx.AsyncClient() as client:
             await client.post(
-                MONGO_GRAPHQL_URL,
+                EXPENSES_GRAPHQL_URL,
                 json=payload_del,
                 headers=forwarded_headers
             )
@@ -194,7 +194,7 @@ async def delete_expense_unified(
     }
     async with httpx.AsyncClient() as client:
         resp_sql = await client.post(
-            SQL_GRAPHQL_URL,
+            EVENTS_GRAPHQL_URL,
             json=payload_sql,
             headers=forwarded_headers
         )
@@ -217,7 +217,7 @@ async def delete_expense_unified(
     }
     async with httpx.AsyncClient() as client:
         resp_mongo = await client.post(
-            MONGO_GRAPHQL_URL,
+            EXPENSES_GRAPHQL_URL,
             json=payload_del,
             headers=forwarded_headers
         )

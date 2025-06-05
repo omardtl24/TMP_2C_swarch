@@ -31,7 +31,7 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final EventRepository eventRepository;
 
-    /** URL del endpoint GraphQL del microservicio Mongo */
+    /** URL del endpoint GraphQL del microservicio de expenses */
     @Value("${mongo.service.graphql.url}")
     private String mongoGraphqlUrl;
 
@@ -78,10 +78,6 @@ public class ExpenseService {
         return expenseRepository.findById(expenseId)
             .orElseThrow(() -> new EntityNotFoundException("Expense not found: " + expenseId));
     }
-
-    // ----------------------------------------
-    //  Operaciones que requieren datos de Mongo
-    // ----------------------------------------
 
     @Transactional(readOnly = true)
     public Double sumExpensesByEvent(Long eventId) throws EntityNotFoundException {
@@ -248,10 +244,6 @@ public class ExpenseService {
         }
     }
 
-    /**
-     * Construye HttpHeaders usando los datos del usuario autenticado
-     * (JwtUserDetails) que el filtro JwtAuthenticationFilter puso en el contexto.
-     */
     private HttpHeaders buildHeadersForMongo() {
         HttpHeaders headers = new HttpHeaders();
 

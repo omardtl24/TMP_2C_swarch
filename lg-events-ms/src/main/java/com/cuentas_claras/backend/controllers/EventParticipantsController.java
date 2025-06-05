@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/events")
@@ -27,14 +29,20 @@ public class EventParticipantsController {
     @Autowired
     private ModelMapper modelMapper;
 
+
     /**
      * Permite que el usuario autenticado se una a un evento por código de invitación.
+     *
+     * @param request 
+     * @return 
      */
     @PostMapping("/join")
     @ResponseStatus(HttpStatus.CREATED)
-    public void joinEvent(@RequestBody JoinEventRequestDTO request)
+    public Map<String, String> joinEvent(@RequestBody JoinEventRequestDTO request)
             throws EntityNotFoundException, IllegalOperationException {
-        participantsService.joinEventByInvitationCode(request.getInvitationCode());
+
+        Long eventId = participantsService.joinEventByInvitationCode(request.getInvitationCode());
+        return Collections.singletonMap("id", eventId.toString());
     }
 
     /**

@@ -42,12 +42,13 @@ public class EventParticipantsService {
      * Permite que el usuario autenticado se una a un evento mediante un código de invitación.
      *
      * @param invitationCode Código de invitación del evento al que se desea unir.
-     * @throws EntityNotFoundException Si el código de invitación no corresponde a ningún evento.
+     * @return El ID del evento al que se ha unido el usuario.
+     * @throws EntityNotFoundException   Si el código de invitación no corresponde a ningún evento.
      * @throws IllegalOperationException Si el evento no tiene habilitadas las invitaciones o el usuario ya está inscrito.
      */
-
     @Transactional
-    public void joinEventByInvitationCode(String invitationCode) throws EntityNotFoundException, IllegalOperationException {
+    public Long joinEventByInvitationCode(String invitationCode)
+            throws EntityNotFoundException, IllegalOperationException {
         String userId = getCurrentUserId();
         log.info("Usuario {} intenta unirse con código {}", userId, invitationCode);
 
@@ -68,7 +69,9 @@ public class EventParticipantsService {
         participantsRepository.save(participation);
 
         log.info("Usuario {} unido al evento {}", userId, event.getId());
+        return event.getId();
     }
+
 
     /**
      * Elimina a un participante específico de un evento dado.
