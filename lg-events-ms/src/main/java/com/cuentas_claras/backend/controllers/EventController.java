@@ -43,15 +43,15 @@ public class EventController {
         return modelMapper.map(created, EventDTO.class);
     }
 
-    /**
-     * Lista todos los eventos creados por el usuario autenticado.
-     */
-    @GetMapping("/me")
-    @ResponseStatus(HttpStatus.OK)
-    public List<EventDetailDTO> getMyEvents() {
-        List<EventEntity> list = eventService.getMyEvents();
-        return modelMapper.map(list, new TypeToken<List<EventDetailDTO>>(){}.getType());
-    }
+        /**
+         * Lista todos los eventos creados por el usuario autenticado.
+         */
+        @GetMapping("/me")
+        @ResponseStatus(HttpStatus.OK)
+        public List<EventDetailDTO> getMyEvents() {
+            List<EventEntity> list = eventService.getMyEvents();
+            return modelMapper.map(list, new TypeToken<List<EventDetailDTO>>(){}.getType());
+        }
 
     /**
      * Obtiene un evento por ID.

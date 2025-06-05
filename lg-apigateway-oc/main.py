@@ -2,12 +2,12 @@ from fastapi import FastAPI
 import strawberry.fastapi
 from gateway.graphql.schema import schema
 from fastapi.middleware.cors import CORSMiddleware
-from gateway.routers.auth_router import router as auth_router
-from gateway.routers.general_events_router import router as events_router
-from gateway.routers.fetch_event_details import router as events_details
-from gateway.routers.fetch_events_participating import router as events_participating
-from gateway.routers.expenses_router import router as expenses_router
-from gateway.routers.personal_router import router as personal_router
+from gateway.routers.users.auth_router import router as auth_router
+from gateway.routers.events.general_events_router import router as events_router
+from gateway.routers.events.fetch_event_details import router as events_details
+from gateway.routers.events.fetch_events_participating import router as events_participating
+from gateway.routers.group_expenses.expenses_router import router as expenses_router
+from gateway.routers.personal_expenses.personal_router import router as personal_router
 
 app = FastAPI(title="API Gateway")
 
