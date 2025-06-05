@@ -8,8 +8,7 @@ import com.cuentas_claras.backend.models.enums.ExpenseType;
 import java.util.List;
 
 @Data
-public class UpdateExpenseInput {
-    private Long expenseId;
+public class NewExpenseDocumentInput {
     private double total;
     private String concept;
     private ExpenseType type;

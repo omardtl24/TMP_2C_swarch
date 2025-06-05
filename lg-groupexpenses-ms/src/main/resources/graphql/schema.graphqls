@@ -1,8 +1,5 @@
-# Scalars
-scalar Date
 scalar Upload
 
-# Expense types
 enum ExpenseType {
   COMIDA_Y_BEBIDA
   COMPRAS
@@ -24,71 +21,44 @@ type ExpenseDocument {
   payerId: String!
   total: Float!
   concept: String!
-  type: ExpenseType!
+  type: String!               # Usamos String aquí para que coincida con el modelo
   participation: [Participation!]!
   supportImageId: String
 }
 
-type ExpenseEntity {
-  id: ID!
-  creatorId: String!
-  externalDocId: String!
-  eventId: ID!
-  document: ExpenseDocument!
-}
-
-type Balance {
-  userId: String!
-  balance: Float!
-}
-
-# Queries
+# Query
 type Query {
-  expensesByEvent(eventId: ID!): [ExpenseEntity!]!
+  expenseDocumentById(documentId: ID!): ExpenseDocument
   expensesPaidByMe: [ExpenseDocument!]!
   expensesParticipatedByMe: [ExpenseDocument!]!
-  searchExpensesByType(type: ExpenseType!): [ExpenseDocument!]!
-  searchExpensesByConcept(keyword: String!): [ExpenseDocument!]!
-  calcularBalances(eventId: ID!): [Balance!]!
-  sumAllExpenses: Float!
-  sumExpensesByEvent(eventId: ID!): Float!
-  sumExpensesPaidByUserInEvent(eventId: ID!): Float!
-  expenseDetail(eventId: ID!): Float!
+  searchExpenseDocumentsByType(type: ExpenseType!): [ExpenseDocument!]!
+  searchExpenseDocumentsByConcept(keyword: String!): [ExpenseDocument!]!
 }
 
-# Mutations
-input NewExpenseInput {
-  eventId: ID!
+# Mutation
+input NewExpenseDocumentInput {
   total: Float!
   concept: String!
   type: ExpenseType!
-  participation: [NewParticipationInput!]!
+  participation: [Participation!]!
   supportImage: Upload
 }
 
-input NewParticipationInput {
-  userId: String!
-  state: Int!
-  portion: Float!
-}
-
-input UpdateExpenseInput {
-  expenseId: ID!
+input UpdateExpenseDocumentInput {
+  documentId: ID!
   total: Float!
   concept: String!
   type: ExpenseType!
-  participation: [NewParticipationInput!]!
+  participation: [Participation!]!
   supportImage: Upload
 }
 
-input DeleteExpenseInput {
-  expenseId: ID!
+input DeleteExpenseDocumentInput {
+  documentId: ID!
 }
 
 type Mutation {
-  createExpense(input: NewExpenseInput!, supportImage: Upload): ExpenseEntity!
-  updateExpense(input: UpdateExpenseInput!, supportImage: Upload): ExpenseDocument!
-  deleteExpense(input: DeleteExpenseInput!): Boolean!
-  uploadSupportImage(eventId: ID!, expenseId: ID!, file: Upload!): String!
-
+  createExpenseDocument(input: NewExpenseDocumentInput!): ExpenseDocument!
+  updateExpenseDocument(input: UpdateExpenseDocumentInput!): ExpenseDocument!
+  deleteExpenseDocument(input: DeleteExpenseDocumentInput!): Boolean!
 }
