@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from gateway.routers.auth_router import router as auth_router
@@ -7,13 +8,11 @@ from gateway.routers.personal_router import router as personal_router
 
 app = FastAPI(title="API Gateway")
 
-origins = [  
-    "http://localhost:3000",
-]
+frontend_url = os.environ.get("PUBLIC_FRONTEND_URL", "PUBLIC_FRONTEND_PUBLIC_URL")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=[frontend_url],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
