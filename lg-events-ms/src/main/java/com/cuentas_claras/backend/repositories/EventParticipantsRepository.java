@@ -1,4 +1,4 @@
-package com.cuentas_claras.backend.repositories.sql;
+package com.cuentas_claras.backend.repositories;
 
 import java.util.List;
 import java.util.Optional;

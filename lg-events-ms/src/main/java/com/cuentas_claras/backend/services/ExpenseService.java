@@ -4,10 +4,9 @@ import com.cuentas_claras.backend.dto.Balance;
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.models.sql.EventEntity;
 import com.cuentas_claras.backend.models.sql.ExpenseEntity;
-import com.cuentas_claras.backend.repositories.sql.EventRepository;
-import com.cuentas_claras.backend.repositories.sql.ExpenseRepository;
+import com.cuentas_claras.backend.repositories.EventRepository;
+import com.cuentas_claras.backend.repositories.ExpenseRepository;
 import com.cuentas_claras.backend.security.JwtUserDetails;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ExpenseService {
 
     @Autowired
