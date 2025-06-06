@@ -1,8 +1,11 @@
 'use server'
-import { ENDPOINTS } from "../endpoints";
+//import { ENDPOINTS } from "../endpoints";
+import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
 import mockEventsResponse from "../mockData/eventMockData";
 import { EventDetailType, EventType, ParticipantType,CreateEventData } from "../types";
 import { cookies } from "next/headers";
+import { restClient } from "../api/restClient";
+import { unknown } from "zod";
 
 export async function getAuthToken(): Promise<string | undefined> {
   try {
@@ -23,39 +26,19 @@ export type EventsResponse = {
   error?: string;
 };
 
-export async function fetchEvents(token?: string): Promise<EventsResponse> {
+export async function fetchEvents(): Promise<EventsResponse> {
   try {
-    const authToken = token || await getAuthToken();
-    
-    // If running in generateStaticParams (no auth token available),
-    // return mock data for static generation
-    if (!authToken) {
-      console.log("No auth token available, using mock data for static generation");
-      return mockEventsResponse;
-    }
-    
-    const res = await fetch(
-      ENDPOINTS.community.ssr + "/api/events/me",
-      { 
-        method: "GET",
-        headers: { Authorization: `Bearer ${authToken}` },
-        cache: 'no-store'
-      }
-    );
-    
-    if (!res.ok) {
-      return { 
-        success: 'error', 
-        error: `Failed to fetch events. Status: ${res.status}` 
-      };
-    }
-    
-    const events = await res.json();
-    return { success: 'success', data: events };
-    
+    const events = await callApiWithAuth<{ success: string, data: EventType[] }>({ //Este callApiWithAuth siempre deberia tener params explicitos para return de response data
+      path: "/api/events/me",
+      method: "GET",
+      headers: {
+        'Cache-Control': 'no-store',
+      },
+    });
+    return { success: events.success || "success", data: events.data };
   } catch (error) {
-    return { 
-      success: 'error', 
+    return {
+      success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
@@ -67,41 +50,20 @@ export type EventsResponseDetailed = {
   error?: string;
 };
 
-
-export async function fetchEventDetail(id:string,token?:string): Promise<EventsResponseDetailed> {
-    //return mockEventDetailResponse
+export async function fetchEventDetail(id: string): Promise<EventsResponseDetailed> {
   try {
-
-    const authToken = token || await getAuthToken();
-    
-    // If running in generateStaticParams (no auth token available),
-    // return mock data for static generation
-    if (!authToken) {
-      console.log("No auth token available, using mock data for static generation");
-    }
-    const res = await fetch(
-      ENDPOINTS.community.ssr + "/api/events/" + id,
-       { 
-        method: "GET",
-        headers: { Authorization: `Bearer ${authToken}` },
-        cache: 'no-store'
-      }
-    );
-    
-    if (!res.ok) {
-      return { 
-        success: 'error', 
-        error: `Failed to fetch event ${id}. Status: ${res.status}` 
-      };
-    }
-    
-    const events = await res.json();
-    return { success: 'success', data: events };
-    
+    const event = await callApiWithAuth<EventDetailType>({
+      path: `/api/events/${id}`,
+      method: "GET",
+      headers: {
+        'Cache-Control': 'no-store',
+      },
+    });
+    return { success: 'success', data: event };
   } catch (error) {
-    return { 
-      success: 'error', 
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    return {
+      success: 'error',
+      error: error instanceof Error ? error.message : `Unknown error occurred while fetching event ${id}`
     };
   }
 }
@@ -124,41 +86,17 @@ export type CreateEventResponse = {
 };
 
 // Function to create a new event
-export async function createEvent(eventData: CreateEventData, token?: string): Promise<CreateEventResponse> {
-  const authToken = token || await getAuthToken();
-  
-  // Check if token exists
-  if (!authToken) {
-    return {
-      success: 'error',
-      error: "Authentication required. No valid token found."
-    };
-  }
-  
+export async function createEvent(eventData: CreateEventData): Promise<CreateEventResponse> {
   try {
-    const res = await fetch(
-      ENDPOINTS.community.ssr + "/api/events",
-      {
-        method: "POST",
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}` 
-        },
-        body: JSON.stringify(eventData),
-        cache: 'no-store'
+    const createdEvent = await callApiWithAuth<EventType>({
+      path: "/api/events",
+      method: "POST",
+      body: eventData,
+      headers: {
+        'Cache-Control': 'no-store'
       }
-    );
-    
-    if (!res.ok) {
-      return {
-        success: 'error',
-        error: `Failed to create event. Status: ${res.status}`
-      };
-    }
-    
-    const createdEvent = await res.json();
+    });
     return { success: 'success', data: createdEvent };
-    
   } catch (error) {
     return {
       success: 'error',
@@ -170,55 +108,26 @@ export async function createEvent(eventData: CreateEventData, token?: string): P
 // Define the type for join event response
 export type JoinEventResponse = {
   success: string;
-  data?: {
-    id: string;  // Event ID
-  };
+  data?: { id: string }; // Event ID
   error?: string;
 };
 
-// Function to join an event using invitation code
+// Function to join an event using an invitation code
 export async function joinEvent(invitationCode: string): Promise<JoinEventResponse> {
-  const authToken = await getAuthToken();
-  
-  // Check if token exists
-  if (!authToken) {
-    return {
-      success: 'success',
-      error: "Authentication required. No valid token found."
-    };
-  }
-  
   try {
-    const res = await fetch(
-      ENDPOINTS.community.ssr + "/api/events/join",
-      {
-        method: "POST",
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}` 
-        },
-        body: JSON.stringify({ invitationCode }),
-        cache: 'no-store'
+    const data = await callApiWithAuth<{ id: string }>({
+      path: "/api/events/join",
+      method: "POST",
+      body: { invitationCode },
+      headers: {
+        'Cache-Control': 'no-store'
       }
-    );
-    
-    if (!res.ok) {
-      const errorData = await res.json();
-      return {
-        success: 'error',
-        error: errorData.apierror?.message || `Failed to join event. Status: ${res.status}`
-      };
-    }
-    
-    const data = await res.json();
-    return { 
-      success: 'error', 
-      data: {
-        id: data.id
-      }
-    };
-    
+    });
+    return { success: 'success', data: { id: data.id } };
   } catch (error) {
+    // Note: The original function had custom error parsing.
+    // callApiWithAuth throws a generic error, so detailed messages from the response body may be lost
+    // unless the underlying restClient is enhanced to include them.
     return {
       success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
@@ -231,59 +140,27 @@ export type InvitationStateResponse = {
   data?: {
     enabled: boolean;
     code?: string;
-    //event_id?: string;
   };
   error?: string;
 };
 
-export async function ChangeInvitationState(
-  enabled: boolean, 
-  eventId: string
-): Promise<InvitationStateResponse> {
-  const authToken = await getAuthToken();
-  
-  // Check if token exists
-  if (!authToken) {
-    return {
-      success: 'error',
-      error: "Authentication required. No valid token found."
-    };
-  }
-  
+export async function ChangeInvitationState(enabled: boolean, eventId: string): Promise<InvitationStateResponse> {
   try {
-    console.log(`Calling API to change invitation state for event ${eventId} to ${enabled}`);
-    
-    const res = await fetch(
-      `${ENDPOINTS.community.ssr}/api/events/${eventId}/invite?enabled=${enabled}`,
-      {
-        method: "PATCH",
-        headers: { 
-          Authorization: `Bearer ${authToken}` 
-        },
-        cache: 'no-store'
+    const data = await callApiWithAuth<{ invitationEnabled: boolean, invitationCode: string }>({
+      path: `/api/events/${eventId}/invite?enabled=${enabled}`,
+      method: "PATCH",
+      headers: {
+        'Cache-Control': 'no-store'
       }
-    );
-    
-    console.log("API response status:", res.status);
-    
-    if (!res.ok) {
-      return {
-        success: "error",
-        error: `Failed to update invitation state. Status: ${res.status}`
-      };
-    }
-    
-    const data = await res.json();
-    return { 
-      success: 'success', 
+    });
+    return {
+      success: 'success',
       data: {
         enabled: data.invitationEnabled,
         code: data.invitationCode
       }
     };
-    
   } catch (error) {
-    console.error("Error in ChangeInvitationState:", error);
     return {
       success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
@@ -291,47 +168,23 @@ export async function ChangeInvitationState(
   }
 }
 
+
 export type DeleteEventResponse = {
   success: string;
   error?: string;
 };
 
 export async function deleteEvent(eventId: string): Promise<DeleteEventResponse> {
-  const authToken = await getAuthToken();
-  
-  // Check if token exists
-  if (!authToken) {
-    return {
-      success: 'success',
-      error: "Authentication required. No valid token found."
-    };
-  }
-  
   try {
-    console.log(`Deleting event with ID: ${eventId}`);
-    
-    const res = await fetch(
-      `${ENDPOINTS.community.ssr}/api/events/${eventId}`,
-      {
-        method: "DELETE",
-        headers: { 
-          Authorization: `Bearer ${authToken}` 
-        },
-        cache: 'no-store'
+    await callApiWithAuth({
+      path: `/api/events/${eventId}`,
+      method: "DELETE",
+      headers: {
+        'Cache-Control': 'no-store'
       }
-    );
-    
-    if (!res.ok) {
-      return {
-        success: 'error',
-        error: `Failed to delete event. Status: ${res.status}`
-      };
-    }
-    
+    });
     return { success: 'success' };
-    
   } catch (error) {
-    console.error("Error in deleteEvent:", error);
     return {
       success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
@@ -340,51 +193,26 @@ export async function deleteEvent(eventId: string): Promise<DeleteEventResponse>
 }
 
 // Function to get current user information
-
-interface ParticipantsResponse{
+interface ParticipantsResponse {
   success: string;
   data?: ParticipantType[]
   error?: string;
 }
 
 export async function participantsEvent(id: string): Promise<ParticipantsResponse> {
-  const authToken = await getAuthToken();
-  
-  // Check if token exists
-  if (!authToken) {
-    return {
-      success: 'error',
-      error: "Authentication required. No valid token found."
-    };
-  }
-  
   try {
-    const res = await fetch(
-      `${ENDPOINTS.community.ssr}/api/events/${id}/participants`,
-      {
-        method: "GET",
-        headers: { 
-          Authorization: `Bearer ${authToken}` 
-        },
-        cache: 'no-store'
+    const data = await callApiWithAuth<ParticipantType[]>({
+      path: `/api/events/${id}/participants`,
+      method: "GET",
+      headers: {
+        'Cache-Control': 'no-store'
       }
-    );
-    
-    if (!res.ok) {
-      return {
-        success: 'error',
-        error: `Failed to fetch participants. Status: ${res.status}`
-      };
-    }
-    
-    const data = await res.json();
+    });
     return { success: 'success', data };
-    
   } catch (error) {
     return {
       success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
-
 }

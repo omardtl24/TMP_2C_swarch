@@ -4,7 +4,7 @@
 
 export type RestClientOptions = {
   url: string; // endpoint completo
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   body?: unknown;
   headers?: Record<string, string>;
   credentials?: "include" | "omit" | "same-origin";
