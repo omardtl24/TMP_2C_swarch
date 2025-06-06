@@ -5,7 +5,7 @@ from jose import jwt, JWTError
 
 from fastapi import Request, HTTPException, status
 
-from gateway.config import JWKS_PUBLIC_URL, JWT_ALGORITHM
+from gateway.config import JWKS_URL, JWT_ALGORITHM
 
 # Cache global (en memoria) para JWKS:
 # { "keys": [ {kty, alg, use, n, e, kid}, … ] }
@@ -19,7 +19,8 @@ async def _fetch_jwks() -> Dict[str, Any]:
     now = time.time()
     if not _jwks_cache["keys"] or now - _last_jwks_fetch > _JWKS_CACHE_TTL:
         async with httpx.AsyncClient() as client:
-            resp = await client.get(JWKS_PUBLIC_URL, timeout=5.0)
+            print(f"Descargando JWKS desde {JWKS_URL}...")
+            resp = await client.get(JWKS_URL, timeout=5.0)
             if resp.status_code != 200:
                 raise HTTPException(
                     status_code=503,
