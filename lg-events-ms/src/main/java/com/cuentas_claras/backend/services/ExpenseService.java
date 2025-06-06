@@ -9,6 +9,8 @@ import com.cuentas_claras.backend.repositories.sql.ExpenseRepository;
 import com.cuentas_claras.backend.security.JwtUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -28,8 +30,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ExpenseService {
 
-    private final ExpenseRepository expenseRepository;
-    private final EventRepository eventRepository;
+    @Autowired
+    private ExpenseRepository expenseRepository;
+    
+    @Autowired
+    private EventRepository eventRepository;
 
     /** URL del endpoint GraphQL del microservicio de expenses */
     @Value("${mongo.service.graphql.url}")

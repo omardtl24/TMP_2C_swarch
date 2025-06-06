@@ -7,6 +7,8 @@ import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.models.sql.ExpenseEntity;
 import com.cuentas_claras.backend.services.ExpenseService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -18,7 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExpenseController {
 
-    private final ExpenseService expenseService;
+    @Autowired
+    private ExpenseService expenseService;
 
     /**
      * obtener todos los gastos SQL de un evento.

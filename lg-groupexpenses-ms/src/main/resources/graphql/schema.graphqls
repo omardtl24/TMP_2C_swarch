@@ -36,20 +36,29 @@ type Query {
 }
 
 # Mutation
+
+input NewParticipationInput {
+  userId: String!
+  state: Int!
+  portion: Float!
+}
+
+
 input NewExpenseDocumentInput {
   total: Float!
   concept: String!
   type: ExpenseType!
-  participation: [Participation!]!
+  participation: [NewParticipationInput!]!
   supportImage: Upload
 }
+
 
 input UpdateExpenseDocumentInput {
   documentId: ID!
   total: Float!
   concept: String!
   type: ExpenseType!
-  participation: [Participation!]!
+  participation: [NewParticipationInput!]! 
   supportImage: Upload
 }
 

@@ -9,6 +9,7 @@ import com.cuentas_claras.backend.models.mongo.ExpenseDocument.Participation;
 import com.cuentas_claras.backend.services.ExpenseDocumentService;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -22,7 +23,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ExpenseDocumentController {
 
-    private final ExpenseDocumentService expenseDocumentService;
+    @Autowired
+    ExpenseDocumentService expenseDocumentService;
 
     @QueryMapping
     public ExpenseDocument expenseDocumentById(@Argument("documentId") String documentId) throws EntityNotFoundException {
