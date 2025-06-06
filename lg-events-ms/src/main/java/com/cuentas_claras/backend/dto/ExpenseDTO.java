@@ -3,7 +3,8 @@ package com.cuentas_claras.backend.dto;
 import lombok.Data;
 
 @Data
-public class NewExpenseInput {
-    private Long eventId;
+public class ExpenseDTO {
+    private Long id;
+    private String creatorId;
     private String externalDocId;
 }

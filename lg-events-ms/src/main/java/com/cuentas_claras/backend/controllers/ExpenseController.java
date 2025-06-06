@@ -1,91 +1,112 @@
 package com.cuentas_claras.backend.controllers;
 
+import com.cuentas_claras.backend.dto.ExpenseDTO;
+import com.cuentas_claras.backend.dto.ExpenseDetailDTO;
 import com.cuentas_claras.backend.dto.Balance;
-import com.cuentas_claras.backend.dto.DeleteExpenseInput;
-import com.cuentas_claras.backend.dto.NewExpenseInput;
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.models.sql.ExpenseEntity;
 import com.cuentas_claras.backend.services.ExpenseService;
-import lombok.RequiredArgsConstructor;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
-@RequiredArgsConstructor
+/**
+ * Controlador REST para gastos (expenses).
+ */
+@RestController
+@RequestMapping("/expenses")
 public class ExpenseController {
 
     @Autowired
     private ExpenseService expenseService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     /**
-     * obtener todos los gastos SQL de un evento.
+     * Crea un nuevo expense asociado a un evento.
      */
-    @QueryMapping
-    public List<ExpenseEntity> expensesByEvent(@Argument("eventId") Long eventId)
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ExpenseDTO create(@RequestParam Long eventId, @RequestParam String externalDocId)
             throws EntityNotFoundException {
-        return expenseService.getExpensesByEvent(eventId);
+        ExpenseEntity entity = expenseService.createExpense(eventId, externalDocId);
+        return modelMapper.map(entity, ExpenseDTO.class);
     }
 
     /**
-     * obtener el detalle de un gasto SQL por ID.
+     * Obtiene todos los gastos de un evento.
      */
-    @QueryMapping
-    public ExpenseEntity expenseDetail(@Argument("expenseId") Long expenseId)
+    @GetMapping("/by-event/{eventId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ExpenseDetailDTO> getByEvent(@PathVariable Long eventId)
             throws EntityNotFoundException {
-        return expenseService.getExpenseDetail(expenseId);
+        List<ExpenseEntity> list = expenseService.getExpensesByEvent(eventId);
+        return modelMapper.map(list, new TypeToken<List<ExpenseDetailDTO>>(){}.getType());
     }
 
     /**
-     *  sumar todos los gastos de un evento (total desde Mongo para cada externalDocId).
+     * Obtiene un gasto específico por ID.
      */
-    @QueryMapping
-    public Double sumExpensesByEvent(@Argument("eventId") Long eventId)
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ExpenseDetailDTO getOne(@PathVariable Long id)
+            throws EntityNotFoundException {
+        ExpenseEntity entity = expenseService.getExpenseDetail(id);
+        return modelMapper.map(entity, ExpenseDetailDTO.class);
+    }
+
+    /**
+     * Elimina un gasto por ID.
+     */
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id)
+            throws EntityNotFoundException {
+        expenseService.deleteExpense(id);
+    }
+
+    /**
+     * Suma total de los gastos asociados a un evento.
+     */
+    @GetMapping("/sum/by-event/{eventId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Double sumByEvent(@PathVariable Long eventId)
             throws EntityNotFoundException {
         return expenseService.sumExpensesByEvent(eventId);
     }
 
     /**
-     * sumar todos los gastos que el usuario autenticado pagó en un evento.
+     * Suma de lo pagado por el usuario autenticado en un evento.
      */
-    @QueryMapping
-    public Double sumExpensesPaidByUserInEvent(@Argument("eventId") Long eventId)
+    @GetMapping("/sum/paid-by-me/{eventId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Double sumPaidByMe(@PathVariable Long eventId)
             throws EntityNotFoundException {
         return expenseService.sumExpensesPaidByUserInEvent(eventId);
     }
 
     /**
-     * Calcular balances por usuario en un evento.
+     * Calcula los balances de los usuarios en un evento.
      */
-    @QueryMapping
-    public List<Balance> calculateBalances(@Argument("eventId") Long eventId)
+    @GetMapping("/balances/{eventId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Balance> calculateBalances(@PathVariable Long eventId)
             throws EntityNotFoundException {
         return expenseService.calculateBalances(eventId);
     }
 
     /**
-     * Sumar todos los gastos globales (de todos los eventos).
+     * Suma de todos los gastos registrados en la base de datos SQL.
      */
-    @QueryMapping
-    public Double sumAllExpenses() {
+    @GetMapping("/sum/all")
+    @ResponseStatus(HttpStatus.OK)
+    public Double sumAll() {
         return expenseService.sumAllExpenses();
-    }
-
-    @MutationMapping
-    public ExpenseEntity createExpense(@Argument("input") NewExpenseInput input)
-            throws EntityNotFoundException {
-        return expenseService.createExpense(input.getEventId(), input.getExternalDocId());
-    }
-
-    @MutationMapping
-    public Boolean deleteExpense(@Argument("input") DeleteExpenseInput input)
-            throws EntityNotFoundException {
-        expenseService.deleteExpense(input.getExpenseId());
-        return true;
     }
 }
