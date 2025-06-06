@@ -1,29 +1,29 @@
-import { ExpenseType, ExpenseDetailedType, ParticipantType, ParticipantBalance } from "../types";
+import { ExpenseType, ExpenseDetailedType, ParticipantType } from "../types";
 import { mockExpenses, mockDetailedExpenses } from "../mockData/expenseMockData";
 import { mockEventExpenses, mockEventParticipants } from "../mockData/eventMockData";
 import { getAuthToken } from "./eventActions";
 import { ENDPOINTS } from "../endpoints";
 import Expense from "@/components/EventBoard/Expense";
 export type CreateExpenseResponse = {
-  success: boolean;
+  success: string;
   data?: ExpenseType;
   error?: string;
 };
 
 export type GetExpenseResponse = {
-  success: boolean;
+ success: string;
   data?: ExpenseType;
   error?: string;
 };
 
 export type GetExpensesResponse = {
-  success: boolean;
+ success: string;
   data?: ExpenseType[];
   error?: string;
 };
 
 export type GetExpenseDetailedResponse = {
-  success: boolean;
+ success: string;
   data?: ExpenseDetailedType;
   error?: string;
 };
@@ -43,7 +43,7 @@ export async function createExpense(
   // Check if token exists
   if (!authToken) {
     return {
-      success: false,
+      success: 'error',
       error: "Authentication required. No valid token found."
     };
   }
@@ -51,7 +51,7 @@ export async function createExpense(
   const total = Number(expenseData.total);
   if (isNaN(total)) {
     return {
-      success: false,
+      success: 'error',
       error: "Invalid amount provided"
     };
   }
@@ -121,7 +121,7 @@ export async function createExpense(
 
     if (!res.ok) {
       return {
-        success: false,
+        success: 'error',
         error: `Failed to create expense. Status: ${res.status}`
       };
     }
@@ -130,18 +130,18 @@ export async function createExpense(
 
     if (errors) {
       return {
-        success: false,
+        success: 'error',
         error: errors[0].message || 'GraphQL error occurred'
       };
     }
 
     return {
-      success: true,
+      success: 'success',
       data: data.createExpense
     };
   } catch (error) {
     return {
-      success: false,
+      success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
@@ -190,7 +190,7 @@ export async function fetchEventExpenses(eventId: string, token?: string): Promi
 
     if (!res.ok) {
       return {
-        success: false,
+        success: 'success',
         error: `Failed to fetch expenses. Status: ${res.status}`
       };
     }
@@ -201,7 +201,7 @@ export async function fetchEventExpenses(eventId: string, token?: string): Promi
     // Check for GraphQL errors
     if (response.errors) {
       return {
-        success: false,
+        success: 'success',
         error: response.errors[0]?.message || 'GraphQL error occurred'
       };
     }
@@ -221,18 +221,18 @@ export async function fetchEventExpenses(eventId: string, token?: string): Promi
       console.log("Mapped Expenses:", mappedExpenses);
       
       return {
-        success: true,
+        success: 'success',
         data: mappedExpenses
       };
     }
 
     return {
-      success: false,
+      success: 'error',
       error: 'Unexpected response format from API'
     };
   } catch (error) {
     return {
-      success: false,
+      success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
@@ -244,7 +244,7 @@ export async function getExpenseDetailed(id: string): Promise<GetExpenseDetailed
   const mockDetailedExpense = mockDetailedExpenses.find(exp => exp.id === id) || mockDetailedExpenses[0];
 
   return {
-    success: true,
+    success: 'success',
     data: mockDetailedExpense
   };
 
@@ -312,14 +312,14 @@ export async function getExpenseDetailed(id: string): Promise<GetExpenseDetailed
 }
 
 export type ExpensesResponse = {
-  success: boolean;
+ success: string;
   data?: ExpenseType[];
   error?: string;
 };
 
 // New response type for sum of expenses
 export type ExpensesSumResponse = {
-  success: boolean;
+ success: string;
   data?: number;
   error?: string;
 };
@@ -361,7 +361,7 @@ export async function getSumExpensesByEvent(eventId: string, token?: string): Pr
 
     if (!res.ok) {
       return {
-        success: false,
+        success: 'error',
         error: `Failed to fetch expenses sum. Status: ${res.status}`
       };
     }
@@ -371,7 +371,7 @@ export async function getSumExpensesByEvent(eventId: string, token?: string): Pr
     // Check for GraphQL errors
     if (response.errors) {
       return {
-        success: false,
+        success: 'error',
         error: response.errors[0]?.message || 'GraphQL error occurred'
       };
     }
@@ -379,18 +379,18 @@ export async function getSumExpensesByEvent(eventId: string, token?: string): Pr
     // Access the data from the response
     if (response.data?.sumExpensesByEvent !== undefined) {
       return {
-        success: true,
+        success: 'success',
         data: response.data.sumExpensesByEvent
       };
     }
 
     return {
-      success: false,
+      success: 'error',
       error: 'Unexpected response format from API'
     };
   } catch (error) {
     return {
-      success: false,
+      success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
@@ -399,14 +399,14 @@ export async function getSumExpensesByEvent(eventId: string, token?: string): Pr
 // New function to fetch expenses using GraphQL
 
 export type ParticipantsResponse = {
-  success: boolean;
+ success: string;
   data?: ParticipantType[];
   error?: string;
 };
-
+/* No need as we get individual balances now in event
 // New response type for balances
 export type BalancesResponse = {
-  success: boolean;
+ success: string;
   data?: ParticipantBalance[];
   error?: string;
 };
@@ -417,6 +417,7 @@ export type BalancesResponse = {
  * @param token Optional auth token (will use cookies if not provided)
  * @returns Promise with balance data for each participant
  */
+/*
 export async function fetchEventBalances(eventId: string, token?: string): Promise<BalancesResponse> {
   // Get token from cookies if not provided
   const authToken = token || getAuthToken();
@@ -451,7 +452,7 @@ export async function fetchEventBalances(eventId: string, token?: string): Promi
 
     if (!res.ok) {
       return {
-        success: false,
+        success: 'success',
         error: `Failed to fetch balances. Status: ${res.status}`
       };
     }
@@ -462,7 +463,7 @@ export async function fetchEventBalances(eventId: string, token?: string): Promi
     // Check for GraphQL errors
     if (response.errors) {
       return {
-        success: false,
+        success: 'error',
         error: response.errors[0]?.message || 'GraphQL error occurred'
       };
     }
@@ -470,19 +471,20 @@ export async function fetchEventBalances(eventId: string, token?: string): Promi
     // Access the nested data
     if (response.data?.calcularBalances) {
       return {
-        success: true,
+        success: 'success',
         data: response.data.calcularBalances
       };
     }
 
     return {
-      success: false,
+      success: 'error',
       error: 'Unexpected response format from API'
     };
   } catch (error) {
     return {
-      success: false,
+      success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
 }
+*/

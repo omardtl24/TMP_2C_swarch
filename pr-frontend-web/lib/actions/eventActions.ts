@@ -1,7 +1,7 @@
 'use server'
 import { ENDPOINTS } from "../endpoints";
 import mockEventsResponse from "../mockData/eventMockData";
-import { EventDetailType, EventType, ParticipantType } from "../types";
+import { EventDetailType, EventType, ParticipantType,CreateEventData } from "../types";
 import { cookies } from "next/headers";
 
 export async function getAuthToken(): Promise<string | undefined> {
@@ -18,7 +18,7 @@ export async function getAuthToken(): Promise<string | undefined> {
 
 // Define a typed response structure
 export type EventsResponse = {
-  success: boolean;
+  success: string;
   data?: EventType[];
   error?: string;
 };
@@ -45,24 +45,24 @@ export async function fetchEvents(token?: string): Promise<EventsResponse> {
     
     if (!res.ok) {
       return { 
-        success: false, 
+        success: 'error', 
         error: `Failed to fetch events. Status: ${res.status}` 
       };
     }
     
     const events = await res.json();
-    return { success: true, data: events };
+    return { success: 'success', data: events };
     
   } catch (error) {
     return { 
-      success: false, 
+      success: 'error', 
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
 }
 
 export type EventsResponseDetailed = {
-  success: boolean;
+  success: string;
   data?: EventDetailType;
   error?: string;
 };
@@ -90,17 +90,17 @@ export async function fetchEventDetail(id:string,token?:string): Promise<EventsR
     
     if (!res.ok) {
       return { 
-        success: false, 
+        success: 'error', 
         error: `Failed to fetch event ${id}. Status: ${res.status}` 
       };
     }
     
     const events = await res.json();
-    return { success: true, data: events };
+    return { success: 'success', data: events };
     
   } catch (error) {
     return { 
-      success: false, 
+      success: 'error', 
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
@@ -109,15 +109,16 @@ export async function fetchEventDetail(id:string,token?:string): Promise<EventsR
 
 
 // Define the type for event creation
+/* Moved to types
 export type CreateEventData = {
   name: string;
   description?: string;
   beginDate: Date; 
   endDate: Date;   // ISO format date string
 };
-
+*/
 export type CreateEventResponse = {
-  success: boolean;
+  success: string;
   data?: EventType;
   error?: string;
 };
@@ -129,7 +130,7 @@ export async function createEvent(eventData: CreateEventData, token?: string): P
   // Check if token exists
   if (!authToken) {
     return {
-      success: false,
+      success: 'error',
       error: "Authentication required. No valid token found."
     };
   }
@@ -150,17 +151,17 @@ export async function createEvent(eventData: CreateEventData, token?: string): P
     
     if (!res.ok) {
       return {
-        success: false,
+        success: 'error',
         error: `Failed to create event. Status: ${res.status}`
       };
     }
     
     const createdEvent = await res.json();
-    return { success: true, data: createdEvent };
+    return { success: 'success', data: createdEvent };
     
   } catch (error) {
     return {
-      success: false,
+      success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
@@ -168,7 +169,7 @@ export async function createEvent(eventData: CreateEventData, token?: string): P
 
 // Define the type for join event response
 export type JoinEventResponse = {
-  success: boolean;
+  success: string;
   data?: {
     id: string;  // Event ID
   };
@@ -182,7 +183,7 @@ export async function joinEvent(invitationCode: string): Promise<JoinEventRespon
   // Check if token exists
   if (!authToken) {
     return {
-      success: false,
+      success: 'success',
       error: "Authentication required. No valid token found."
     };
   }
@@ -204,14 +205,14 @@ export async function joinEvent(invitationCode: string): Promise<JoinEventRespon
     if (!res.ok) {
       const errorData = await res.json();
       return {
-        success: false,
+        success: 'error',
         error: errorData.apierror?.message || `Failed to join event. Status: ${res.status}`
       };
     }
     
     const data = await res.json();
     return { 
-      success: true, 
+      success: 'error', 
       data: {
         id: data.id
       }
@@ -219,17 +220,18 @@ export async function joinEvent(invitationCode: string): Promise<JoinEventRespon
     
   } catch (error) {
     return {
-      success: false,
+      success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
 }
 
 export type InvitationStateResponse = {
-  success: boolean;
+  success: string;
   data?: {
     enabled: boolean;
     code?: string;
+    //event_id?: string;
   };
   error?: string;
 };
@@ -243,7 +245,7 @@ export async function ChangeInvitationState(
   // Check if token exists
   if (!authToken) {
     return {
-      success: false,
+      success: 'error',
       error: "Authentication required. No valid token found."
     };
   }
@@ -266,14 +268,14 @@ export async function ChangeInvitationState(
     
     if (!res.ok) {
       return {
-        success: false,
+        success: "error",
         error: `Failed to update invitation state. Status: ${res.status}`
       };
     }
     
     const data = await res.json();
     return { 
-      success: true, 
+      success: 'success', 
       data: {
         enabled: data.invitationEnabled,
         code: data.invitationCode
@@ -283,14 +285,14 @@ export async function ChangeInvitationState(
   } catch (error) {
     console.error("Error in ChangeInvitationState:", error);
     return {
-      success: false,
+      success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
 }
 
 export type DeleteEventResponse = {
-  success: boolean;
+  success: string;
   error?: string;
 };
 
@@ -300,7 +302,7 @@ export async function deleteEvent(eventId: string): Promise<DeleteEventResponse>
   // Check if token exists
   if (!authToken) {
     return {
-      success: false,
+      success: 'success',
       error: "Authentication required. No valid token found."
     };
   }
@@ -321,17 +323,17 @@ export async function deleteEvent(eventId: string): Promise<DeleteEventResponse>
     
     if (!res.ok) {
       return {
-        success: false,
+        success: 'error',
         error: `Failed to delete event. Status: ${res.status}`
       };
     }
     
-    return { success: true };
+    return { success: 'success' };
     
   } catch (error) {
     console.error("Error in deleteEvent:", error);
     return {
-      success: false,
+      success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
@@ -340,7 +342,7 @@ export async function deleteEvent(eventId: string): Promise<DeleteEventResponse>
 // Function to get current user information
 
 interface ParticipantsResponse{
-  success: boolean;
+  success: string;
   data?: ParticipantType[]
   error?: string;
 }
@@ -351,7 +353,7 @@ export async function participantsEvent(id: string): Promise<ParticipantsRespons
   // Check if token exists
   if (!authToken) {
     return {
-      success: false,
+      success: 'error',
       error: "Authentication required. No valid token found."
     };
   }
@@ -370,17 +372,17 @@ export async function participantsEvent(id: string): Promise<ParticipantsRespons
     
     if (!res.ok) {
       return {
-        success: false,
+        success: 'error',
         error: `Failed to fetch participants. Status: ${res.status}`
       };
     }
     
     const data = await res.json();
-    return { success: true, data };
+    return { success: 'success', data };
     
   } catch (error) {
     return {
-      success: false,
+      success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
