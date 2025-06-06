@@ -18,12 +18,14 @@ public interface PersonalExpenseRepository extends JpaRepository<PersonalExpense
     // Buscar por tipo
     List<PersonalExpenseEntity> findByType(String type);
 
-    // Buscar el Id del usuario que realizó el gasto
-    List<PersonalExpenseEntity> findByOwner(Long userId);
+    // Buscar por ownerId 
+    List<PersonalExpenseEntity> findByOwnerId(String ownerId);
 
-    List<PersonalExpenseEntity> findByOwnerAndDateBetween(Long owner, LocalDate start, LocalDate end);
+    // Buscar por ownerId + rango de fechas
+    List<PersonalExpenseEntity> findByOwnerIdAndDateBetween(String ownerId, LocalDate start, LocalDate end);
 
-    @Query("SELECT SUM(p.total) FROM PersonalExpenseEntity p WHERE p.owner.id = :userId")
-    Double sumTotalByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
+    // Suma de todos los totales de un ownerId
+    @Query("SELECT SUM(p.total) FROM PersonalExpenseEntity p WHERE p.ownerId = :ownerId")
+    Double sumTotalByOwnerId(@org.springframework.data.repository.query.Param("ownerId") String ownerId);
 
 }

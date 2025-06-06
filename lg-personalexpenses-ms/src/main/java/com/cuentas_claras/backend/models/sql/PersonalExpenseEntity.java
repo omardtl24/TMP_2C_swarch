@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
 public class PersonalExpenseEntity extends BaseEntity {
 
     private String concept;
-    private Long owner;
+    private String ownerId;
 
 
     @Enumerated(EnumType.STRING)

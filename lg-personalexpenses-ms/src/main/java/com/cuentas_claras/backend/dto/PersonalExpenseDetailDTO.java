@@ -1,15 +1,11 @@
 package com.cuentas_claras.backend.dto;
 
-import java.util.Date;
 import lombok.Data;
-
+import lombok.EqualsAndHashCode;
 
 @Data
-public class PersonalExpenseDetailDTO {
-    private Long id;
-    private String concept;
-    private Long owner;
-    private String type;
-    private Float total;
-    private Date date;
+@EqualsAndHashCode(callSuper = true)
+public class PersonalExpenseDetailDTO  extends PersonalExpenseDTO{
+    private String ownerId;
+
 }
