@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()  
 
-JWKS_URL = os.getenv("JWKS_URL")
+JWKS_PUBLIC_URL = os.getenv("JWKS_PUBLIC_URL")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "RS256")
 
 USERS_SERVICE_URL    = os.getenv("PUBLIC_USERS_MICROSERVICE_PUBLIC_URL")

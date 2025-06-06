@@ -52,7 +52,7 @@ public class JwtUtil {
                 .expirationTime(new Date(System.currentTimeMillis() + expirationMillis))
                 .build();
         SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).build(),
+                new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID("1").build(),
                 claimsSet);
         signedJWT.sign(signer);
         return signedJWT.serialize();
@@ -68,7 +68,7 @@ public class JwtUtil {
                 .expirationTime(new Date(System.currentTimeMillis() + expirationMillis))
                 .build();
         SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).build(),
+                new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID("1").build(),
                 claimsSet);
         signedJWT.sign(signer);
         return signedJWT.serialize();
