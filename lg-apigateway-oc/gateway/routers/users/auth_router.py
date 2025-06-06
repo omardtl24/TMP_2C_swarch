@@ -5,7 +5,7 @@ from gateway.config import USERS_SERVICE_URL
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-@router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
+@router.api_route("{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
 async def auth_proxy(path: str, request: Request):
     forward_url = f"{USERS_SERVICE_URL}/auth/{path}"
     body = await request.body()

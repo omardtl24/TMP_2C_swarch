@@ -5,7 +5,7 @@ from gateway.config import PERSONAL_SERVICE_URL
 
 router = APIRouter(prefix="/personal", tags=["personal"])
 
-@router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
+@router.api_route("{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
 async def personal_proxy(
     path: str,
     request: Request,

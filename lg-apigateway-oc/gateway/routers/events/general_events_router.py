@@ -7,7 +7,7 @@ router = APIRouter(prefix="/events", tags=["events"])
 
 
 @router.api_route(
-    "/{path:path}",
+    "{path:path}",
     methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
 )
 async def events_proxy(
@@ -20,11 +20,12 @@ async def events_proxy(
     Reenvía la petición al microservicio de Eventos,
     añadiendo los headers x-user-* al request.
     """
+    print(f"Path: {path}")
     user_details = {
         "x-user-id":       token_payload.get("sub"),
         "x-user-email":    token_payload.get("email"),
-        "x-user-username": token_payload.get("name"),
-        "x-user-name":     token_payload.get("userName"),
+        "x-user-username": token_payload.get("userName"),
+        "x-user-name":     token_payload.get("name"),
     }
     for header_name, header_value in user_details.items():
         if header_value:

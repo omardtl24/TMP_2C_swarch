@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI
-import strawberry.fastapi
-from gateway.graphql.schema import schema
+#import strawberry.fastapi
+#from gateway.graphql.schema import schema
 from fastapi.middleware.cors import CORSMiddleware
 from gateway.routers.users.auth_router import router as auth_router
 from gateway.routers.events.general_events_router import router as events_router
@@ -32,5 +32,5 @@ app.include_router(expenses_router)
 app.include_router(events_details)
 app.include_router(events_participating)
 app.include_router(personal_router)
-graphql_app = strawberry.fastapi.GraphQLRouter(schema)
-app.include_router(graphql_app, prefix="/graphql")
+#graphql_app = strawberry.fastapi.GraphQLRouter(schema)
+#app.include_router(graphql_app, prefix="/graphql")
