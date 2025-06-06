@@ -4,7 +4,8 @@ import { fetchEvents } from "@/lib/actions/eventActions";
 import Event from "@/components/EventBoard/Event";
 import { AlertCircle } from "lucide-react";
 import RetryButton from "@/components/RetryButton";
-import { getSession } from "@/lib/getSession";
+import { useSession } from "@/contexts/SessionContext";
+//import { getSession } from "@/lib/getSession";
 import InputCodeEvent from "@/components/EventBoard/InputCodeEvent";
 import ClientOnly from "@/components/EventBoard/ClientOnly";
 
@@ -19,7 +20,7 @@ export interface EventItem {
 export default async function EventBoard() {
 
   const eventsResponse = await fetchEvents();
-  const session = await getSession();
+  const { session } = useSession();
 
 
   // Transform events for the calendar if available
@@ -27,7 +28,7 @@ export default async function EventBoard() {
     ? eventsResponse.data.map(event => ({
       id: event.id,
       name: event.name,
-      date: new Date(event.beginDate)
+      date: new Date(event.begin_date)
     }))
     : [];
 

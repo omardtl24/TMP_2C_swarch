@@ -1,7 +1,10 @@
-import { EventsResponse, EventsResponseDetailed } from "../actions/eventActions";
-import { ParticipantsResponse } from "../actions/expenseActions";
-import { EventType } from "../types";
+// lib/mockData/eventMockData.ts
 
+import { EventsResponse, EventsResponseDetailed, ParticipantsResponse } from "../actions/eventActions";
+import { ExpensesResponse } from "../actions/expenseActions";
+import { EventType, ParticipantType, ExpenseType, EventDetailType} from "../types";
+
+// --- Mock Event Data ---
 
 const mockEvents: EventType[] = [
   {
@@ -18,144 +21,115 @@ const mockEvents: EventType[] = [
     begin_date: new Date("2025-07-01T10:00:00Z"),
     end_date: new Date("2025-07-01T18:00:00Z"),
   },
+];
+
+const mockDetailedEvent: EventDetailType = {
+  id: "101",
+  name: "AI Innovation Summit",
+  description: "A summit focused on the future of Artificial Intelligence and its applications.",
+  begin_date: new Date("2025-09-10T09:00:00Z"),
+  end_date: new Date("2025-09-12T17:00:00Z"),
+  creator_id: "user_abc123",
+  invitacion_enabled: true,
+  invitation_code: "INVITE-2025-AI",
+  total_expense: 870000,
+  my_balance: -50000
+};
+
+// --- Mock Expenses Data for an Event ---
+
+const mockEventExpensesData = [
   {
+    creator_id: "1",
+    id: "1",
+    concept: "Cena Italiana",
+    total: 200000,
+    type: "1",
+    payer_id: "1",
+    payer_name: "Juan David Palacios",
+  },
+  {
+    creator_id: "2",
+    id: "2",
+    concept: "Pola HidraPub",
+    total: 100000,
+    type: "2",
+    payer_id: "2",
+    payer_name: "Gian Karlo Lanziano",
+  },
+  {
+    creator_id: "3",
     id: "3",
-    name: "Frontend Developers Meetup",
-    description: "A casual event for frontend developers to share knowledge.",
-    begin_date: new Date("2025-08-15T18:30:00Z"),
-    end_date: new Date("2025-08-15T21:00:00Z"),
+    concept: "Compra en carulla",
+    total: 500000,
+    type: "3",
+    payer_id: "3",
+    payer_name: "Maria Camila Sanchez",
+  },
+  {
+    creator_id: "4",
+    id: "4",
+    concept: "Guaro o miedo?",
+    total: 70000,
+    type: "2",
+    payer_id: "4",
+    payer_name: "Omar David Toledo",
   },
 ];
 
-const mockEventsResponse: EventsResponse = {
+// --- Mock Participants Data for an Event ---
+
+const mockEventParticipantsData: ParticipantType[] = [
+  {
+    participant_id: "1",
+    participant_name: "Juan David Palacios",
+  },
+  {
+    participant_id: "2",
+    participant_name: "Gian Karlo Lanziano",
+  },
+  {
+    participant_id: "3",
+    participant_name: "Maria Camila Sanchez",
+  },
+  {
+    participant_id: "4",
+    participant_name: "Omar David Toledo",
+  },
+];
+
+
+// --- EXPORTED MOCK RESPONSES ---
+
+/**
+ * Mock response for `fetchEvents`
+ */
+export const mockEventsResponse: EventsResponse = {
   success: 'success',
   data: mockEvents,
 };
 
-export default mockEventsResponse;
-
+/**
+ * Mock response for `fetchEventDetail`
+ */
 export const mockEventDetailResponse: EventsResponseDetailed = {
   success: 'success',
-  data: {
-    id: "101",
-    name: "AI Innovation Summit",
-    description: "A summit focused on the future of Artificial Intelligence and its applications.",
-    begin_date: new Date("2025-09-10T09:00:00Z"),
-    end_date: new Date("2025-09-12T17:00:00Z"),
-    creator_id: "user_abc123",
-    invitacion_enabled: true,
-    invitation_code: "INVITE-2025-AI",
-    total_expense:123312,
-    my_balance:123123
-  }
+  data: mockDetailedEvent
 };
 
-export const mockEventExpenses = {
+
+/**
+ * Mock response for `fetchEventExpenses`
+ */
+export const mockEventExpensesResponse: ExpensesResponse = {
   success: 'success',
-  data: [
-    {
-      id: "1",
-      concept: "Cena Italiana",
-      total: 200000,
-      type: 1, // 1 could represent "Comida" category
-      payer_id: "user_001", // Using user IDs instead of names
-    },
-    {
-      id: "2",
-      concept: "Pola HidraPub",
-      total: 100000,
-      type: 2, // 2 could represent "Bebida" category
-      payer_id: "user_002",
-    },
-    {
-      id: "3",
-      concept: "Compra en carulla",
-      total: 500000,
-      type: 3, // 3 could represent "Fruta" category
-      payer_id: "user_003",
-    },
-    {
-      id: "4",
-      concept: "Guaro o miedo?",
-      total: 70000,
-      type: 2, // 2 could represent "Bebida" category
-      payer_id: "user_004",
-    },
-  ]
+  data: mockEventExpensesData
 };
-/*Old mockEventParticipants
-export const mockEventParticipants: ParticipantsResponse = {
+
+/**
+ * Mock response for `participantsEvent`
+ */
+export const mockEventParticipantsResponse: ParticipantsResponse = {
   success: 'success',
-  data: [
-    {
-      id: "1",
-      mount: 100000,
-      debtorName: "Juan David Palacios",
-      debtorId: "1",
-      LenderName: "Group",
-      LenderId: "0"
-    },
-    {
-      id: "2",
-      mount: -50000,
-      debtorName: "Group",
-      debtorId: "0",
-      LenderName: "Gian Karlo Lanziano",
-      LenderId: "2"
-    },
-    {
-      id: "3",
-      mount: 30000,
-      debtorName: "Maria Camila Sanchez",
-      debtorId: "3",
-      LenderName: "Group",
-      LenderId: "0"
-    },
-    {
-      id: "4",
-      mount: -80000,
-      debtorName: "Group",
-      debtorId: "0",
-      LenderName: "Omar David Toledo",
-      LenderId: "4"
-    }
-  ]
-};
-*/
-export const mockEventParticipants: ParticipantsResponse = {
-  success: 'success',
-  data: [
-    {
-      participant_id: "1",
-      mount: 100000,
-      debtorName: "Juan David Palacios",
-      debtorId: "1",
-      LenderName: "Group",
-      LenderId: "0"
-    },
-    {
-      id: "2",
-      mount: -50000,
-      debtorName: "Group",
-      debtorId: "0",
-      LenderName: "Gian Karlo Lanziano",
-      LenderId: "2"
-    },
-    {
-      id: "3",
-      mount: 30000,
-      debtorName: "Maria Camila Sanchez",
-      debtorId: "3",
-      LenderName: "Group",
-      LenderId: "0"
-    },
-    {
-      id: "4",
-      mount: -80000,
-      debtorName: "Group",
-      debtorId: "0",
-      LenderName: "Omar David Toledo",
-      LenderId: "4"
-    }
-  ]
+  data: mockEventParticipantsData
 };

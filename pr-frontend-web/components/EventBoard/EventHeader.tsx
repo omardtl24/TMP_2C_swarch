@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useSession } from "@/contexts/SessionContext"
-import { ParticipantBalance } from "@/lib/types"
+//import { ParticipantBalance } from "@/lib/types"
 
 type EventHeaderProps = {
     name: string
@@ -24,7 +24,8 @@ type EventHeaderProps = {
     code: string | null
     eventId: string
     total:number | undefined
-    balance: ParticipantBalance[] | undefined
+    //balance: ParticipantBalance[] | undefined
+    balance:number | undefined
 }
 
 
@@ -73,6 +74,7 @@ export default function EventHeader({ name, creatorId, code, eventId, total, bal
                 setIsCreator(userId === creatorId)
                 
                 // Find the balance for the current user
+                /*
                 if (balance && balance.length > 0) {
                     console.log("Searching for balance with user ID:", userId)
                     console.log("Available balances:", balance)
@@ -83,7 +85,11 @@ export default function EventHeader({ name, creatorId, code, eventId, total, bal
                     
                     console.log("Found balance:", currentUserBalance, "for user ID:", userId)
                     setUserBalance(currentUserBalance)
+                }*/
+                if(balance!=undefined){
+                    setUserBalance(balance)
                 }
+                else(setUserBalance(666))
             } catch (error) {
                 console.error("Error checking creator status:", error)
             } finally {

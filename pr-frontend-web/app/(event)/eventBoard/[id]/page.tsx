@@ -4,9 +4,9 @@ import {
     fetchEventDetail,
     participantsEvent
 } from "@/lib/actions/eventActions"
-import { fetchEventBalances, fetchEventExpenses, getSumExpensesByEvent } from "@/lib/actions/expenseActions"
+//import { fetchEventBalances, fetchEventExpenses, getSumExpensesByEvent } from "@/lib/actions/expenseActions"
+import { fetchEventExpenses, fetchExpenseDetail } from "@/lib/actions/expenseActions"
 import { notFound } from "next/navigation"
-
 
 // Force server-side rendering for this page
 export const dynamic = 'force-dynamic'
@@ -16,8 +16,8 @@ export default async function EventDetailPage({
 }: {
     params: { id: string }
 }) {
-    // Get auth token for authenticated requests
-    const { id } = await params; // Fixed: Remove unnecessary await
+    // Get event ID from route params
+    const { id } = params;
     
     // Fetch the specific event using the ID from the route params
     const eventResponse = await fetchEventDetail(id);
@@ -30,35 +30,34 @@ export default async function EventDetailPage({
 
     const eventDetails = eventResponse.data;
 
-    // Fetch expenses for this event using GraphQL
+    // Fetch expenses for this event (not) using GraphQL
     const expensesResponse = await fetchEventExpenses(id);
     const expenses = expensesResponse.success ? expensesResponse.data || [] : [];
 
     // Fetch participants already formatted for UI
     const participantsResponse = await participantsEvent(id);
     const participants = participantsResponse.success ? participantsResponse.data || [] : [];
-    const totalSum = await getSumExpensesByEvent(id);
 
-    const BalanceParticipants = await fetchEventBalances(id)
-    console.log("Balance participants response:", BalanceParticipants);
-    
+    //const totalSum = await getSumExpensesByEvent(id);
+    //const BalanceParticipants = await fetchEventBalances(id);
+    //console.log("Balance participants response:", BalanceParticipants);
+
     return (
         <div className="w-full h-full">
             <EventHeader 
                 name={eventDetails.name} 
-                creatorId={eventDetails.creatorId} 
-                code={eventDetails.invitationCode} 
+                creatorId={eventDetails.creator_id} 
+                code={eventDetails.invitation_code} 
                 eventId={eventDetails.id}
-                total={totalSum.data}
-                balance={BalanceParticipants.data}
+                total={eventDetails.total_expense}
+                balance={eventDetails.my_balance}
             />
             <div className="px-4 md:px-16 mt-4 space-y-4 ">
                 <EventTabs 
                     expenses={expenses} 
-                    BalanceParticipants={BalanceParticipants} 
+                    BalanceParticipants={eventDetails.my_balance} 
                     eventId={eventDetails.id} 
                     participants={participants}
-                    
                 />
             </div>
         </div>

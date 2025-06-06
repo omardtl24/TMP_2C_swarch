@@ -1,7 +1,7 @@
 'use server'
 //import { ENDPOINTS } from "../endpoints";
 import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
-import mockEventsResponse from "../mockData/eventMockData";
+import {mockEventsResponse, mockEventDetailResponse, mockEventExpensesResponse, mockEventParticipantsResponse} from "../mockData/eventMockData";
 import { EventDetailType, EventType, ParticipantType,CreateEventData } from "../types";
 import { cookies } from "next/headers";
 import { restClient } from "../api/restClient";
@@ -28,6 +28,15 @@ export type EventsResponse = {
 
 export async function fetchEvents(): Promise<EventsResponse> {
   try {
+    //const authToken = token || await getAuthToken();
+    const authToken = await getAuthToken();
+
+    // If running in generateStaticParams (no auth token available),
+    // return mock data for static generation
+    if (!authToken) {
+      console.log("No auth token available, using mock data for static generation");
+      return mockEventsResponse;
+    }
     const events = await callApiWithAuth<{ success: string, data: EventType[] }>({ //Este callApiWithAuth siempre deberia tener params explicitos para return de response data
       path: "/api/events/me",
       method: "GET",
@@ -52,6 +61,14 @@ export type EventsResponseDetailed = {
 
 export async function fetchEventDetail(id: string): Promise<EventsResponseDetailed> {
   try {
+    //const authToken = token || await getAuthToken();
+    const authToken = await getAuthToken();
+    // If running in generateStaticParams (no auth token available),
+    // return mock data for static generation
+    if (!authToken) {
+      console.log("No auth token available, using mock data for static generation");
+      return mockEventDetailResponse;
+    }
     const event = await callApiWithAuth<EventDetailType>({
       path: `/api/events/${id}`,
       method: "GET",
@@ -88,6 +105,7 @@ export type CreateEventResponse = {
 // Function to create a new event
 export async function createEvent(eventData: CreateEventData): Promise<CreateEventResponse> {
   try {
+    
     const createdEvent = await callApiWithAuth<EventType>({
       path: "/api/events",
       method: "POST",
@@ -193,7 +211,7 @@ export async function deleteEvent(eventId: string): Promise<DeleteEventResponse>
 }
 
 // Function to get current user information
-interface ParticipantsResponse {
+export type ParticipantsResponse = {
   success: string;
   data?: ParticipantType[]
   error?: string;
@@ -201,6 +219,14 @@ interface ParticipantsResponse {
 
 export async function participantsEvent(id: string): Promise<ParticipantsResponse> {
   try {
+    //const authToken = token || await getAuthToken();
+    const authToken = await getAuthToken();
+    // If running in generateStaticParams (no auth token available),
+    // return mock data for static generation
+    if (!authToken) {
+      console.log("No auth token available, using mock data for static generation");
+      return mockEventParticipantsResponse;
+    }
     const data = await callApiWithAuth<ParticipantType[]>({
       path: `/api/events/${id}/participants`,
       method: "GET",
