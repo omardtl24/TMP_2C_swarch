@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Depends
 from gateway.auth import verify_jwt
-from gateway.proxy import proxy_request
+from gateway.utils.proxy import proxy_request
 from gateway.config import PERSONAL_SERVICE_URL
 
 router = APIRouter(prefix="/personal", tags=["personal"])

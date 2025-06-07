@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from httpx import AsyncClient
 from gateway.auth import verify_jwt
 from gateway.config import EVENTS_SERVICE_URL, USERS_SERVICE_URL, EXPENSES_GRAPHQL_URL
-from gateway.proxy import proxy_request
+from gateway.utils.proxy import proxy_request
 
-router = APIRouter(prefix="/events", tags=["events"])
+router = APIRouter(prefix="/api/events", tags=["events"])
 
 
 @router.get("/{event_id}")
@@ -24,16 +24,24 @@ async def fetch_event_detail(
     4) Llama a GET {USERS_SERVICE_URL}/users/{creatorId} para obtener creatorName.
     5) Devuelve EventDetailType.
     """
+    user_details = {
+        "x-user-id":       token_payload.get("sub"),
+        "x-user-email":    token_payload.get("email"),
+        "x-user-username": token_payload.get("userName"),
+        "x-user-name":     token_payload.get("name"),
+    }
 
-    forwarded_headers = {}
-    if "authorization" in request.headers:
-        forwarded_headers["Authorization"] = request.headers["authorization"]
+    forwarded_headers = user_details.copy()
+    #if "authorization" in request.headers:
+    #    forwarded_headers["Authorization"] = request.headers["authorization"]
 
     async with AsyncClient() as client:
+        print("Llamada a eventos")
         resp_event = await client.get(
             f"{EVENTS_SERVICE_URL}/events/{event_id}",
             headers=forwarded_headers
         )
+
         if resp_event.status_code != 200:
             raise HTTPException(status_code=resp_event.status_code, detail=resp_event.text)
 
@@ -50,6 +58,8 @@ async def fetch_event_detail(
             "query": graphql_query_total,
             "variables": {"eventId": event_id}
         }
+
+        print("Llamada a gastos")
         resp_graph_total = await client.post(
             EXPENSES_GRAPHQL_URL,
             json=payload_total,
@@ -73,6 +83,8 @@ async def fetch_event_detail(
             "query": graphql_query_balance,
             "variables": {"eventId": event_id}
         }
+
+        print("Llamada a gastos pagados por usuario")
         resp_graph_balance = await client.post(
             EXPENSES_GRAPHQL_URL,
             json=payload_balance,
@@ -88,6 +100,7 @@ async def fetch_event_detail(
 
         if creator_id:
             try:
+                print("Llamada a usuario creador")
                 resp_user = await client.get(
                     f"{USERS_SERVICE_URL}/users/{creator_id}",
                     headers=forwarded_headers

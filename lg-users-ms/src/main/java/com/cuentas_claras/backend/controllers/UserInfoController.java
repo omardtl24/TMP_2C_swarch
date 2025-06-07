@@ -1,5 +1,6 @@
 package com.cuentas_claras.backend.controllers;
 
+import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.models.UserEntity;
 import com.cuentas_claras.backend.services.UserService;
 import com.cuentas_claras.backend.utils.JwtTokenService;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
@@ -36,8 +38,8 @@ public class UserInfoController {
         }
     }
 
-@GetMapping("/{id_user}")
-    public ResponseEntity<?> getUserById(@PathVariable("id_user") Long id_user) {
+@GetMapping("/users/{id_user}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id_user) {
         try {
             UserEntity user = userService.getUser(id_user);
             return ResponseEntity.ok(user);

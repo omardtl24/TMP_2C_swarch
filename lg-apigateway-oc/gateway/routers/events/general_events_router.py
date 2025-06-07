@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Request
 from gateway.auth import verify_jwt
-from gateway.proxy import proxy_request
+from gateway.utils.proxy import proxy_request
 from gateway.config import EVENTS_SERVICE_URL
 
 router = APIRouter(prefix="/events", tags=["events"])

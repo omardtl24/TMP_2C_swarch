@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 #import strawberry.fastapi
 #from gateway.graphql.schema import schema
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +9,8 @@ from gateway.routers.events.fetch_event_details import router as events_details
 from gateway.routers.events.fetch_events_participating import router as events_participating
 from gateway.routers.group_expenses.expenses_router import router as expenses_router
 from gateway.routers.personal_expenses.personal_router import router as personal_router
+
+from gateway.utils.middlewares import responseFormat
 
 app = FastAPI(title="API Gateway")
 
@@ -21,6 +23,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.middleware("http")(responseFormat)
 
 @app.get("/")
 def root():
