@@ -8,7 +8,7 @@ import { ExpenseResponse, ExpensesResponse, ExpenseDetailedResponse, GeneralMuta
 export const mockExpenses = [
   {
     creator_id: "1",
-    id: "exp1",
+    id: "1",
     concept: "Dinner at Italian restaurant",
     total: 95.75,
     type: "0",
@@ -16,8 +16,8 @@ export const mockExpenses = [
     payer_name: "Juan David Palacios"
   },
   {
-    creator_id: "2",
-    id: "exp2",
+    creator_id: "1",
+    id: "2",
     concept: "Movie tickets",
     total: 45.00,
     type: "4",

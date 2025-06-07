@@ -42,7 +42,7 @@ export default async function EventDetailPage({
     // This is a temporary solution until the backend provides balance data.
     const participantsWithBalances = participants.map(p => ({
         ...p,       // Copies participant_id and participant_name
-        balance: 0, // Adds the required 'balance' property
+        balance: -1000, // Adds the required 'balance' property
     }));
 
     return (
@@ -60,6 +60,7 @@ export default async function EventDetailPage({
             <div className="px-4 md:px-16 mt-4 space-y-4 ">
                 <EventTabs
                     expenses={expenses}
+                    // Replaces BalanceParticipants={BalanceParticipants} with the new prop.
                     participantsWithBalances={participantsWithBalances}
                     eventId={eventDetails.id}
                 />

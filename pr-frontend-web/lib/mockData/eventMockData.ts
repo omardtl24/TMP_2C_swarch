@@ -24,7 +24,7 @@ const mockEvents: EventType[] = [
 ];
 
 const mockDetailedEvent: EventDetailType = {
-  id: "101",
+  id: "1",
   name: "AI Innovation Summit",
   description: "A summit focused on the future of Artificial Intelligence and its applications.",
   begin_date: new Date("2025-09-10T09:00:00Z"),
@@ -45,7 +45,7 @@ const mockEventExpensesData: ExpenseType[] = [
     concept: "Cena Italiana",
     total: 200000,
     type: "Comida",
-    payer_id: "name_1",
+    payer_id: "1",
     payer_name: "Juan David Palacios",
   },
   {
@@ -53,7 +53,7 @@ const mockEventExpensesData: ExpenseType[] = [
     id: "2",
     concept: "Pola HidraPub",
     total: 100000,
-    type: "2",
+    type: "Enumerable",
     payer_id: "2",
     payer_name: "Gian Karlo Lanziano",
   },
