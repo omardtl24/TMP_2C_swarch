@@ -4,8 +4,7 @@ import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
 import {mockEventsResponse, mockEventDetailResponse, mockEventExpensesResponse, mockEventParticipantsResponse} from "../mockData/eventMockData";
 import { EventDetailType, EventType, ParticipantType,CreateEventData } from "../types";
 import { cookies } from "next/headers";
-import { restClient } from "../api/restClient";
-import { unknown } from "zod";
+
 
 export async function getAuthToken(): Promise<string | undefined> {
   try {

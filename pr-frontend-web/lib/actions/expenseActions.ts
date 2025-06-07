@@ -1,10 +1,27 @@
+'use server'
 import {
   ExpenseType,
   ExpenseDetailedType,
   DataExpense,
   ExpenseParticipation,
+  participartionType,
 } from "../types";
 import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
+import { cookies } from "next/headers";
+import { mockEventExpensesResponse} from "../mockData/eventMockData";
+
+
+export async function getAuthToken(): Promise<string | undefined> {
+  try {
+    const cookieStore = await cookies();
+    return  cookieStore.get('jwt')?.value;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    // This will catch errors when cookies() is called outside a request context
+    console.log("Cookie access error - likely outside request context");
+    return undefined;
+  }
+}
 
 // Response wrapper types
 export type ExpenseResponse = {
@@ -30,11 +47,25 @@ export type GeneralMutationResponse = {
   message?: string;
   error?: string;
 };
-
+// TODO: Change the routes when they are actually defined in the API
 /**
  * Creates a new expense for an event.
  * Corresponds to: createExpense POST
  */
+/* This one explicitly requires participation data, so it is not used in the current implementation.
+export async function createExpense(participationData: participartionType, expenseData: DataExpense): Promise<ExpenseResponse> {
+  try {
+    const data = await callApiWithAuth<ExpenseType>({
+      path: `/api/expenses`,
+      method: "POST",
+      body: { ...participationData, ...expenseData }
+    });
+    return { success: 'success', data };
+  } catch (error) {
+    return { success: 'error', error: error instanceof Error ? error.message : 'Unknown error occurred' };
+  }
+}
+*/
 export async function createExpense(expenseData: DataExpense): Promise<ExpenseResponse> {
   try {
     const data = await callApiWithAuth<ExpenseType>({
@@ -47,7 +78,6 @@ export async function createExpense(expenseData: DataExpense): Promise<ExpenseRe
     return { success: 'error', error: error instanceof Error ? error.message : 'Unknown error occurred' };
   }
 }
-
 /**
  * Edits an existing expense.
  * Corresponds to: editExpense PATCH
@@ -75,6 +105,14 @@ export async function editExpense(
  */
 export async function fetchEventExpenses(eventId: string): Promise<ExpensesResponse> {
   try {
+    //const authToken = token || await getAuthToken();
+        const authToken = await getAuthToken();
+        // If running in generateStaticParams (no auth token available),
+        // return mock data for static generation
+        if (!authToken) {
+          console.log("No auth token available, using mock data for static generation");
+          return mockEventExpensesResponse;
+        }
     const data = await callApiWithAuth<ExpenseType[]>({
       path: `/api/events/${eventId}/expenses`,
       method: "GET",

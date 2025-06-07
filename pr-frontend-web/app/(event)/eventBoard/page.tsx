@@ -1,4 +1,4 @@
-''
+"use client";
 import CustomCalendar from "@/components/EventBoard/CustomCalendar";
 import { fetchEvents } from "@/lib/actions/eventActions";
 import Event from "@/components/EventBoard/Event";

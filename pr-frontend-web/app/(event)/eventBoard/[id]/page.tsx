@@ -1,14 +1,13 @@
 import EventHeader from "@/components/EventBoard/EventHeader"
 import EventTabs from "@/components/EventBoard/EventTabs"
-import { 
+import {
     fetchEventDetail,
     participantsEvent
 } from "@/lib/actions/eventActions"
-//import { fetchEventBalances, fetchEventExpenses, getSumExpensesByEvent } from "@/lib/actions/expenseActions"
-import { fetchEventExpenses, fetchExpenseDetail } from "@/lib/actions/expenseActions"
+import { fetchEventExpenses } from "@/lib/actions/expenseActions"
 import { notFound } from "next/navigation"
 
-// Force server-side rendering for this page
+// Force this page to be dynamically rendered, ensuring it fetches fresh data on every request.
 export const dynamic = 'force-dynamic'
 
 export default async function EventDetailPage({
@@ -16,48 +15,53 @@ export default async function EventDetailPage({
 }: {
     params: { id: string }
 }) {
-    // Get event ID from route params
+    // Get the event ID from the route parameters.
     const { id } = params;
-    
-    // Fetch the specific event using the ID from the route params
-    const eventResponse = await fetchEventDetail(id);
 
-    // Handle error states appropriately
+    // Fetch the event details, expenses, and participants list in parallel for better performance.
+    const [eventResponse, expensesResponse, participantsResponse] = await Promise.all([
+        fetchEventDetail(id),
+        fetchEventExpenses(id),
+        participantsEvent(id)
+    ]);
+
+    // If the main event details fail to load, show a 404 page.
     if (!eventResponse.success || !eventResponse.data) {
         console.error("Failed to fetch event:", eventResponse.error);
         notFound();
     }
 
+    // Prepare the data with safe fallbacks to prevent errors if API calls fail.
     const eventDetails = eventResponse.data;
-
-    // Fetch expenses for this event (not) using GraphQL
-    const expensesResponse = await fetchEventExpenses(id);
     const expenses = expensesResponse.success ? expensesResponse.data || [] : [];
-
-    // Fetch participants already formatted for UI
-    const participantsResponse = await participantsEvent(id);
     const participants = participantsResponse.success ? participantsResponse.data || [] : [];
 
-    //const totalSum = await getSumExpensesByEvent(id);
-    //const BalanceParticipants = await fetchEventBalances(id);
-    //console.log("Balance participants response:", BalanceParticipants);
+    // Create the 'participantsWithBalances' array required by the 'EventTabs' component.
+    // A default balance of 0 is added to each participant.
+    // We should fetch the actual balances from the API, but for now, we initialize them to 0.
+    // This is a temporary solution until the backend provides balance data.
+    const participantsWithBalances = participants.map(p => ({
+        ...p,       // Copies participant_id and participant_name
+        balance: 0, // Adds the required 'balance' property
+    }));
 
     return (
         <div className="w-full h-full">
-            <EventHeader 
-                name={eventDetails.name} 
-                creatorId={eventDetails.creator_id} 
-                code={eventDetails.invitation_code} 
+            <EventHeader
+                name={eventDetails.name}
+                creatorId={eventDetails.creator_id}
+                code={eventDetails.invitation_code}
                 eventId={eventDetails.id}
                 total={eventDetails.total_expense}
                 balance={eventDetails.my_balance}
+                // Pass the full participants list to the header for it to find the creator's name.
+                participants={participants}
             />
             <div className="px-4 md:px-16 mt-4 space-y-4 ">
-                <EventTabs 
-                    expenses={expenses} 
-                    BalanceParticipants={eventDetails.my_balance} 
-                    eventId={eventDetails.id} 
-                    participants={participants}
+                <EventTabs
+                    expenses={expenses}
+                    participantsWithBalances={participantsWithBalances}
+                    eventId={eventDetails.id}
                 />
             </div>
         </div>

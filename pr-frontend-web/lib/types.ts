@@ -87,7 +87,7 @@ export type ParticipantType = {
   participant_name: string;
 };
 
-export type participartionType = {
+export type participartionType = { //ParticipationType as per docs but xd
   user_id: string;
   state: number;
   portion: number;

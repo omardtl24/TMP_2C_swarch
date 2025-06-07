@@ -29,7 +29,7 @@ const mockDetailedEvent: EventDetailType = {
   description: "A summit focused on the future of Artificial Intelligence and its applications.",
   begin_date: new Date("2025-09-10T09:00:00Z"),
   end_date: new Date("2025-09-12T17:00:00Z"),
-  creator_id: "user_abc123",
+  creator_id: "1",
   invitacion_enabled: true,
   invitation_code: "INVITE-2025-AI",
   total_expense: 870000,
@@ -38,14 +38,14 @@ const mockDetailedEvent: EventDetailType = {
 
 // --- Mock Expenses Data for an Event ---
 
-const mockEventExpensesData = [
+const mockEventExpensesData: ExpenseType[] = [
   {
     creator_id: "1",
     id: "1",
     concept: "Cena Italiana",
     total: 200000,
-    type: "1",
-    payer_id: "1",
+    type: "Comida",
+    payer_id: "name_1",
     payer_name: "Juan David Palacios",
   },
   {
