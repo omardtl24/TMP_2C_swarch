@@ -1,6 +1,6 @@
 package com.cuentas_claras.backend.controllers;
 
-import com.cuentas_claras.backend.dto.EventDTO;
+import com.cuentas_claras.backend.dto.EventDetailDTO;
 import com.cuentas_claras.backend.dto.JoinEventRequestDTO;
 import com.cuentas_claras.backend.dto.ParticipantDetailDTO;
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
@@ -63,9 +63,9 @@ public class EventParticipantsController {
      */
     @GetMapping("/participating")
     @ResponseStatus(HttpStatus.OK)
-    public List<EventDTO> getEventsIParticipateIn() {
+    public List<EventDetailDTO> getEventsIParticipateIn() {
         List<EventEntity> events = participantsService.getEventsWhereIParticipate();
-        return modelMapper.map(events, new TypeToken<List<EventDTO>>(){}.getType());
+        return modelMapper.map(events, new TypeToken<List<EventDetailDTO>>(){}.getType());
     }
 
 
