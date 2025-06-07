@@ -36,6 +36,24 @@ public class UserInfoController {
         }
     }
 
+@GetMapping("/{id_user}")
+    public ResponseEntity<?> getUserById(@PathVariable("id_user") Long id_user) {
+        try {
+            UserEntity user = userService.getUser(id_user);
+            return ResponseEntity.ok(user);
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(java.util.Map.of("error", "Usuario no encontrado"));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(java.util.Map.of("error", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(java.util.Map.of("error", "Error consultando usuario: " + e.getMessage()));
+        }
+    }
+
+
     @DeleteMapping("/auth/me")
     public ResponseEntity<?> deleteUserAccount(HttpServletRequest request) {
         try {
