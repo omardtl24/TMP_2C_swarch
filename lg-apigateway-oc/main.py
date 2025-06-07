@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 #import strawberry.fastapi
 #from gateway.graphql.schema import schema
 from fastapi.middleware.cors import CORSMiddleware
-from gateway.routers.users.auth_router import router as auth_router
+from gateway.routers.users.general_auth_router import router as auth_router
 from gateway.routers.events.general_events_router import router as events_router
 from gateway.routers.events.fetch_event_details import router as events_details
 from gateway.routers.events.fetch_events_participating import router as events_participating

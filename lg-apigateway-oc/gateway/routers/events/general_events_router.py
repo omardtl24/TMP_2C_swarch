@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Request
-from gateway.auth import verify_jwt
+from gateway.services.auth import verify_jwt
 from gateway.utils.proxy import proxy_request
 from gateway.config import EVENTS_SERVICE_URL
 

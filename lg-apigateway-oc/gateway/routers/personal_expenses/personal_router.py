@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Depends
-from gateway.auth import verify_jwt
+from gateway.services.auth import verify_jwt
 from gateway.utils.proxy import proxy_request
 from gateway.config import PERSONAL_SERVICE_URL
 

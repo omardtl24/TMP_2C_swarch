@@ -3,7 +3,7 @@ from typing import List, Optional
 import httpx
 from gateway.config import EXPENSES_GRAPHQL_URL, EVENTS_GRAPHQL_URL
 from fastapi import HTTPException, UploadFile
-from gateway.auth import verify_jwt
+from gateway.services.auth import verify_jwt
 from fastapi import Depends
 
 

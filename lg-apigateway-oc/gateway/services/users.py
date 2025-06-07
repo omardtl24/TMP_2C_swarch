@@ -2,8 +2,7 @@ from fastapi import APIRouter, HTTPException, Request
 from gateway.config import USERS_SERVICE_URL
 from httpx import AsyncClient
 
-
-def fetchUserById(userId):
+async def fetchUserById(userId):
     """
     Fetches a user by their ID.
     
@@ -20,5 +19,3 @@ def fetchUserById(userId):
             return response.json()
         else:
             raise HTTPException(status_code=response.status_code, detail=response.text)
-
-    

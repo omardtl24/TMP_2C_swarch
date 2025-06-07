@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from httpx import AsyncClient
-from gateway.auth import verify_jwt
+from gateway.services.auth import verify_jwt
 from gateway.config import EVENTS_SERVICE_URL, USERS_SERVICE_URL
 
 router = APIRouter()

@@ -66,7 +66,6 @@ async def verify_jwt(request: Request) -> Dict[str, Any]:
     jwk_key = await _get_public_key_for_token(token)
 
     try:
-       
         payload = jwt.decode(
             token,
             jwk_key,

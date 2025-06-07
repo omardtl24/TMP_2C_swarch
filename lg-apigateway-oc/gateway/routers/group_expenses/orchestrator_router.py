@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, UploadFile, File, Form, Depends, HTTPException
 from fastapi.responses import JSONResponse
-from gateway.auth import verify_jwt
+from gateway.services.auth import verify_jwt
 from gateway.config import EVENTS_SERVICE_URL, EXPENSES_SERVICE_URL
 import httpx
 

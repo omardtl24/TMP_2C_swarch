@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Depends, UploadFile, File, HTTPException
-from gateway.auth import verify_jwt
+from gateway.services.auth import verify_jwt
 from gateway.schemas import NewExpenseUnified
 import httpx
 from gateway.config import EXPENSES_GRAPHQL_URL, EVENTS_GRAPHQL_URL
