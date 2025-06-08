@@ -79,14 +79,14 @@ export default function RegisterPage() {
             setLoading(true);
             try {
               const res = await registerUser({ email, username });
-              if (res.ok) {
+              if ((res as any).ok) {
                 setSuccess("¡Registro exitoso! Redirigiendo...");
                 setTimeout(() => {
                   router.push("/eventBoard"); // Redirige a eventBoard tras registro exitoso
                 }, 1500);
               } else {
-                const msg = await res.text();
-                setError(msg || "Error en el registro");
+                // Si la action retorna un error, mostrarlo
+                setError((res as any).error || "Error en el registro");
               }
             } catch {
               setError("Error de red o del servidor");
