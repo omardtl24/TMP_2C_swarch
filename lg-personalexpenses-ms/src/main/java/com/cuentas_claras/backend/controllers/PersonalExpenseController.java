@@ -41,9 +41,9 @@ public class PersonalExpenseController {
 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<PersonalExpenseDetailDTO> getAllPersonalExpenses() {
+    public List<PersonalExpenseDTO> getAllPersonalExpenses() {
         List<PersonalExpenseEntity> list = personalExpenseService.getUserExpenses();
-        return modelMapper.map(list, new TypeToken<List<PersonalExpenseDetailDTO>>() {}.getType());
+        return modelMapper.map(list, new TypeToken<List<PersonalExpenseDTO>>() {}.getType());
     }
 
     @GetMapping("/{id}")
