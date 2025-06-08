@@ -13,7 +13,7 @@ export async function callApiWithAuth<T = unknown>(
   options: Omit<RestClientOptions, "url" | "headers"> & { path: string; headers?: Record<string, string> },
   context?: UniversalContext
 ): Promise<T> {
-  const apiGateway = process.env.API_GATEWAY || "";
+  const apiGateway = process.env.API_GATEWAY_URL || "";
   const url = `${apiGateway}${options.path}`;
   let cookieHeader = "";
   if (context?.req?.headers?.cookie) {
