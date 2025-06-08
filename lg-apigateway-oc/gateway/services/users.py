@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Request
 from gateway.config import USERS_SERVICE_URL
 from httpx import AsyncClient
 
-async def fetchUserById(userId):
+async def fetchUserById(userId, headers: dict) -> dict:
     """
     Fetches a user by their ID.
     
@@ -13,8 +13,9 @@ async def fetchUserById(userId):
         dict: The user data if found, otherwise None.
     """
     url = f"{USERS_SERVICE_URL}/users/{userId}"
-    with AsyncClient() as client:
-        response = client.get(url)
+    async with AsyncClient() as client:
+        response = await client.get(url,
+                                    headers=headers)
         if response.status_code == 200:
             return response.json()
         else:

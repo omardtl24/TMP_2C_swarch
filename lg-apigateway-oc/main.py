@@ -5,8 +5,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from gateway.routers.users.general_auth_router import router as auth_router
 from gateway.routers.events.general_events_router import router as events_router
-from gateway.routers.events.fetch_event_details import router as events_details
-from gateway.routers.events.fetch_events_participating import router as events_participating
+from gateway.routers.events.fetch_events_by_user import router as events_by_user_router
+#from gateway.routers.events.fetch_event_details import router as events_details
+#from gateway.routers.events.fetch_events_participating import router as events_participating
 from gateway.routers.group_expenses.expenses_router import router as expenses_router
 from gateway.routers.personal_expenses.personal_router import router as personal_router
 
@@ -33,8 +34,9 @@ def root():
 app.include_router(auth_router)
 app.include_router(events_router)
 app.include_router(expenses_router)
-app.include_router(events_details)
-app.include_router(events_participating)
+app.include_router(events_by_user_router)
+#app.include_router(events_details)
+#app.include_router(events_participating)
 app.include_router(personal_router)
 #graphql_app = strawberry.fastapi.GraphQLRouter(schema)
 #app.include_router(graphql_app, prefix="/graphql")
