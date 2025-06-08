@@ -46,14 +46,32 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                     jwtCookie.setPath("/");
                     jwtCookie.setMaxAge(jwtSessionDurationSeconds);
                     response.addCookie(jwtCookie);
-                    String redirectUrl = frontendBaseUrl + "/eventBoard";
-                    response.sendRedirect(redirectUrl);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    String json = "{\"status\":\"success\",\"data\":{\"userExists\":true}}";
+                    try {
+                        response.getWriter().write(json);
+                    } catch (IOException ioException) {
+                        response.setContentType("application/json");
+                        response.setCharacterEncoding("UTF-8");
+                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        String errorJson = String.format("{\"status\":\"error\",\"message\":\"%s\"}", ioException.getMessage().replace("\"", "\\\""));
+                        try {
+                            response.getWriter().write(errorJson);
+                        } catch (IOException ignored) {}
+                    }
                 } catch (Exception e) {
-                    throw new RuntimeException("Error generando JWT", e);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    String json = String.format("{\"status\":\"error\",\"message\":\"%s\"}", e.getMessage().replace("\"", "\\\""));
+                    try {
+                        response.getWriter().write(json);
+                    } catch (IOException ignored) {}
                 }
             },
             () -> {
-                // Usuario NO existe: generar token temporal y redirigir a registro
+                // Usuario NO existe: generar token temporal y responder con JSON
                 try {
                     String name = (String) oauthUser.getAttributes().get("name");
                     String tempToken = JwtUtil.generateToken(0L, email, name, 1000 * 60 * 10); // 10 min
@@ -62,10 +80,28 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                     tempCookie.setPath("/");
                     tempCookie.setMaxAge(600); // 10 min
                     response.addCookie(tempCookie);
-                    String redirectUrl = frontendBaseUrl + "/register?email=" + email;
-                    response.sendRedirect(redirectUrl);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    String json = String.format("{\"status\":\"success\",\"data\":{\"userExists\":false,\"email\":\"%s\"}}", email.replace("\"", "\\\""));
+                    try {
+                        response.getWriter().write(json);
+                    } catch (IOException ioException) {
+                        response.setContentType("application/json");
+                        response.setCharacterEncoding("UTF-8");
+                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        String errorJson = String.format("{\"status\":\"error\",\"message\":\"%s\"}", ioException.getMessage().replace("\"", "\\\""));
+                        try {
+                            response.getWriter().write(errorJson);
+                        } catch (IOException ignored) {}
+                    }
                 } catch (Exception e) {
-                    throw new RuntimeException("Error generando token temporal", e);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    String json = String.format("{\"status\":\"error\",\"message\":\"%s\"}", e.getMessage().replace("\"", "\\\""));
+                    try {
+                        response.getWriter().write(json);
+                    } catch (IOException ignored) {}
                 }
             }
         );

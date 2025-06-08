@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/logout")
+@RequestMapping("/auth/logout")
 public class LogoutController {
     @PostMapping
     public ResponseEntity<?> logout(jakarta.servlet.http.HttpServletResponse response) {
