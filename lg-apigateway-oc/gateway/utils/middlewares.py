@@ -27,15 +27,26 @@ async def responseFormat(request: Request, call_next):
             content={"status": "success", "data": contentMapper(content)},
         )
     else:
+        print(type(content))
+        print(content)
         message = None
+
         if isinstance(content, dict):
             message = content.get("detail", content)
-        else:
-            message = content
-        try:
-            message = message["apierror"]["message"]
+        
+        try :
+            message = json.loads(message)
         except:
             pass
+
+        try:
+            message = message["apierror"]["message"]
+        except Exception as e:
+            print(f"Error parsing error message: {e}")
+        
+        print(f"Error response: {message}")
+        print(type(message))
+
         return JSONResponse(
             status_code=response.status_code,
             content={"status": "error", "message": message["message"] if isinstance(message, dict) else message}
