@@ -2,7 +2,6 @@ import json
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from httpx import AsyncClient
 from gateway.services.auth import verify_jwt
-from gateway.config import EVENTS_SERVICE_URL, USERS_SERVICE_URL, EXPENSES_GRAPHQL_URL
 from gateway.services.events import fetchEventsByUserId
 from gateway.services.users import fetchUserById
 from gateway.utils.proxy import proxy_request
