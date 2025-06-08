@@ -101,12 +101,12 @@ public class EventController {
      */
     @PatchMapping("/{id}/invite")
     @ResponseStatus(HttpStatus.OK)
-    public EventDTO setInvite(
+    public EventDetailDTO setInvite(
             @PathVariable("id") Long id,
             @RequestParam("enabled") boolean enabled)
             throws EntityNotFoundException, IllegalOperationException {
         EventEntity updated = eventService.setInvitationEnabled(id, enabled);
-        return modelMapper.map(updated, EventDTO.class);
+        return modelMapper.map(updated, EventDetailDTO.class);
     }
 
     /**
