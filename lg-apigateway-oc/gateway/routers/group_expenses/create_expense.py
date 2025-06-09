@@ -69,8 +69,8 @@ async def create_expense(
     )
 
     group_expense_entity = await createExpensebyExpenseDocId(
-        event_id=event_id,
-        expense_doc_id=doc_expense["id"],
+        eventId=event_id,
+        expenseDocId=doc_expense["id"],
         headers=user_details
     )
 
