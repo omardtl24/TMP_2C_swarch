@@ -12,6 +12,7 @@ public class NewExpenseDocumentInput {
     private double total;
     private String concept;
     private ExpenseType type;
+    private String payerId;
     private List<NewParticipationInput> participation;
     private MultipartFile supportImage;
 }

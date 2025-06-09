@@ -76,6 +76,7 @@ public class ExpenseDocumentController {
                 input.getTotal(),
                 input.getConcept(),
                 input.getType().name(),
+                input.getPayerId(),
                 participationList,
                 imageId
         );
@@ -106,6 +107,7 @@ public class ExpenseDocumentController {
                 input.getTotal(),
                 input.getConcept(),
                 input.getType().name(),
+                input.getPayerId(),
                 participationList,
                 imageId
         );

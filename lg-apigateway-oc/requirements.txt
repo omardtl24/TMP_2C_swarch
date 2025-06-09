@@ -4,3 +4,4 @@ python-jose[cryptography]
 strawberry-graphql[fastapi]
 python-dotenv
 uvicorn
+gql

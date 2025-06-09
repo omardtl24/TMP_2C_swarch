@@ -56,10 +56,11 @@ public class ExpenseDocumentService {
             double total,
             String concept,
             String type,
+            String payerId,
             List<Participation> participation,
             ObjectId supportImageId  
     ) {
-        String payerId = getCurrentUserId();
+        // String payerId = getCurrentUserId();
         log.info("Creando documento de gasto en Mongo para usuario {}", payerId);
 
         if (total <= 0) {
@@ -117,6 +118,7 @@ public class ExpenseDocumentService {
             double total,
             String concept,
             String type,
+            String payerId,
             List<Participation> participation,
             ObjectId supportImageId
     ) throws EntityNotFoundException {
@@ -125,10 +127,10 @@ public class ExpenseDocumentService {
         ExpenseDocument existing = expenseDocumentRepository.findById(documentId)
             .orElseThrow(() -> new EntityNotFoundException("Documento no encontrado: " + documentId));
 
-        String payerId = getCurrentUserId();
-        if (!payerId.equals(existing.getPayerId())) {
-            throw new IllegalArgumentException("Solo el creador del gasto puede actualizarlo.");
-        }
+        // String payerId = getCurrentUserId();
+        // if (!payerId.equals(existing.getPayerId())) {
+        //     throw new IllegalArgumentException("Solo el creador del gasto puede actualizarlo.");
+        // }
 
         if (total <= 0) {
             throw new IllegalArgumentException("El total debe ser mayor a cero.");

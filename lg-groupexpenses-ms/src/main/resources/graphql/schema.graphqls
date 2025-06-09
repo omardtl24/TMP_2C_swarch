@@ -48,6 +48,7 @@ input NewExpenseDocumentInput {
   total: Float!
   concept: String!
   type: ExpenseType!
+  payerId: String!
   participation: [NewParticipationInput!]!
   supportImage: Upload
 }
@@ -58,6 +59,7 @@ input UpdateExpenseDocumentInput {
   total: Float!
   concept: String!
   type: ExpenseType!
+  payerId: String!
   participation: [NewParticipationInput!]! 
   supportImage: Upload
 }
