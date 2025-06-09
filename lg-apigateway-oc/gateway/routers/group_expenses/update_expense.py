@@ -31,6 +31,8 @@ async def update_expense(
         "x-user-name":     token_payload.get("name"),
     }
 
+    print(f"Update expense request for expense_id: {expense_id} by user: {user_details['x-user-id']}")
+
     raw_body = await request.body()
     if not raw_body:
         raise HTTPException(status_code=400, detail="Request body is empty")
@@ -39,6 +41,8 @@ async def update_expense(
         data = json.loads(raw_body)
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Malformed JSON body")
+    
+    print(f"Update expense data: {data}")
 
     concept      = data.get("concept")
     total        = data.get("total")
@@ -50,11 +54,17 @@ async def update_expense(
     if concept is None or total is None or expense_type is None or payerId is None or participation is None:
         raise HTTPException(status_code=422, detail="Missing one or more required fields")
     
+    print('Attempt get expense via SQL (Events)')
+    
     group_expense_entity = await fetchExpenseByExpenseId(expense_id, user_details)
     if not group_expense_entity:
         raise HTTPException(status_code=404, detail="Group expense not found")
     
     external_doc_id = group_expense_entity.get("externalDocId")
+
+    print(f'External doc found {external_doc_id}')
+
+    print(f'Attempt to edit expense via ms')
 
     doc_expense = await editExpense(
         input={
@@ -67,6 +77,8 @@ async def update_expense(
         },
         headers=user_details
     )
+
+    print(f'Edition via ms solved succesfully')
 
     return Response(
         content=json.dumps(doc_expense),
