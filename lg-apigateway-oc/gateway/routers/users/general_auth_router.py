@@ -1,16 +1,20 @@
 from fastapi import APIRouter, Request, Response, HTTPException
 import httpx
 from gateway.utils.proxy import proxy_request
+#from gateway.config import PUBLIC_USERS_MICROSERVICE_PUBLIC_URL
 from gateway.config import USERS_SERVICE_URL
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-@router.api_route("{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
+@router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
 async def auth_proxy(path: str, request: Request):
-    forward_url = f"{USERS_SERVICE_URL}/auth/{path}"
+    # Solo pasa la base URL, el proxy se encarga del path
+
     #body = await request.body()
-    return await proxy_request(request, forward_url)
+    
+    return await proxy_request(request, USERS_SERVICE_URL)
+    #return await proxy_request(request, PUBLIC_USERS_MICROSERVICE_PUBLIC_URL)
 
     # async with httpx.AsyncClient() as client:
     #     try:

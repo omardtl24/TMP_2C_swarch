@@ -3,7 +3,7 @@
 export type Session = {
   id: string;
   email: string;
-  name?: string;
+  username?: string;
   roles?: string[];
   exp?: number;
   [key: string]: unknown;
