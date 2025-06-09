@@ -34,11 +34,10 @@ async def editExpense(input_obj: dict, headers: dict) -> dict:
     result = await fetchWithAuth(mutation, variables, headers)
     return result["updateExpenseDocument"]
 
-async def fetchExpensesByEventId(event_id: str, headers: dict) -> list[dict]:
+async def fetchExpensesById(document_id: str, headers: dict) -> list[dict]:
     query = """
-    query ExpensesByEvent($eventId: ID!) {
-      searchExpenseDocumentsByEvent(eventId: $eventId) {
-        id
+    query ExpenseById($id: ID!) {
+      expenseDocumentById(documentId: $id) {
         payerId
         total
         concept
@@ -46,9 +45,9 @@ async def fetchExpensesByEventId(event_id: str, headers: dict) -> list[dict]:
       }
     }
     """
-    variables = {"eventId": event_id}
+    variables = {"id": document_id}
     result = await fetchWithAuth(query, variables, headers)
-    return result["searchExpenseDocumentsByEvent"]
+    return result["expenseDocumentById"]
 
 async def fetchExpenseDetail(document_id: str, headers: dict) -> dict:
     query = """

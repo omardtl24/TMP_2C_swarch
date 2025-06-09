@@ -1,8 +1,8 @@
 import json
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from gateway.services.auth import verify_jwt
-from gateway.services.group_expenses import fetchExpensesByEventId as group_expenses_fetchExpensesByEventId
-from gateway.services.events import fetchExpensesByEventId as events_fetchExpensesByEventId
+from gateway.services.group_expenses import fetchExpensesById
+from gateway.services.events import fetchExpensesByEventId 
 from gateway.services.users import fetchUserById
 
 from gateway.utils.merge import merge_expenses
@@ -35,34 +35,35 @@ async def fetch_expenses_by_event(
         "x-user-name":     token_payload.get("name"),
     }
 
-    event_expenses = await events_fetchExpensesByEventId(event_id, user_details)
+    event_expenses = await fetchExpensesByEventId(event_id, user_details)
     if not event_expenses:
         raise HTTPException(status_code=404, detail="Event not found or has no expenses")
     
-    group_expense_expenses = await group_expenses_fetchExpensesByEventId(event_id, user_details)
+    group_expense_expenses = await fetchExpensesById(event_id, user_details)
     if not group_expense_expenses:
         raise HTTPException(status_code=404, detail="Group expenses not found for the event")
 
-    response_json = merge_expenses(event_expenses, group_expense_expenses)
+    response_json = []
 
     forwarded_headers = {}
     if "authorization" in request.headers:
         forwarded_headers["Authorization"] = request.headers["authorization"]
 
-    for expense in response_json:
-        expense_payer_id = expense.get("payerId")
-        if expense_payer_id:
+    for expense in event_expenses:
+        expense_external_id = expense.get("externalDocId")
+        try:
+            doc_expense = await fetchExpensesById(expense_external_id, forwarded_headers)
+            temp_response = doc_expense.copy() if doc_expense else {}
+            temp_response["creatorId"] = expense.get("id")
+            expense_payer_id = expense.get("payerId")
             try:
                 user_data = await fetchUserById(expense_payer_id, forwarded_headers)
                 print(f"Fetched user data for payerId {expense_payer_id}: {user_data}")
-                expense["payerName"] = user_data.get("name", "Unknown Payer")
+                temp_response["payerName"] = user_data.get("name", "Unknown Payer")
             except HTTPException as e:
                 print(f"Error fetching user data for payerId {expense_payer_id}: {e}")
                 expense["payerName"] = "Unknown Payer"
-        else:
-            print(f"Expense {expense.get('id')} has no payerId, setting payerName to 'Unknown Payer'")
-            expense["payerName"] = "Unknown Payer"
-    
+            
     print(f"Final response JSON: {response_json}")
 
 
