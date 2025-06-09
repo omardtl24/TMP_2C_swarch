@@ -68,6 +68,8 @@ async def create_expense(
         headers=user_details
     )
 
+    response_json = doc_expense.copy()
+
     group_expense_entity = await createExpensebyExpenseDocId(
         eventId=event_id,
         expenseDocId=doc_expense["id"],
@@ -82,17 +84,18 @@ async def create_expense(
         try:
             user_data = await fetchUserById(payerId, forwarded_headers)
             print(f"Fetched user data for payerId {payerId}: {user_data}")
-            doc_expense["payerName"] = user_data.get("name", "Unknown Payer")
+            response_json["payerName"] = user_data.get("name", "Unknown Payer")
         except HTTPException as e:
             print(f"Error fetching user data for payerId {payerId}: {e}")
-            doc_expense["payerName"] = "Unknown Payer"
+            response_json["payerName"] = "Unknown Payer"
     else:
         print(f"Expense_event {doc_expense.get('id')} has no payerId, setting payerName to 'Unknown Payer'")
-        doc_expense["payerName"] = "Unknown Payer"
-        
-    doc_expense["creatorId"] = group_expense_entity.get("creatorId")
+        response_json["payerName"] = "Unknown Payer"
+
+    response_json["id"] = group_expense_entity.get("id")
+    response_json["creatorId"] = group_expense_entity.get("creatorId")
 
     return Response(
-        content=json.dumps(doc_expense),
+        content=json.dumps(response_json),
         status_code=200
     )
