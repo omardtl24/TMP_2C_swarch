@@ -67,7 +67,7 @@ async def update_expense(
     print(f'Attempt to edit expense via ms')
 
     doc_expense = await editExpense(
-        input={
+        input_obj={
             "documentId": external_doc_id,
             "concept": concept,
             "total": total,
