@@ -1,11 +1,9 @@
 import json
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from httpx import AsyncClient
 from gateway.services.auth import verify_jwt
 from gateway.services.group_expenses import createExpense
 from gateway.services.events import fetchEventById, createExpensebyExpenseDocId
 from gateway.services.users import fetchUserById
-from gateway.utils.proxy import proxy_request
 
 router = APIRouter(prefix="/api/group-expenses", tags=["events"])
 
