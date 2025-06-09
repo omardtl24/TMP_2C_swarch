@@ -3,36 +3,33 @@ import Expense from "./Expense"
 import { useState } from "react"
 import ExpenseDetail from "./ExpenseDetail"
 import ExpenseDeleteDialog from "./ExpenseDeleteDialog"
+import { useModal } from "../ModalFormBase"
+import { set } from "date-fns"
 
 type ExpensesListProps = {
   expenses: ExpenseType[]
+  onExpenseDeleted?: () => void
 }
 
-export default function ExpensesList({ expenses }: ExpensesListProps) {
+export default function ExpensesList({ expenses, onExpenseDeleted }: ExpensesListProps) {
     const [openDetails, setOpenDetails] = useState(false)
     const [detailExpenseId, setDetailExpenseId] = useState<string>("")
     const [openDelete, setOpenDelete] = useState(false)
     const [deleteExpenseId, setDeleteExpenseId] = useState<string>("")
-
     const handleClickExpense = (idExpense: string) => {
         setDetailExpenseId(idExpense)
         setOpenDetails(true)
     }
 
     const handleEditExpense = (idExpense: string) => {
-        setDetailExpenseId(idExpense)
+        //setDetailExpenseId(idExpense)
         //setOpenDetails(true)
     }
 
     const handleDeleteExpense = (idExpense: string) => {
-        setDeleteExpenseId(idExpense)
-        setOpenDelete(true)
+        setDeleteExpenseId(idExpense);
+        setOpenDelete(true);
     }
-
-    const handleDeleteDialogChange = (open: boolean) => {
-        setOpenDelete(open);
-        if (!open) setDeleteExpenseId("");
-    };
 
     if (expenses.length === 0) {
         return (
@@ -56,8 +53,18 @@ export default function ExpensesList({ expenses }: ExpensesListProps) {
                 ))}
             </div>
 
-            <ExpenseDetail open={openDetails} onOpenChange={setOpenDetails} idExpense={detailExpenseId} />
-            <ExpenseDeleteDialog open={openDelete} onOpenChange={handleDeleteDialogChange} idExpense={deleteExpenseId} />
+            <ExpenseDetail 
+                open={openDetails} 
+                onOpenChange={setOpenDetails} 
+                idExpense={detailExpenseId} 
+            />
+            
+            <ExpenseDeleteDialog
+                expenseId={deleteExpenseId}
+                open={openDelete}
+                setOpen={setOpenDelete}
+                onExpenseDeleted={onExpenseDeleted}
+            />
         </>
-    )
+    );
 }
