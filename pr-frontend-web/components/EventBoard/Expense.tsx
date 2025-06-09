@@ -15,10 +15,11 @@ const Expense = ({expense}:ExpenseProps) => {
               <p className="text-[#3A0092] font-bold">${new Intl.NumberFormat("es-CO").format(expense.total)}</p>
               <p className="text-[#3A0092]">{expense.concept}</p>
               <p className="text-xs text-gray-500">
-                pagado por <span className="font-medium">{expense.payer_id}</span>
+                Pagado por <span className="font-medium">{expense.payer_name}</span>
               </p>
             </div>
             <span
+              //pagado por <span className="font-medium">{expense.payer_id}</span>
               //className={`px-2 py-1 rounded-md text-xs ${expenseCategories[expense.type].bgColor} ${expenseCategories[expense.type].textColor}`}
             >
               {expense.type}

@@ -23,7 +23,6 @@ public class JwtUtil {
                  .replace("-----END PRIVATE KEY-----", "")
                  .replace("\\n", "")
                  .replaceAll("\\s", "");
-        System.out.println(key);
         byte[] keyBytes = Base64.getDecoder().decode(key);
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");

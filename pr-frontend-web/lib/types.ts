@@ -3,15 +3,13 @@
 export type Session = {
   id: string;
   email: string;
-  name?: string;
+  username?: string;
   roles?: string[];
   exp?: number;
   [key: string]: unknown;
 };
 
-// You can add more types here as needed, e.g.:
-// export type User = { ... }
-
+/* old type
 export type EventType = {
   id:string
   name: string;
@@ -19,13 +17,20 @@ export type EventType = {
   beginDate: Date;
   endDate: Date;
 }
-
+*/
+/* old type
 export type EventDetailType = EventType &  {
   creatorId: string;
   invitacionEnabled: boolean;
   invitationCode: string | null;
 }
-
+*/
+/* ?idk old type
+export type ParticipantType = {
+  participant_id:string // Changed from number to string to match mockData
+}
+*/
+/* Old type
 export type ExpenseType = {
   id: string;
   concept: string;
@@ -33,7 +38,39 @@ export type ExpenseType = {
   type: string;
   payer_id: string;
 }
+*/
+export type EventType = {
+  id: string
+  name: string;
+  description: string;
+  begin_date: Date;
+  end_date: Date;
+}
 
+export type EventDetailType = EventType & {
+  creator_id: string;
+  invitacion_enabled: boolean; // bro invitacion or invitation, left as per the docs xd
+  invitation_code: string | null;
+  total_expense: number;
+  my_balance: number
+}
+
+export type CreateEventData = {
+  name: string;
+  description?: string;
+  begin_date: Date;
+  end_date: Date;   // ISO format date string
+};
+
+export type ExpenseType = {
+  creator_id: string,
+  id: string;
+  concept: string;
+  total: number;
+  type: string;
+  payer_id: string;
+  payer_name: string;
+};
 export type ExpenseParticipation = {
   user_id: string;
   state: number;
@@ -46,10 +83,23 @@ export type ExpenseDetailedType = ExpenseType & {
 }
 
 export type ParticipantType = {
-  participantId:string // Changed from number to string to match mockData
-}
-
-export type ParticipantBalance = {
-  userId: string;
-  balance: number;
+  participant_id: string;
+  participant_name: string;
 };
+
+export type participartionType = { //ParticipationType as per docs but xd
+  user_id: string;
+  state: number;
+  portion: number;
+};
+
+export type DataExpense = {
+  event_id: string;
+  payer_id: string;
+  concept: string;
+  total: number;
+  type: string;
+  participation: participartionType[];
+};
+
+

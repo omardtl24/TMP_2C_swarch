@@ -1,9 +1,8 @@
 import { Button } from "../ui/button";
 import { GoogleIcon } from "../Icons/GoogleIcon";
-import { ENDPOINTS } from "@/lib/endpoints";
 
 export default function RegisterLoginButton({ title }: { title: string }) {
-		const redirectUrl = `${ENDPOINTS.users.browser}/oauth2/authorization/google`;
+	const redirectUrl = "/api/auth/google-redirect";
 
 	return (
 		<Button
