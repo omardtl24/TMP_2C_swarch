@@ -21,7 +21,7 @@ const ExpenseDetail = ({open, onOpenChange,idExpense}:ExpenseDetailProps) => {
                 <SheetHeader>
                     <SheetTitle>Edit profile</SheetTitle>
                     <SheetDescription>
-                        Make changes to your profile here. Click save whe done.{idExpense}
+                        Make changes to your profile here. Click save when done.{idExpense}
                     </SheetDescription>
                 </SheetHeader>
                 <div className="grid gap-4 py-4">

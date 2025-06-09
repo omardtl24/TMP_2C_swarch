@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import { SessionProvider } from '@/contexts/SessionContext';
-import { getSession } from '@/lib/getSession';
+import { SessionProvider } from "@/contexts/SessionContext";
+import { fetchSessionUniversal } from "@/lib/api/sessionHelpers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +31,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // Precargar la sesión del servidor para hidratar el cliente
-  const initialSession = await getSession();
+  const initialSession = await fetchSessionUniversal(); 
   
   return (
     <html lang="en">

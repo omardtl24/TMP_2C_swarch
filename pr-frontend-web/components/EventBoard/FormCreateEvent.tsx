@@ -100,8 +100,14 @@ const FormCreateEvent = ({
             console.log("Form values:", values);
             setLoading(true);
             
-            // Simulating API call
-            const response = await createEvent(values);
+            // Map camelCase fields to snake_case for API
+            const payload = {
+                name: values.name,
+                description: values.description,
+                begin_date: values.beginDate,
+                end_date: values.endDate,
+            };
+            const response = await createEvent(payload);
             
             if(!response.success) {
                 console.error("Error creating event:", response.error)

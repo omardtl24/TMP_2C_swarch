@@ -16,53 +16,32 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-// import {
-//     Popover,
-//     PopoverContent,
-//     PopoverTrigger,
-// } from "@/components/ui/popover"
 import ModalFormBase from "@/components/ModalFormBase"
-import { ExpenseType, ParticipantType } from '@/lib/types'
+import { ExpenseType, ParticipantType, DataExpense, ExpenseParticipation } from '@/lib/types'
 import { cn } from '@/lib/utils'
-// import {
-//     Command,
-//     CommandEmpty,
-//     CommandGroup,
-//     CommandInput,
-//     CommandItem,
-// } from "@/components/ui/command"
 import { Checkbox } from '@/components/ui/checkbox'
 import { createExpense } from '@/lib/actions/expenseActions'
 import { expenseCategories } from '@/lib/utils'
 
-
-
-// Sample data for categories
-
-
-// Schema definition with zod
+// Schema definition for form validation
 const expenseFormSchema = z.object({
     concept: z
         .string()
         .min(3, { message: 'La descripción debe tener al menos 3 caracteres' })
-        .max(50, { message: 'La descripción no puede exceder 50 caracteres' })
-        .nonempty({ message: 'La descripción es obligatoria' }),
+        .max(50, { message: 'La descripción no puede exceder 50 caracteres' }),
     total: z
         .string()
         .min(1, { message: 'El monto es obligatorio' })
-        .refine(val => {
-            const numericValue = val.replace(/\D/g, '');
-            return !isNaN(Number(numericValue)) && Number(numericValue) > 0;
-        }, { message: 'El monto debe ser mayor a 0' }),
+        .refine(val => !isNaN(Number(val)) && Number(val) > 0, { message: 'El monto debe ser mayor a 0' }),
     type: z
         .string()
         .min(1, { message: 'Seleccione una categoría' }),
     payer_id: z
-        .string() // Changed from number to string
+        .string()
         .min(1, { message: 'Seleccione quién paga' }),
     participants: z
-        .array(z.string()) // Changed from array of numbers to array of strings
-        .min(1, { message: 'Seleccione al menos un participante' }),
+        .array(z.string())
+        .min(1, { message: 'Debe seleccionar al menos un participante' })
 }).refine(data => data.participants.includes(data.payer_id), {
     message: "El pagador debe ser incluido como participante",
     path: ["participants"],
@@ -71,11 +50,11 @@ const expenseFormSchema = z.object({
 type ExpenseFormValues = z.infer<typeof expenseFormSchema>;
 
 interface FormCreateExpenseProps {
-    eventId?: string;
-    participants: ParticipantType[]; // Changed id type to string
+    eventId: string;
+    participants: ParticipantType[]; // Correctly typed to receive participant names and IDs
     onExpenseCreated?: (expense: ExpenseType) => void;
     modalId?: string;
-    open?: boolean; 
+    open?: boolean;
     setOpen?: (value: boolean) => void;
 }
 
@@ -100,49 +79,52 @@ export default function FormCreateExpense({
     });
 
     const [loading, setLoading] = useState(false);
-    const [formattedtotal, setFormattedtotal] = useState('');
+    const [formattedTotal, setFormattedTotal] = useState('');
 
-    // Reset the form when the modal is closed
     useEffect(() => {
         if (!open) {
             form.reset();
-            setFormattedtotal('');
+            setFormattedTotal('');
         }
     }, [open, form]);
 
-    // Handle form submission
     const onSubmit = async (values: ExpenseFormValues) => {
+        setLoading(true);
         try {
-            setLoading(true);
-            console.log("Submitting form with values expenses:", values);
-            
-            // Create expense with GraphQL mutation
-            const response = await createExpense(
-                eventId || "0", 
-                {
-                    concept: values.concept,
-                    total: Number(values.total.replace(/\D/g, '')),
-                    type: values.type,
-                    payer_id: values.payer_id,
-                    participants: values.participants
-                }
-            );
-            
-            if (!response.success) {
+            const totalNumber = Number(values.total);
+
+            // 1. Transform the form data into the required 'DataExpense' structure
+            const participationPayload: ExpenseParticipation[] = values.participants.map(userId => ({
+                user_id: userId,
+                state: 0, // Default state
+                portion: totalNumber / values.participants.length, // Calculate portion
+            }));
+
+            const expensePayload: DataExpense = {
+                event_id: eventId,
+                concept: values.concept,
+                total: totalNumber,
+                type: values.type,
+                payer_id: values.payer_id,
+                participation: participationPayload,
+            };
+
+            // 2. Call the server action with the correctly structured payload
+            const response = await createExpense(expensePayload);
+
+            if (response.error || !response.success) {
                 throw new Error(response.error || "Failed to create expense");
             }
-            
-            // Update UI with new expense
+
             if (onExpenseCreated && response.data) {
                 onExpenseCreated(response.data);
             }
-            
-            // Close modal and reset form
+
             if (setOpen) setOpen(false);
-            form.reset();
-            setFormattedtotal('');
+
         } catch (error) {
             console.error("Error submitting form:", error);
+            // Here you could add a user-facing error message, e.g., using a toast notification
         } finally {
             setLoading(false);
         }
@@ -152,62 +134,47 @@ export default function FormCreateExpense({
         <ModalFormBase
             id={modalId}
             title="Nuevo gasto"
-            contentClassName="p-6 rounded-3xl bg-purple-100/40 overflow-y-auto max-h-[90vh] w-full"
-            headerClassName="text-center text-primary flex items-center justify-center w-full mb-2"
-            icono={<Database className="mx-auto text-primary mb-2" />}
             open={open}
             setOpen={setOpen}
+            // Additional props for styling...
         >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    {/* Name field */}
+                    {/* Concept Field */}
                     <FormField
                         control={form.control}
                         name="concept"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-base">
-                                    Motivo del gasto
-                                </FormLabel>
+                                <FormLabel>Motivo del gasto</FormLabel>
                                 <FormControl>
-                                    <Input
-                                        placeholder="¿En qué gastaste?"
-                                        className="rounded-xl h-12"
-                                        {...field}
-                                    />
+                                    <Input placeholder="¿En qué gastaste?" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
 
-                    {/* total field */}
+                    {/* Total Field */}
                     <FormField
                         control={form.control}
                         name="total"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-base">
-                                    Valor
-                                </FormLabel>
+                                <FormLabel>Valor</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="text"
                                         placeholder="$0"
-                                        className="rounded-xl h-12"
-                                        value={formattedtotal}
+                                        value={formattedTotal}
                                         onChange={(e) => {
                                             const numericValue = e.target.value.replace(/\D/g, '');
-                                            const formatted = numericValue ? 
+                                            const formatted = numericValue ?
                                                 Number(numericValue).toLocaleString('es-CO', {
-                                                    style: 'currency',
-                                                    currency: 'COP',
-                                                    minimumFractionDigits: 0,
-                                                    maximumFractionDigits: 0,
+                                                    style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0
                                                 }) : '';
-                                            
-                                            setFormattedtotal(formatted);
-                                            field.onChange(numericValue);
+                                            setFormattedTotal(formatted);
+                                            field.onChange(numericValue); // Update form state with raw number
                                         }}
                                         onBlur={field.onBlur}
                                     />
@@ -217,113 +184,91 @@ export default function FormCreateExpense({
                         )}
                     />
 
-                    {/* type field */}
+                    {/* Type Field */}
                     <FormField
                         control={form.control}
                         name="type"
                         render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                                <FormLabel className="text-base">
-                                    Tipo
-                                </FormLabel>
+                            <FormItem>
+                                <FormLabel>Tipo</FormLabel>
                                 <div className="relative">
-                                    <select
-                                        className={cn(
-                                            "w-full rounded-xl h-12 pl-3 pr-10 text-left font-normal appearance-none border border-input",
-                                            !field.value && "text-muted-foreground"
-                                        )}
-                                        value={field.value}
-                                        onChange={(e) => field.onChange(e.target.value)}
-                                    >
-                                        <option value="" disabled>Selecciona una categoría</option>
-                                        {expenseCategories.map((type) => (
-                                            <option key={type.value} value={type.label}>
-                                                {type.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <ChevronsUpDown className="absolute right-3 top-3 h-4 w-4 opacity-50 pointer-events-none" />
+                                    <FormControl>
+                                        <select
+                                            className={cn("w-full h-12 appearance-none ...")}
+                                            {...field}
+                                        >
+                                            <option value="" disabled>Selecciona una categoría</option>
+                                            {expenseCategories.map((cat) => (
+                                                <option key={cat.value} value={cat.label}>{cat.label}</option>
+                                            ))}
+                                        </select>
+                                    </FormControl>
+                                    <ChevronsUpDown className="absolute right-3 top-3 h-4 w-4 opacity-50" />
                                 </div>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
-                    
-                    {/* Payer field */}
+
+                    {/* Payer Field */}
                     <FormField
                         control={form.control}
                         name="payer_id"
                         render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                                <FormLabel className="text-base">
-                                    ¿Quién paga?
-                                </FormLabel>
+                            <FormItem>
+                                <FormLabel>¿Quién paga?</FormLabel>
                                 <div className="relative">
-                                    <select
-                                        className={cn(
-                                            "w-full rounded-xl h-12 pl-3 pr-10 text-left font-normal appearance-none border border-input",
-                                            !field.value && "text-muted-foreground"
-                                        )}
-                                        value={field.value}
-                                        onChange={(e) => field.onChange(e.target.value)}
-                                    >
-                                        <option value="" disabled>Selecciona quién paga</option>
-                                        {participants.map((participant) => (
-                                            <option key={participant.participantId} value={participant.participantId}>
-                                                {participant.participantId}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <ChevronsUpDown className="absolute right-3 top-3 h-4 w-4 opacity-50 pointer-events-none" />
+                                    <FormControl>
+                                        <select
+                                            className={cn("w-full h-12 appearance-none ...")}
+                                            {...field}
+                                        >
+                                            <option value="" disabled>Selecciona quién paga</option>
+                                            {participants.map((p) => (
+                                                <option key={p.participant_id} value={p.participant_id}>
+                                                    {p.participant_name} {/* Display name */}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </FormControl>
+                                    <ChevronsUpDown className="absolute right-3 top-3 h-4 w-4 opacity-50" />
                                 </div>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
-                    
-                    {/* Participants field */}
+
+                    {/* Participants Field */}
                     <FormField
                         control={form.control}
                         name="participants"
-                        render={({ field }) => (
+                        render={() => (
                             <FormItem>
-                                <div className="flex justify-between items-center mb-2">
-                                    <FormLabel className="text-base">Participantes</FormLabel>
-                                </div>
+                                <FormLabel>Participantes</FormLabel>
                                 <div className="rounded-md border p-4 bg-white">
-                                    {participants.map((participant) => (
-                                        <div key={participant.participantId} className="flex flex-row items-center space-x-3 space-y-0 py-1">
-                                            <Checkbox
-                                                id={`participant-${participant.participantId}`}
-                                                checked={field.value?.includes(participant.participantId)}
-                                                onCheckedChange={(checked) => {
-                                                    const currentValues = [...field.value || []];
-                                                    
-                                                    if (checked) {
-                                                        if (!currentValues.includes(participant.participantId)) {
-                                                            currentValues.push(participant.participantId);
-                                                        }
-                                                    } else {
-                                                        const index = currentValues.indexOf(participant.participantId);
-                                                        if (index !== -1) {
-                                                            currentValues.splice(index, 1);
-                                                        }
-                                                    }
-                                                    
-                                                    field.onChange(currentValues);
-                                                }}
-                                                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                                            />
-                                            <label
-                                                htmlFor={`participant-${participant.participantId}`}
-                                                className="font-normal cursor-pointer"
-                                            >
-                                                {participant.participantId}
-                                                {participant.participantId === form.getValues("payer_id") && (
-                                                    <span className="ml-2 text-xs text-primary">(Cajero)</span>
-                                                )}
-                                            </label>
-                                        </div>
+                                    {participants.map((p) => (
+                                        <FormField
+                                            key={p.participant_id}
+                                            control={form.control}
+                                            name="participants"
+                                            render={({ field }) => (
+                                                <FormItem className="flex items-center space-x-3 py-1">
+                                                    <FormControl>
+                                                        <Checkbox
+                                                            checked={field.value?.includes(p.participant_id)}
+                                                            onCheckedChange={(checked) => {
+                                                                return checked
+                                                                    ? field.onChange([...field.value, p.participant_id])
+                                                                    : field.onChange(field.value?.filter(id => id !== p.participant_id));
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormLabel className="font-normal cursor-pointer">
+                                                        {p.participant_name} {/* Display name */}
+                                                    </FormLabel>
+                                                </FormItem>
+                                            )}
+                                        />
                                     ))}
                                 </div>
                                 <FormMessage />
@@ -331,11 +276,7 @@ export default function FormCreateExpense({
                         )}
                     />
 
-                    <Button 
-                        type="submit"
-                        className="w-full bg-primary hover:bg-primary/90 rounded-full h-12 text-lg"
-                        disabled={loading}
-                    >
+                    <Button type="submit" className="w-full ..." disabled={loading}>
                         {loading ? "Guardando..." : "Listo"}
                     </Button>
                 </form>

@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 public class RegistrationController {
@@ -17,15 +19,6 @@ public class RegistrationController {
 
     @Value("${jwt.session-duration-seconds:86400}")
     private int jwtSessionDurationSeconds;
-
-    private void expireRegisterTokenCookie() {
-        jakarta.servlet.http.HttpServletResponse resp = (jakarta.servlet.http.HttpServletResponse) ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.getRequestAttributes()).getResponse();
-        jakarta.servlet.http.Cookie del = new jakarta.servlet.http.Cookie("register_token", "");
-        del.setPath("/");
-        del.setMaxAge(0);
-        del.setHttpOnly(true);
-        resp.addCookie(del);
-    }
 
     @PostMapping("/register")
     public ResponseEntity<?> completeSignup(
@@ -47,17 +40,14 @@ public class RegistrationController {
             }
             // Validar el token temporal y el email
             if (!JwtUtil.validateToken(token)) {
-                expireRegisterTokenCookie();
-                return ResponseEntity.status(401).body("Token inválido o expirado");
+                return ResponseEntity.status(401).body(Map.of("error", "Token inválido o expirado"));
             }
             if (!email.equals(tokenEmail)) {
-                expireRegisterTokenCookie();
-                return ResponseEntity.status(401).body("El email no coincide con el token");
+                return ResponseEntity.status(401).body(Map.of("error", "El email no coincide con el token"));
             }
-            // Verificar que el usuario no exista (En teoria nunca se ejeuta esto)
+            // Verificar que el usuario no exista
             if (userService.findByEmail(email).isPresent()) {
-                expireRegisterTokenCookie();
-                return ResponseEntity.status(409).body("El usuario ya existe");
+                return ResponseEntity.status(409).body(Map.of("error", "El usuario ya existe"));
             }
             // Crear el usuario
             UserEntity user = new UserEntity();
@@ -65,22 +55,24 @@ public class RegistrationController {
             user.setUsername(username);
             user.setName(name);
             userService.save(user);
-            // Autenticar automáticamente: generar JWT y setear cookie httpOnly
+            // Generar JWT y devolverlo en la respuesta (el frontend setea la cookie y elimina register_token)
             try {
                 String jwt = JwtUtil.generateTokenWithName(user.getId(), user.getEmail(), user.getName(), user.getUsername(), jwtSessionDurationSeconds * 1000L);
-                jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("jwt", jwt);
-                cookie.setHttpOnly(true);
-                cookie.setPath("/");
-                cookie.setMaxAge(jwtSessionDurationSeconds);
-                jakarta.servlet.http.HttpServletResponse resp = (jakarta.servlet.http.HttpServletResponse) ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.getRequestAttributes()).getResponse();
-                resp.addCookie(cookie); // JWT de sesión
-                expireRegisterTokenCookie();
+                return ResponseEntity.ok(Map.of(
+                    "jwt", jwt,
+                    "user", Map.of(
+                        "id", user.getId(),
+                        "email", user.getEmail(),
+                        "username", user.getUsername(),
+                        "name", user.getName()
+                    ),
+                    "message", "Usuario registrado y autenticado exitosamente"
+                ));
             } catch (Exception e) {
-                return ResponseEntity.status(500).body("Usuario creado pero error generando JWT: " + e.getMessage());
+                return ResponseEntity.status(500).body(Map.of("error", "Usuario creado pero error generando JWT: " + e.getMessage()));
             }
-            return ResponseEntity.ok("Usuario registrado y autenticado exitosamente");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error en el registro: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("error", "Error en el registro: " + e.getMessage()));
         }
     }
 }
