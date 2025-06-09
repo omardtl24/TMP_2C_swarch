@@ -13,7 +13,7 @@ services:
       - ./pr-frontend-web/public:/app/public
     env_file:
       - ./pr-frontend-web/.env
-    restart: always
+    restart: unless-stopped
 
   # Logic Layer (business logic microservices)
   lg-apigateway-oc:
@@ -25,7 +25,7 @@ services:
         - "8000:8000"
     env_file:
       - ./lg-apigateway-oc/.env
-    restart: always
+    restart: unless-stopped
 
   lg-users-ms:
     container_name: lg-users-ms
@@ -38,7 +38,7 @@ services:
       - ./lg-users-ms/.env
     depends_on:
       - data-users-db
-    restart: always
+    restart: unless-stopped
 
   lg-events-ms:
     container_name: lg-events-ms
@@ -52,7 +52,7 @@ services:
     depends_on:
       - data-groupexpenses-db
       - data-events-db
-    restart: always
+    restart: unless-stopped
 
   lg-personalexpenses-ms:
     container_name: lg-personalexpenses-ms
@@ -65,7 +65,7 @@ services:
       - ./lg-personalexpenses-ms/.env
     depends_on:
       - data-personalexpenses-db
-    restart: always
+    restart: unless-stopped
 
   lg-groupexpenses-ms:
     container_name: lg-groupexpenses-ms
@@ -79,7 +79,7 @@ services:
     depends_on:
       - data-groupexpenses-db
       - data-events-db
-    restart: always
+    restart: unless-stopped
 
   # Database Layer
   data-groupexpenses-db:
@@ -140,7 +140,7 @@ services:
     image: adminer
     ports:
       - "8081:8080"
-    restart: always
+    restart: unless-stopped
     depends_on:
       - data-events-db
       - data-users-db
