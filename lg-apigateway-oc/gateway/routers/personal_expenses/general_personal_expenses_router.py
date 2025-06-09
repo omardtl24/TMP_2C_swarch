@@ -3,7 +3,7 @@ from gateway.services.auth import verify_jwt
 from gateway.utils.proxy import proxy_request
 from gateway.config import PERSONAL_SERVICE_URL
 
-router = APIRouter(prefix="/personal", tags=["personal"])
+router = APIRouter(prefix="/personal-expenses", tags=["personal"])
 
 @router.api_route("{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
 async def personal_proxy(
@@ -14,8 +14,8 @@ async def personal_proxy(
     user_details = {
         "x-user-id": token_payload.get("sub"),
         "x-user-email": token_payload.get("email"),
-        "x-user-username": token_payload.get("name"),
-        "x-user-name": token_payload.get("userName"),
+        "x-user-username": token_payload.get("userName"),
+        "x-user-name": token_payload.get("name"),
     }
     
     for header_name, header_value in user_details.items():
