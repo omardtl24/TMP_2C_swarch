@@ -19,8 +19,7 @@ export async function callApiWithAuth<T = unknown>(
   if (context?.req?.headers?.cookie) {
     cookieHeader = context.req.headers.cookie;
   } else {
-    // Await cookies() as it's now async in Next.js
-    cookieHeader = (await cookies()).toString();
+    cookieHeader = cookies().toString();
   }
   return restClient<T>({
     ...options,

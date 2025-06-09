@@ -13,7 +13,7 @@ export async function registerUser({ email, username }: { email: string; usernam
 // Helper para logout (POST /logout)
 export async function logout() {
   await callApiWithAuth({
-    path: "/auth/logout",
+    path: "/logout",
     method: "POST",
   });
   // Redirige al landing (home)

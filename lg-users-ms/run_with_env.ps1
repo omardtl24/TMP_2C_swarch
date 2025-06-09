@@ -4,8 +4,12 @@ Get-Content .env | ForEach-Object {
         $name = $matches[1].Trim()
         $value = $matches[2].Trim()
         # Ajuste para Postgres
-        if ($name -eq "USERS_DATASOURCE_URL" -and $value -match "data-users-db") {
-            $value = $value -replace "data-users-db", "localhost"
+        if ($name -eq "SPRING_DATASOURCE_URL" -and $value -match "data_postgres") {
+            $value = $value -replace "data_postgres", "localhost"
+        }
+        # Ajuste para MongoDB
+        if ($name -eq "SPRING_DATA_MONGODB_URI" -and $value -match "data_mongo") {
+            $value = $value -replace "data_mongo", "localhost"
         }
         [System.Environment]::SetEnvironmentVariable($name, $value, "Process")
     }
