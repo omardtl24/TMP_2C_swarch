@@ -5,8 +5,6 @@ from gateway.services.group_expenses import fetchExpensesById
 from gateway.services.events import fetchExpensesByEventId 
 from gateway.services.users import fetchUserById
 
-from gateway.utils.merge import merge_expenses
-
 router = APIRouter(prefix="/api/group-expenses", tags=["events"])
 
 
@@ -50,8 +48,9 @@ async def fetch_expenses_by_event(
         try:
             doc_expense = await fetchExpensesById(expense_external_id, user_details)
             temp_response = doc_expense.copy() if doc_expense else {}
-            temp_response["creatorId"] = expense.get("id")
-            expense_payer_id = expense.get("payerId")
+            temp_response["id"] = expense.get("id")
+            temp_response["creatorId"] = expense.get("creatorId")
+            expense_payer_id = doc_expense.get("payerId")
             try:
                 user_data = await fetchUserById(expense_payer_id, forwarded_headers)
                 print(f"Fetched user data for payerId {expense_payer_id}: {user_data}")

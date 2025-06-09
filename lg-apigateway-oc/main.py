@@ -13,6 +13,8 @@ from gateway.routers.events.change_invitation_state import router as change_invi
 from gateway.routers.group_expenses.create_expense import router as create_expense_router
 from gateway.routers.group_expenses.delete_expense import router as delete_expense_router
 from gateway.routers.group_expenses.update_expense import router as update_expense_router
+from gateway.routers.group_expenses.fetch_expenses_by_event import router as fetch_expenses_by_event_router
+from gateway.routers.group_expenses.fetch_expense_detail import router as fetch_expense_detail_router
 from gateway.routers.personal_expenses.general_personal_expenses_router import router as personal_router
 
 from gateway.utils.middlewares import responseFormat
@@ -40,6 +42,8 @@ app.include_router(events_router)
 app.include_router(create_expense_router)
 app.include_router(update_expense_router)
 app.include_router(delete_expense_router)
+app.include_router(fetch_expenses_by_event_router)
+app.include_router(fetch_expense_detail_router)
 app.include_router(events_by_user_router)
 app.include_router(events_participants_router)
 app.include_router(change_invitation_state_router)

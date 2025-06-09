@@ -37,31 +37,31 @@ async def fetch_expense_detail(
     if not event_expense_entity:
         raise HTTPException(status_code=404, detail="Expense not found")
 
-    group_expense_entity = await fetchExpenseDetail(event_expense_entity.get("external"), user_details)
+    group_expense_entity = await fetchExpenseDetail(event_expense_entity.get("externalDocId"), user_details)
     if not group_expense_entity:
         raise HTTPException(status_code=404, detail="Group expenses not found for the event")
 
     response_json = group_expense_entity.copy()
-    response_json["creatorId"] = event_expense_entity.get("id")
+    response_json["creatorId"] = event_expense_entity.get("creatorId")
     response_json.pop("id", None)
 
     forwarded_headers = {}
     if "authorization" in request.headers:
         forwarded_headers["Authorization"] = request.headers["authorization"]
 
-    for expense in response_json:
-        expense_payer_id = expense.get("payerId")
-        if expense_payer_id:
-            try:
-                user_data = await fetchUserById(expense_payer_id, forwarded_headers)
-                print(f"Fetched user data for payerId {expense_payer_id}: {user_data}")
-                expense["payerName"] = user_data.get("name", "Unknown Payer")
-            except HTTPException as e:
-                print(f"Error fetching user data for payerId {expense_payer_id}: {e}")
-                expense["payerName"] = "Unknown Payer"
-        else:
-            print(f"Expense {expense.get('id')} has no payerId, setting payerName to 'Unknown Payer'")
+    expense = response_json
+    expense_payer_id = expense.get("payerId")
+    if expense_payer_id:
+        try:
+            user_data = await fetchUserById(expense_payer_id, forwarded_headers)
+            print(f"Fetched user data for payerId {expense_payer_id}: {user_data}")
+            expense["payerName"] = user_data.get("name", "Unknown Payer")
+        except HTTPException as e:
+            print(f"Error fetching user data for payerId {expense_payer_id}: {e}")
             expense["payerName"] = "Unknown Payer"
+    else:
+        print(f"Expense {expense.get('id')} has no payerId, setting payerName to 'Unknown Payer'")
+        expense["payerName"] = "Unknown Payer"
     
     print(f"Final response JSON: {response_json}")
 
