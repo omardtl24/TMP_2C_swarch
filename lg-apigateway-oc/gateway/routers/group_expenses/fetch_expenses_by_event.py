@@ -38,10 +38,6 @@ async def fetch_expenses_by_event(
     event_expenses = await fetchExpensesByEventId(event_id, user_details)
     if not event_expenses:
         raise HTTPException(status_code=404, detail="Event not found or has no expenses")
-    
-    group_expense_expenses = await fetchExpensesById(event_id, user_details)
-    if not group_expense_expenses:
-        raise HTTPException(status_code=404, detail="Group expenses not found for the event")
 
     response_json = []
 
@@ -52,7 +48,7 @@ async def fetch_expenses_by_event(
     for expense in event_expenses:
         expense_external_id = expense.get("externalDocId")
         try:
-            doc_expense = await fetchExpensesById(expense_external_id, forwarded_headers)
+            doc_expense = await fetchExpensesById(expense_external_id, user_details)
             temp_response = doc_expense.copy() if doc_expense else {}
             temp_response["creatorId"] = expense.get("id")
             expense_payer_id = expense.get("payerId")
@@ -62,8 +58,12 @@ async def fetch_expenses_by_event(
                 temp_response["payerName"] = user_data.get("name", "Unknown Payer")
             except HTTPException as e:
                 print(f"Error fetching user data for payerId {expense_payer_id}: {e}")
-                expense["payerName"] = "Unknown Payer"
-            
+                temp_response["payerName"] = "Unknown Payer"
+        except HTTPException as e:
+            print(f"Error fetching expense by ID {expense_external_id}: {e}")
+            temp_response = {"id": expense_external_id, "error": str(e)}
+        response_json.append(temp_response)
+
     print(f"Final response JSON: {response_json}")
 
 
