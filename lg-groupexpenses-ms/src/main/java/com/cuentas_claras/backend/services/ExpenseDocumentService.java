@@ -1,5 +1,7 @@
 package com.cuentas_claras.backend.services;
 
+import com.cuentas_claras.backend.config.RabbitConfig;
+import com.cuentas_claras.backend.dto.ExpenseCreatedEvent;
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.models.mongo.ExpenseDocument;
 import com.cuentas_claras.backend.models.mongo.ExpenseDocument.Participation;
@@ -7,6 +9,7 @@ import com.cuentas_claras.backend.repositories.mongo.ExpenseDocumentRepository;
 import com.cuentas_claras.backend.security.JwtUserDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,9 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,6 +29,9 @@ public class ExpenseDocumentService {
 
     @Autowired
     private ExpenseDocumentRepository expenseDocumentRepository;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     /**
      * Obtiene el ID del usuario autenticado desde el SecurityContext.
@@ -105,6 +113,27 @@ public class ExpenseDocumentService {
 
         ExpenseDocument saved = expenseDocumentRepository.save(doc);
         log.info("Documento de gasto creado con id {}", saved.getId());
+
+        ExpenseCreatedEvent event = new ExpenseCreatedEvent();
+        event.setExpenseId(saved.getId());
+        event.setTotal(saved.getTotal());
+        event.setConcept(saved.getConcept());
+        event.setType(saved.getType().name());
+        event.setCreatedAt(new Date());
+        event.setParticipation(
+            saved.getParticipation().stream().map(p -> {
+                ExpenseCreatedEvent.Participation evPart = new ExpenseCreatedEvent.Participation();
+                evPart.setUserId(p.getUserId());
+                evPart.setPortion(p.getPortion());
+                return evPart;
+            }).collect(Collectors.toList())
+        );
+
+
+        rabbitTemplate.convertAndSend(
+            RabbitConfig.EXPENSE_CREATED_QUEUE,
+            event
+        );
         return saved;
     }
 
@@ -238,4 +267,5 @@ public class ExpenseDocumentService {
         log.info("Buscando documentos con concepto conteniendo '{}'", keyword);
         return expenseDocumentRepository.findByConceptContainingIgnoreCase(keyword);
     }
+    
 }
