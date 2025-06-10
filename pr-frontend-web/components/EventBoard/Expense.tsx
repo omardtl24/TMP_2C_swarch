@@ -41,13 +41,17 @@ const Expense = ({ expense, handleClickExpense, onEdit, onDelete }: ExpenseProps
             <DropdownMenuTrigger asChild>
               <button
                 className="hover:bg-gray-200 rounded-full p-1"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => { 
+                  e.stopPropagation()
+                }}
               >
                 <MoreVertical className="h-4 w-4 text-gray-600" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(expense.id)}>
+              <DropdownMenuItem onClick={(e) => {
+                onEdit(expense.id)
+                e.stopPropagation();}}>
                 <Pencil className="w-4 h-4 mr-2" /> Editar
               </DropdownMenuItem>
               <DropdownMenuItem

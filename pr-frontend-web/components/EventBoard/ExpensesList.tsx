@@ -1,34 +1,47 @@
-import { ExpenseType } from "@/lib/types"
+import FormCreateExpense from "./FormCreateExpense"
+import { ExpenseType, ParticipantType } from "@/lib/types"
 import Expense from "./Expense"
 import { useState } from "react"
 import ExpenseDetail from "./ExpenseDetail"
 import ExpenseDeleteDialog from "./ExpenseDeleteDialog"
-import { useModal } from "../ModalFormBase"
-import { set } from "date-fns"
 
 type ExpensesListProps = {
-  expenses: ExpenseType[]
-  onExpenseDeleted?: () => void
+  expenses: ExpenseType[];
+  onExpenseDeleted?: () => void;
+  participants: ParticipantType[]; // Add participants prop
+  eventId: string; // Add eventId prop
 }
 
-export default function ExpensesList({ expenses, onExpenseDeleted }: ExpensesListProps) {
+export default function ExpensesList({ expenses, onExpenseDeleted, participants, eventId }: ExpensesListProps) {
     const [openDetails, setOpenDetails] = useState(false)
     const [detailExpenseId, setDetailExpenseId] = useState<string>("")
     const [openDelete, setOpenDelete] = useState(false)
     const [deleteExpenseId, setDeleteExpenseId] = useState<string>("")
+    const [openEdit, setOpenEdit] = useState(false)
+    const [editExpenseData, setEditExpenseData] = useState<ExpenseType | null>(null)
     const handleClickExpense = (idExpense: string) => {
         setDetailExpenseId(idExpense)
         setOpenDetails(true)
     }
 
     const handleEditExpense = (idExpense: string) => {
-        //setDetailExpenseId(idExpense)
-        //setOpenDetails(true)
+        const expense = expenses.find(e => e.id === idExpense)
+        if (expense) {
+            setEditExpenseData(expense)
+            setOpenEdit(true)
+        }
     }
 
     const handleDeleteExpense = (idExpense: string) => {
         setDeleteExpenseId(idExpense);
         setOpenDelete(true);
+    }
+
+    // Handler for when an expense is edited
+    const handleExpenseEdited = async (updatedExpense: ExpenseType) => {
+        setOpenEdit(false)
+        setEditExpenseData(null)
+        if (onExpenseDeleted) onExpenseDeleted() // reuse to refresh list
     }
 
     if (expenses.length === 0) {
@@ -58,13 +71,23 @@ export default function ExpensesList({ expenses, onExpenseDeleted }: ExpensesLis
                 onOpenChange={setOpenDetails} 
                 idExpense={detailExpenseId} 
             />
-            
             <ExpenseDeleteDialog
                 expenseId={deleteExpenseId}
                 open={openDelete}
                 setOpen={setOpenDelete}
                 onExpenseDeleted={onExpenseDeleted}
             />
+            {editExpenseData && (
+                <FormCreateExpense
+                    eventId={eventId}
+                    participants={participants}
+                    open={openEdit}
+                    setOpen={setOpenEdit}
+                    initialValues={editExpenseData}
+                    editMode={true}
+                    onExpenseCreated={handleExpenseEdited}
+                />
+            )}
         </>
-    );
+    )
 }

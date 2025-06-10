@@ -54,7 +54,12 @@ export default function EventTabs({
                 <TabsContent value="gastos" className="mt-4">
                     <AddExpenseButton setOpen={setIsExpenseFormOpen} />
                     <div className="mt-4">
-                        <ExpensesList expenses={expenses} onExpenseDeleted={handleExpenseDeleted} />
+                        <ExpensesList
+                            expenses={expenses}
+                            onExpenseDeleted={handleExpenseDeleted}
+                            participants={participantsWithBalances}
+                            eventId={eventId}
+                        />
                     </div>
                 </TabsContent>
                 <TabsContent value="participantes" className="mt-4">
