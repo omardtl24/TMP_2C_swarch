@@ -1,4 +1,4 @@
-name: cuentas_claras
+name: cc_mobile
 description: "Maneja tus finanzas personales y conjuntas."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -36,6 +36,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  http: ^1.4.0
 
 dev_dependencies:
   flutter_test:
