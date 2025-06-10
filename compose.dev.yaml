@@ -90,10 +90,7 @@ services:
       - "5672:5672"    # Protocolo AMQP (advanced message queing protocol)
       - "15672:15672"  # Consola de administración
     env_file:
-      - ./lg-groupexpenses-ms/.env
-    environment:
-      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
-      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
+      - ./lg-broker-mq/.env  
     restart: unless-stopped
 
   # Database Layer

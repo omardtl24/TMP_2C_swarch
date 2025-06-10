@@ -129,6 +129,8 @@ public class ExpenseDocumentService {
             }).collect(Collectors.toList())
         );
 
+        log.info("Enviando evento de creación de gasto a RabbitMQ: {}", event.getExpenseId());
+
 
         rabbitTemplate.convertAndSend(
             RabbitConfig.EXPENSE_CREATED_QUEUE,
