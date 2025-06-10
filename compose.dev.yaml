@@ -15,7 +15,8 @@ services:
       - ./pr-frontend-web/.env
     restart: unless-stopped
 
-  # Logic Layer (business logic microservices)
+  # Logic Layer (business logic microservices and broker)
+  
   lg-apigateway-oc:
     container_name: lg-apigateway-oc
     build:
@@ -65,6 +66,7 @@ services:
       - ./lg-personalexpenses-ms/.env
     depends_on:
       - data-personalexpenses-db
+      - lg-broker-mq
     restart: unless-stopped
 
   lg-groupexpenses-ms:
@@ -79,6 +81,19 @@ services:
     depends_on:
       - data-groupexpenses-db
       - data-events-db
+      - lg-broker-mq
+    restart: unless-stopped
+  lg-broker-mq:
+    image: rabbitmq:3-management
+    container_name: lg-broker-mq
+    ports:
+      - "5672:5672"    # Protocolo AMQP (advanced message queing protocol)
+      - "15672:15672"  # Consola de administración
+    env_file:
+      - ./lg-groupexpenses-ms/.env
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
     restart: unless-stopped
 
   # Database Layer
