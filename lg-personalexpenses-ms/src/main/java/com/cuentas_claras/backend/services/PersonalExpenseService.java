@@ -149,6 +149,11 @@ public class PersonalExpenseService {
                 .collect(Collectors.toList());
     }
 
+    public PersonalExpenseEntity createPersonalExpenseForUser(String userId, PersonalExpenseEntity pe) {
+        pe.setOwnerId(userId);
+        return personalExpenseRepository.save(pe);
+    }
+
     @Transactional(readOnly = true)
     public List<PersonalExpenseEntity> getUserExpensesByConcept(String concept) {
         String currentUserId = getCurrentUserId();
