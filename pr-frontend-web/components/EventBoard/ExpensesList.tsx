@@ -1,9 +1,10 @@
 import FormCreateExpense from "./FormCreateExpense"
-import { ExpenseType, ParticipantType } from "@/lib/types"
+import { ExpenseDetailedType, ExpenseType, ParticipantType } from "@/lib/types"
 import Expense from "./Expense"
 import { useState } from "react"
 import ExpenseDetail from "./ExpenseDetail"
 import ExpenseDeleteDialog from "./ExpenseDeleteDialog"
+import { fetchExpenseDetail } from "@/lib/actions/expenseActions"
 
 type ExpensesListProps = {
   expenses: ExpenseType[];
@@ -18,14 +19,15 @@ export default function ExpensesList({ expenses, onExpenseDeleted, participants,
     const [openDelete, setOpenDelete] = useState(false)
     const [deleteExpenseId, setDeleteExpenseId] = useState<string>("")
     const [openEdit, setOpenEdit] = useState(false)
-    const [editExpenseData, setEditExpenseData] = useState<ExpenseType | null>(null)
+    const [editExpenseData, setEditExpenseData] = useState<ExpenseDetailedType | null>(null)
     const handleClickExpense = (idExpense: string) => {
         setDetailExpenseId(idExpense)
         setOpenDetails(true)
     }
 
-    const handleEditExpense = (idExpense: string) => {
-        const expense = expenses.find(e => e.id === idExpense)
+    const handleEditExpense = async (idExpense: string) => {
+        const expensesResponse = await fetchExpenseDetail(idExpense);
+        const expense = expensesResponse.success ? expensesResponse.data : null;
         if (expense) {
             setEditExpenseData(expense)
             setOpenEdit(true)

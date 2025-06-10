@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import ModalFormBase from "@/components/ModalFormBase"
-import { ExpenseType, ParticipantType, DataExpense, ExpenseParticipation } from '@/lib/types'
+import { ExpenseType, ParticipantType, DataExpense, ExpenseParticipation, ExpenseDetailedType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import { createExpense, editExpense } from '@/lib/actions/expenseActions'
@@ -56,7 +56,7 @@ interface FormCreateExpenseProps {
     modalId?: string;
     open?: boolean;
     setOpen?: (value: boolean) => void;
-    initialValues?: Partial<ExpenseType & { participants: string[]; total: string | number }>; // Add initialValues for edit
+    initialValues?: ExpenseDetailedType // Add initialValues for edit
     editMode?: boolean; // Add editMode flag
 }
 
@@ -77,7 +77,7 @@ export default function FormCreateExpense({
             total: initialValues.total ? String(initialValues.total) : '',
             type: initialValues.type || '',
             payer_id: initialValues.payer_id || '',
-            participants: initialValues.participants || [],
+            participants: initialValues.participation?.map(p => p.user_id) || [],
         } : {
             concept: '',
             total: '',
@@ -111,7 +111,7 @@ export default function FormCreateExpense({
             if (initialValues.concept) form.setValue('concept', initialValues.concept);
             if (initialValues.type) form.setValue('type', initialValues.type);
             if (initialValues.payer_id) form.setValue('payer_id', initialValues.payer_id);
-            if (initialValues.participants) form.setValue('participants', initialValues.participants);
+            if (initialValues.participation) form.setValue('participants', initialValues.participation.map(p => p.user_id));
             if (initialValues.total) form.setValue('total', String(initialValues.total));
         }
     }, [open, form, initialValues]);
