@@ -1,0 +1,399 @@
+{
+	"info": {
+		"_postman_id": "fe0b4a95-63dd-4841-a14c-4fb1b1d0d40d",
+		"name": "Events AG",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37985286",
+		"_collection_link": "https://cloudy-crater-587875-1.postman.co/workspace/Swarch-project~1681da07-a4b7-4fc8-86c9-fd819042ceec/collection/37985286-fe0b4a95-63dd-4841-a14c-4fb1b1d0d40d?action=share&source=collection_link&creator=37985286"
+	},
+	"item": [
+		{
+			"name": "Create Event",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Parse the response body as JSON\r",
+							"let response = pm.response.json();\r",
+							"let event_id = response.data.id;\r",
+							"pm.collectionVariables.set(\"event_id\", event_id);\r",
+							"\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token_user_1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Viaje a la playa\",\r\n    \"description\": \"Vacaciones con amigos\",\r\n    \"beginDate\": \"2025-07-01\",\r\n    \"endDate\": \"2025-07-05\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/events",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Activate invitation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"let result = response.data;\r",
+							"pm.collectionVariables.set(\"invitation_code\", result.code);\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function(){\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Event is set to state true\", function(){\r",
+							"    pm.expect(result.enabled).to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token_user_1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Viaje a la playa\",\r\n    \"description\": \"Vacaciones con amigos\",\r\n    \"beginDate\": \"2025-07-01\",\r\n    \"endDate\": \"2025-07-05\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/events/{{event_id}}/invite?enabled=true",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"events",
+						"{{event_id}}",
+						"invite"
+					],
+					"query": [
+						{
+							"key": "enabled",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get events where I participate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"let events = response.data;\r",
+							"let ids = [];\r",
+							"events.forEach((event) => ids.push(event.id))\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"I must participate in last created event\", function(){\r",
+							"    pm.expect(ids).to.include(pm.collectionVariables.get(\"event_id\"));\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token_user_1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Viaje a la playa\",\r\n    \"description\": \"Vacaciones con amigos\",\r\n    \"beginDate\": \"2025-07-01\",\r\n    \"endDate\": \"2025-07-05\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/events/me",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"events",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Join to event enabled",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 201\", function() {\r",
+							"    pm.response.to.have.status(201);\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Response contains id field\", function() {\r",
+							"    pm.expect(response.data).to.have.property(\"id\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token_user_2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"invitationCode\": \"{{invitation_code}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/events/join",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"events",
+						"join"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get participants by event",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"let num_participants = response.data.length;\r",
+							"\r",
+							"pm.test(\"Status cpde is 200\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Number of participants is larger or equal to 2\", function(){\r",
+							"    pm.expect(num_participants).to.be.greaterThanOrEqual(2);\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token_user_1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Viaje a la playa\",\r\n    \"description\": \"Vacaciones con amigos\",\r\n    \"beginDate\": \"2025-07-01\",\r\n    \"endDate\": \"2025-07-05\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/events/{{event_id}}/participants",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"events",
+						"{{event_id}}",
+						"participants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete event",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function() {\r",
+							"    pm.response.to.have.status(204);\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token_user_1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/events/{{event_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"events",
+						"{{event_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token_user_1",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "token_user_2",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "event_id",
+			"value": ""
+		},
+		{
+			"key": "invitation_code",
+			"value": ""
+		}
+	]
+}
