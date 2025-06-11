@@ -5,11 +5,13 @@ import 'package:cc_mobile/models/stats_model.dart';
 import 'package:cc_mobile/services/stats_service.dart';
 import 'package:cc_mobile/repository/stats_repository.dart';
 import 'package:cc_mobile/mock/mock_stats_repository.dart';
+import 'package:cc_mobile/themes/app_theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
+  await dotenv.load(fileName: ".env");
   runApp(MyApp());
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -19,9 +21,7 @@ class MyApp extends StatelessWidget {
       create: (context) => MyAppState(),
       child: MaterialApp(
         title: 'cc_mobile',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 126, 34, 255)),
-        ),
+        theme: customTheme,
         home: StatsPage(),
       ),
     );
@@ -101,7 +101,9 @@ class StatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.all(8.0),
+      color: Theme.of(context).colorScheme.primaryContainer,
+
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
@@ -126,99 +128,3 @@ class StatsCard extends StatelessWidget {
 
 
 
-// class MyHomePage extends StatefulWidget {
-//   @override
-//   State<MyHomePage> createState() => _MyHomePageState();
-// }
-
-
-
-
-// class _MyHomePageState extends State<MyHomePage> {
-//   var selectedIndex = 0;
-//   @override
-//   Widget build(BuildContext context) {
-//     Widget page;
-//     switch (selectedIndex) {
-//       case 0:
-//         page = GeneratorPage();
-//         break;
-//       case 1:
-//         page = FavoritePage();
-//         break;
-//       default:
-//         throw UnimplementedError('no widget for $selectedIndex');
-//     }
-//     return LayoutBuilder(
-//       builder: (context,constraints) {
-//         return Scaffold(
-//           body: Row(
-//             children: [
-//               SafeArea(
-//                 child: NavigationRail(
-//                   extended: constraints.maxWidth >= 600,  // ← Here.
-//                   destinations: [
-//                     NavigationRailDestination(
-//                       icon: Icon(Icons.home),
-//                       label: Text('Home'),
-//                     ),
-//                     NavigationRailDestination(
-//                       icon: Icon(Icons.favorite),
-//                       label: Text('Favorites'),
-//                     ),
-//                   ],
-//                   selectedIndex: selectedIndex,
-//                   onDestinationSelected: (value) {
-//                     setState(() {
-//                       selectedIndex = value;
-//                     });
-//                   },
-//                 ),
-//               ),
-//               Expanded(
-//                 child: Container(
-//                   color: Theme.of(context).colorScheme.primaryContainer,
-//                   child: page,
-//                 ),
-//               ),
-//             ],
-//           ),
-//         );
-//       }
-//     );
-//   }
-// }
-
-
-
-
-// // ...
-
-// class BigCard extends StatelessWidget {
-//   const BigCard({super.key, required this.pair});
-
-//   final WordPair pair;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final theme = Theme.of(context);
-//     final style = theme.textTheme.displayMedium!.copyWith(
-//       color: theme.colorScheme.onPrimary,
-//     );
-
-//     return Card(
-//       color: theme.colorScheme.primary,
-//       elevation: 10,
-//       margin: const EdgeInsets.all(20.0),
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-//       child: Padding(
-//         padding: const EdgeInsets.all(20.0),
-//         child: Text(
-//           pair.asLowerCase,
-//           style: style,
-//           semanticsLabel: "${pair.first} ${pair.second}",
-//         ),
-//       ),
-//     );
-//   }
-// }
