@@ -43,10 +43,6 @@ async def fetch_events_detail(
 
     group_expense_entity = []
 
-    # forwarded_headers = {}
-    # if "authorization" in request.headers:
-    #     forwarded_headers["Authorization"] = request.headers["authorization"]
-
     for expense in event_expenses:
         expense_external_id = expense.get("externalDocId")
         try:
@@ -70,20 +66,14 @@ async def fetch_events_detail(
                     my_balance += part.get("portion", 0)
         else:
             print(f"Expense {expense.get('id')} has no participation data, skipping balance calculation.")
-            
-    print(f"Total balance for event {event_id}: {total_event}")
-    print(f"My balance for event {event_id}: {my_balance}")
 
     response_json = {
-        "creatorId": expense.get("creatorId"),
-        "invitacion_enabled": expense.get("invitationEnabled"),
-        "invitationCode": expense.get("invitationCode"),
+        "creatorId": event.get("creatorId"),
+        "invitacion_enabled": event.get("invitationEnabled"),
+        "invitationCode": event.get("invitationCode"),
         "total_expense": total_event,
         "my_balance": my_balance,
     }
-
-    print(f"Final response JSON: {response_json}")
-
 
     return Response(
         content=json.dumps(response_json),
