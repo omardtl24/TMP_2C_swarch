@@ -1,8 +1,8 @@
 import json
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from gateway.services.auth import verify_jwt
-from gateway.services.group_expenses import fetchExpensesById
-from gateway.services.events import fetchExpensesByEventId 
+from gateway.services.group_expenses import fetchExpenseDetail
+from gateway.services.events import fetchExpensesByEventId, fetchEventById
 from gateway.services.users import fetchUserById
 
 router = APIRouter(prefix="/api/events", tags=["events"])
@@ -33,22 +33,24 @@ async def fetch_events_detail(
         "x-user-name":     token_payload.get("name"),
     }
 
+    event = await fetchEventById(event_id, user_details)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
     event_expenses = await fetchExpensesByEventId(event_id, user_details)
     if not event_expenses:
         raise HTTPException(status_code=404, detail="Event not found or has no expenses")
-    
-    response_json = []
 
     group_expense_entity = []
 
-    forwarded_headers = {}
-    if "authorization" in request.headers:
-        forwarded_headers["Authorization"] = request.headers["authorization"]
+    # forwarded_headers = {}
+    # if "authorization" in request.headers:
+    #     forwarded_headers["Authorization"] = request.headers["authorization"]
 
     for expense in event_expenses:
         expense_external_id = expense.get("externalDocId")
         try:
-            doc_expense = await fetchExpensesById(expense_external_id, user_details)
+            doc_expense = await fetchExpenseDetail(expense_external_id, user_details)
             group_expense_entity.append(doc_expense)
         except HTTPException as e:
             print(f"Error fetching expense by ID {expense_external_id}: {e}")
@@ -61,14 +63,24 @@ async def fetch_events_detail(
         else:
             print(f"Expense {expense.get('id')} has no total value, skipping balance calculation.")
 
-        if expense.get("payerId") == user_details.get("x-user-id"):
-            my_balance += expense.get("total", 0)
+        participation =  expense.get("participation")
+        if participation:
+            for part in participation:
+                if part.get("userId") == user_details.get("x-user-id"):
+                    my_balance += part.get("portion", 0)
         else:
-            my_balance -= expense.get("total", 0)
+            print(f"Expense {expense.get('id')} has no participation data, skipping balance calculation.")
+            
     print(f"Total balance for event {event_id}: {total_event}")
     print(f"My balance for event {event_id}: {my_balance}")
-        
-    
+
+    response_json = {
+        "creatorId": expense.get("creatorId"),
+        "invitacion_enabled": expense.get("invitationEnabled"),
+        "invitationCode": expense.get("invitationCode"),
+        "total_expense": total_event,
+        "my_balance": my_balance,
+    }
 
     print(f"Final response JSON: {response_json}")
 
