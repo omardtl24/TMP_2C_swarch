@@ -2,7 +2,7 @@ package com.cuentas_claras.backend.repositories;
 
 
 import java.util.List;
-import java.util.Optional;
+// import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -20,9 +20,9 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long> {
     //2. Obtiene todos los gastos creados por un usuario (creatorId).
     List<ExpenseEntity> findByCreatorId(String creatorId);
 
-    // 3. Encuentra un gasto a partir de su externalDocId (clave al documento Mongo).
-    Optional<ExpenseEntity> findByExternalDocId(String externalDocId);
-    Optional<ExpenseEntity> findByIdAndExternalDocId(Long id, String externalDocId);
+    // // 3. Encuentra un gasto a partir de su externalDocId (clave al documento Mongo).
+    // Optional<ExpenseEntity> findByExternalDocId(String externalDocId);
+    // Optional<ExpenseEntity> findByIdAndExternalDocId(Long id, String externalDocId);
 
 
 }

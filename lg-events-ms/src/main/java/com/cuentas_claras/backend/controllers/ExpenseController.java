@@ -2,7 +2,6 @@ package com.cuentas_claras.backend.controllers;
 
 import com.cuentas_claras.backend.dto.ExpenseDTO;
 import com.cuentas_claras.backend.dto.ExpenseDetailDTO;
-import com.cuentas_claras.backend.dto.Balance;
 import com.cuentas_claras.backend.exceptions.EntityNotFoundException;
 import com.cuentas_claras.backend.models.sql.ExpenseEntity;
 import com.cuentas_claras.backend.services.ExpenseService;
@@ -71,42 +70,42 @@ public class ExpenseController {
         expenseService.deleteExpense(id);
     }
 
-    /**
-     * Suma total de los gastos asociados a un evento.
-     */
-    @GetMapping("/sum/by-event/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
-    public Double sumByEvent(@PathVariable Long eventId)
-            throws EntityNotFoundException {
-        return expenseService.sumExpensesByEvent(eventId);
-    }
+    // /**
+    //  * Suma total de los gastos asociados a un evento.
+    //  */
+    // @GetMapping("/sum/by-event/{eventId}")
+    // @ResponseStatus(HttpStatus.OK)
+    // public Double sumByEvent(@PathVariable Long eventId)
+    //         throws EntityNotFoundException {
+    //     return expenseService.sumExpensesByEvent(eventId);
+    // }
 
-    /**
-     * Suma de lo pagado por el usuario autenticado en un evento.
-     */
-    @GetMapping("/sum/paid-by-me/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
-    public Double sumPaidByMe(@PathVariable Long eventId)
-            throws EntityNotFoundException {
-        return expenseService.sumExpensesPaidByUserInEvent(eventId);
-    }
+    // /**
+    //  * Suma de lo pagado por el usuario autenticado en un evento.
+    //  */
+    // @GetMapping("/sum/paid-by-me/{eventId}")
+    // @ResponseStatus(HttpStatus.OK)
+    // public Double sumPaidByMe(@PathVariable Long eventId)
+    //         throws EntityNotFoundException {
+    //     return expenseService.sumExpensesPaidByUserInEvent(eventId);
+    // }
 
-    /**
-     * Calcula los balances de los usuarios en un evento.
-     */
-    @GetMapping("/balances/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Balance> calculateBalances(@PathVariable Long eventId)
-            throws EntityNotFoundException {
-        return expenseService.calculateBalances(eventId);
-    }
+    // /**
+    //  * Calcula los balances de los usuarios en un evento.
+    //  */
+    // @GetMapping("/balances/{eventId}")
+    // @ResponseStatus(HttpStatus.OK)
+    // public List<Balance> calculateBalances(@PathVariable Long eventId)
+    //         throws EntityNotFoundException {
+    //     return expenseService.calculateBalances(eventId);
+    // }
 
-    /**
-     * Suma de todos los gastos registrados en la base de datos SQL.
-     */
-    @GetMapping("/sum/all")
-    @ResponseStatus(HttpStatus.OK)
-    public Double sumAll() {
-        return expenseService.sumAllExpenses();
-    }
+    // /**
+    //  * Suma de todos los gastos registrados en la base de datos SQL.
+    //  */
+    // @GetMapping("/sum/all")
+    // @ResponseStatus(HttpStatus.OK)
+    // public Double sumAll() {
+    //     return expenseService.sumAllExpenses();
+    // }
 }
