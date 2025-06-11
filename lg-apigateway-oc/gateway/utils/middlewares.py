@@ -18,7 +18,6 @@ async def responseFormat(request: Request, call_next):
     try:
         content = json.loads(body.decode())
     except Exception as e:
-        print(f"Error parsing response content: {e}")
         content = None
 
     if 200 <= response.status_code < 300:
@@ -27,8 +26,6 @@ async def responseFormat(request: Request, call_next):
             content={"status": "success", "data": contentMapper(content)},
         )
     else:
-        print(type(content))
-        print(content)
         message = None
 
         if isinstance(content, dict):
@@ -42,12 +39,9 @@ async def responseFormat(request: Request, call_next):
         try:
             message = message["apierror"]["message"]
         except Exception as e:
-            print(f"Error parsing error message: {e}")
-        
-        print(f"Error response: {message}")
-        print(type(message))
+            pass
 
         return JSONResponse(
             status_code=response.status_code,
-            content={"status": "error", "message": message["message"] if isinstance(message, dict) else message}
+            content={"status": "error", "message": message.get("message") if isinstance(message, dict) else message}
             )

@@ -28,24 +28,19 @@ async def delete_expense(
         "x-user-username": token_payload.get("userName"),
         "x-user-name":     token_payload.get("name"),
     }
-    print(f"User details: {user_details}")
-    print(f"Attempting to delete group expense with ID: {expense_id}")
+
     group_expense_entity = await fetchExpenseByExpenseId(expense_id, user_details)
     if not group_expense_entity:
         raise HTTPException(status_code=404, detail="Group expense not found")
     
-    print(f"Found group expense with ID: {group_expense_entity.get('id')}")
     external_doc_id = group_expense_entity.get("externalDocId")
     
-    print(f'Beginning deletion process for group expense SQL')
     try:
         await deleteExpenseByExpenseId(
             expenseId=group_expense_entity.get("id"),
             headers=user_details
         )
-        print(f"Deleted group expense with ID: {group_expense_entity.get('id')}")
     except HTTPException as e:
-        print(f"Error deleting group expense with ID {group_expense_entity.get('id')}: {e}")
         raise HTTPException(status_code=e.status_code, detail=e.detail)
 
     try:
@@ -54,7 +49,6 @@ async def delete_expense(
             headers=user_details
         )
     except HTTPException as e:
-        print(f"Error deleting expense document with ID {external_doc_id}: {e}")
         raise HTTPException(status_code=e.status_code, detail=e.detail)
 
     return Response(

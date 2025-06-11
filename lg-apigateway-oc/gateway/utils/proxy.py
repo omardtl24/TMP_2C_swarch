@@ -9,14 +9,10 @@ async def proxy_request(request: Request, target_base_url: str) -> Response:
         dest_url = f"{target_base_url}{request.url.path}"
         method = request.method
         body = await request.body()
-        print(f"Proxying {method} request to {dest_url}")
-        print(f"Request body: {body.decode('utf-8') if body else 'No body'}")
-        print(f"Request headers: {request.headers}")
         forwarded_headers = {
             k: v for k, v in request.headers.items()
             if k.lower() not in ["host", "content-length"]
         }
-
         try:
             resp = await client.request(
                 method=method,

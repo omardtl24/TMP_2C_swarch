@@ -20,7 +20,7 @@ async def events_proxy(
     Reenvía la petición al microservicio de Eventos,
     añadiendo los headers x-user-* al request.
     """
-    print(f"Path: {path}")
+    
     user_details = {
         "x-user-id":       token_payload.get("sub"),
         "x-user-email":    token_payload.get("email"),

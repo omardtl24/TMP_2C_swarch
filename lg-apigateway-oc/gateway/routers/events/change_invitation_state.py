@@ -29,14 +29,12 @@ async def change_invitation_state(
     enabled = request.query_params.get("enabled").lower() == "true"
     event_id = event_id.strip()
 
-    print(f"Changing invitation state for event {event_id} to {enabled}")
-
     r = await patchEventInvitationState(
         event_id=event_id,
         invitationState=enabled,
         headers=user_details
     )
-    print(f"Response from events service: {r}")
+    
     content = {
             "enabled": r.get("invitationEnabled"),
             "code": r.get("invitationCode")

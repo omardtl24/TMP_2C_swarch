@@ -13,9 +13,7 @@ async def createExpense(input: dict, headers: dict) -> dict:
     }
     """
     variables = {"input": input}
-    print(f"Variables for createExpense: {variables}")
     result = await fetchWithAuth(mutation, variables, headers)
-    print(result)
     return result["createExpenseDocument"]
 
 async def editExpense(input_obj: dict, headers: dict) -> dict:

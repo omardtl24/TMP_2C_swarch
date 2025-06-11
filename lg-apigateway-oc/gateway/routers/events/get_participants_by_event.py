@@ -1,10 +1,8 @@
 import json
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from httpx import AsyncClient
 from gateway.services.auth import verify_jwt
 from gateway.services.events import fetchParticipantsByEventId
 from gateway.services.users import fetchUserById
-from gateway.utils.proxy import proxy_request
 
 router = APIRouter(prefix="/api/events", tags=["events"])
 
@@ -38,18 +36,14 @@ async def fetch_participants_by_event(
         forwarded_headers["Authorization"] = request.headers["authorization"]
 
     for participant in participants:
-        print(f"Processing participant: {participant}")
         user_id = participant.get("participantId")
         if user_id:
             try:
                 user_data = await fetchUserById(user_id, forwarded_headers)
-                print(f"Fetched user data for participantId {user_id}: {user_data}")
                 participant["participantName"] = user_data.get("name", "Unknown Participant")
             except HTTPException as e:
-                print(f"Error fetching user data for participantId {user_id}: {e}")
                 participant["participantName"] = "Unknown Participant"
         else:
-            print(f"Participant {participant.get('id')} has no participantId, setting participantName to 'Unknown Participant'")
             participant["participantName"] = "Unknown Participant"
         participant.pop("id", None)
 

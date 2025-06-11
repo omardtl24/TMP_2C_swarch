@@ -37,18 +37,14 @@ async def fetch_event_by_user(
         forwarded_headers["Authorization"] = request.headers["authorization"]
 
     for event in events:
-        print(f"Processing event: {event}")
         creator_id = event.get("creatorId")
         if creator_id:
             try:
                 user_data = await fetchUserById(creator_id, forwarded_headers)
-                print(f"Fetched user data for creatorId {creator_id}: {user_data}")
                 event["creatorName"] = user_data.get("name", "Unknown Creator")
             except HTTPException as e:
-                print(f"Error fetching user data for creatorId {creator_id}: {e}")
                 event["creatorName"] = "Unknown Creator"
         else:
-            print(f"Event {event.get('id')} has no creatorId, setting creatorName to 'Unknown Creator'")
             event["creatorName"] = "Unknown Creator"
         event.pop("creatorId", None)
     

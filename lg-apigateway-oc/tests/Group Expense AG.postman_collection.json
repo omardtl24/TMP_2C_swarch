@@ -278,6 +278,63 @@
 			"response": []
 		},
 		{
+			"name": "Create Expense 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token_user_1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"total\": 150.0,\r\n  \"concept\": \"Cena equipo\",\r\n  \"type\": \"COMIDA_Y_BEBIDA\",\r\n  \"payerId\": \"2\",\r\n  \"participation\": [\r\n    {\"userId\":\"1\",\"state\":1,\"portion\":75.0},\r\n    {\"userId\":\"2\",\"state\":1,\"portion\":75.0}\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/group-expenses/events/{{event_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"group-expenses",
+						"events",
+						"{{event_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get expenses by expense id",
 			"event": [
 				{
@@ -418,6 +475,86 @@
 					"path": [
 						"api",
 						"group-expenses",
+						"events",
+						"{{event_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get event detail",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function(){\r",
+							"    pm.response.to.have.status(200);\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token_user_1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-user-username",
+						"value": "otoledo",
+						"type": "text"
+					},
+					{
+						"key": "x-user-email",
+						"value": "omardtoledol@gmail.com",
+						"type": "text"
+					},
+					{
+						"key": "x-user-name",
+						"value": "Omar David Toledo Leguizamon",
+						"type": "text"
+					},
+					{
+						"key": "x-user-id",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/events/{{event_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
 						"events",
 						"{{event_id}}"
 					]

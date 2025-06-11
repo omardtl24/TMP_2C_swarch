@@ -53,18 +53,12 @@ async def fetch_expenses_by_event(
             expense_payer_id = doc_expense.get("payerId")
             try:
                 user_data = await fetchUserById(expense_payer_id, forwarded_headers)
-                print(f"Fetched user data for payerId {expense_payer_id}: {user_data}")
                 temp_response["payerName"] = user_data.get("name", "Unknown Payer")
             except HTTPException as e:
-                print(f"Error fetching user data for payerId {expense_payer_id}: {e}")
                 temp_response["payerName"] = "Unknown Payer"
         except HTTPException as e:
-            print(f"Error fetching expense by ID {expense_external_id}: {e}")
             temp_response = {"id": expense_external_id, "error": str(e)}
         response_json.append(temp_response)
-
-    print(f"Final response JSON: {response_json}")
-
 
     return Response(
         content=json.dumps(response_json),

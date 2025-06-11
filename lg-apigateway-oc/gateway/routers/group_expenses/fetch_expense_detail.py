@@ -54,17 +54,12 @@ async def fetch_expense_detail(
     if expense_payer_id:
         try:
             user_data = await fetchUserById(expense_payer_id, forwarded_headers)
-            print(f"Fetched user data for payerId {expense_payer_id}: {user_data}")
             expense["payerName"] = user_data.get("name", "Unknown Payer")
         except HTTPException as e:
-            print(f"Error fetching user data for payerId {expense_payer_id}: {e}")
             expense["payerName"] = "Unknown Payer"
     else:
-        print(f"Expense {expense.get('id')} has no payerId, setting payerName to 'Unknown Payer'")
         expense["payerName"] = "Unknown Payer"
     
-    print(f"Final response JSON: {response_json}")
-
     return Response(
         content=json.dumps(response_json),
         status_code=200

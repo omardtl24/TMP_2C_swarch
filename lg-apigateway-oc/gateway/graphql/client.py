@@ -13,7 +13,6 @@ async def fetchWithAuth(
         headers=headers,
         timeout=10.0,
     )
-    print(f"Connecting to GraphQL at {EXPENSES_GRAPHQL_URL} with headers: {headers}")
     async with Client(
         transport=transport,
         fetch_schema_from_transport=False,

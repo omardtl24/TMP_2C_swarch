@@ -16,7 +16,6 @@ def contentMapper(data):
     if isinstance(data, str):
         data = json.loads(data)                                  # Parse JSON string to dict
     data = convertToSnakeCase(data)                              # Convert keys to snake_case
-    print(f"ContentMapper: {data}")                              # Debug print statement
     return data
 
 def convertToSnakeCase(data):

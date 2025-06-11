@@ -38,34 +38,35 @@ async def fetch_events_detail(
         raise HTTPException(status_code=404, detail="Event not found")
 
     event_expenses = await fetchExpensesByEventId(event_id, user_details)
-    if not event_expenses:
-        raise HTTPException(status_code=404, detail="Event not found or has no expenses")
-
-    group_expense_entity = []
-
-    for expense in event_expenses:
-        expense_external_id = expense.get("externalDocId")
-        try:
-            doc_expense = await fetchExpenseDetail(expense_external_id, user_details)
-            group_expense_entity.append(doc_expense)
-        except HTTPException as e:
-            print(f"Error fetching expense by ID {expense_external_id}: {e}")
 
     total_event = 0
     my_balance = 0
-    for expense in group_expense_entity:
-        if expense.get("total") is not None:
-            total_event += expense.get("total", 0)
-        else:
-            print(f"Expense {expense.get('id')} has no total value, skipping balance calculation.")
+    
+    if event_expenses:
+        
+        group_expense_entity = []
 
-        participation =  expense.get("participation")
-        if participation:
-            for part in participation:
-                if part.get("userId") == user_details.get("x-user-id"):
-                    my_balance += part.get("portion", 0)
-        else:
-            print(f"Expense {expense.get('id')} has no participation data, skipping balance calculation.")
+        for expense in event_expenses:
+            expense_external_id = expense.get("externalDocId")
+            try:
+                doc_expense = await fetchExpenseDetail(expense_external_id, user_details)
+                group_expense_entity.append(doc_expense)
+            except HTTPException as e:
+                pass
+
+        for expense in group_expense_entity:
+            if expense.get("total") is not None:
+                total_event += expense.get("total", 0)
+            else:
+                pass
+
+            participation =  expense.get("participation")
+            if participation:
+                for part in participation:
+                    if part.get("userId") == user_details.get("x-user-id"):
+                        my_balance += part.get("portion", 0)
+            else:
+                pass
 
     response_json = {
         "creatorId": event.get("creatorId"),

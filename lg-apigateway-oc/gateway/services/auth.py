@@ -19,7 +19,6 @@ async def _fetch_jwks() -> Dict[str, Any]:
     now = time.time()
     if not _jwks_cache["keys"] or now - _last_jwks_fetch > _JWKS_CACHE_TTL:
         async with httpx.AsyncClient() as client:
-            print(f"Descargando JWKS desde {JWKS_URL}...")
             resp = await client.get(JWKS_URL, timeout=5.0)
             if resp.status_code != 200:
                 raise HTTPException(
