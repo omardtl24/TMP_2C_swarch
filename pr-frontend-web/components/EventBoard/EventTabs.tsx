@@ -23,9 +23,15 @@ export default function EventTabs({
 }: EventTabsProps) {
     const [expenses, setExpenses] = useState<ExpenseType[]>(initialExpenses);
     const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
+    const [deleteExpenseId, setDeleteExpenseId] = useState<string | null>(null);
 
     const handleExpenseCreated = (newExpense: ExpenseType) => {
         setExpenses(prevExpenses => [newExpense, ...prevExpenses]);
+    };
+
+    const handleExpenseDeleted = () => {
+        // Remove the deleted expense from the list
+        setExpenses(prevExpenses => prevExpenses.filter(expense => expense.id !== deleteExpenseId));
     };
 
     return (
@@ -48,7 +54,12 @@ export default function EventTabs({
                 <TabsContent value="gastos" className="mt-4">
                     <AddExpenseButton setOpen={setIsExpenseFormOpen} />
                     <div className="mt-4">
-                        <ExpensesList expenses={expenses} />
+                        <ExpensesList
+                            expenses={expenses}
+                            onExpenseDeleted={handleExpenseDeleted}
+                            participants={participantsWithBalances}
+                            eventId={eventId}
+                        />
                     </div>
                 </TabsContent>
                 <TabsContent value="participantes" className="mt-4">

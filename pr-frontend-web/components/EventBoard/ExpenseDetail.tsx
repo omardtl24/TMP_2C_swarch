@@ -6,40 +6,40 @@ import {
     SheetTitle,
 
 } from "@/components/ui/sheet"
+import { ExpenseDetailedType, ParticipantType } from '@/lib/types'
+
 
 interface ExpenseDetailProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    idExpense: string;
+    expenseData: ExpenseDetailedType;
+    participants: ParticipantType[];
 }
 
-const ExpenseDetail = ({open, onOpenChange,idExpense}:ExpenseDetailProps) => {
+const ExpenseDetail = ({open, onOpenChange, expenseData, participants}:ExpenseDetailProps) => {
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent>
                 <SheetHeader>
-                    <SheetTitle>Edit profile</SheetTitle>
+                    <SheetTitle>Detalles del gasto</SheetTitle>
                     <SheetDescription>
-                        Make changes to your profile here. Click save when done.{idExpense}
+                        Make changes to your profile here. Click save when done.
                     </SheetDescription>
                 </SheetHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        
-                            Name
-                        
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        
-                            Username
-                        
-                    </div>
-                </div>
+                {expenseData.participation.map((participation) => {
+                    const participant = participants.find(p => p.participant_id === participation.user_id);
+                    return (
+                        <div key={participation.user_id} className="gap-4">
+                            <span>{participant ? participant.participant_name : participation.user_id}</span>
+                            
+                        </div>
+                    );
+                })}
                
             </SheetContent>
         </Sheet>
-    )
+    )   
 }
 
 export default ExpenseDetail
