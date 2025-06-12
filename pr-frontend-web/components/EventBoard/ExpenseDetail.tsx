@@ -6,14 +6,16 @@ import {
     SheetTitle,
 
 } from "@/components/ui/sheet"
+import { ExpenseDetailedType } from '@/lib/types'
+
 
 interface ExpenseDetailProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    idExpense: string;
+    expenseData: ExpenseDetailedType;
 }
 
-const ExpenseDetail = ({open, onOpenChange,idExpense}:ExpenseDetailProps) => {
+const ExpenseDetail = ({open, onOpenChange, expenseData}:ExpenseDetailProps) => {
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -21,9 +23,19 @@ const ExpenseDetail = ({open, onOpenChange,idExpense}:ExpenseDetailProps) => {
                 <SheetHeader>
                     <SheetTitle>Edit profile</SheetTitle>
                     <SheetDescription>
-                        Make changes to your profile here. Click save when done.{idExpense}
+                        Make changes to your profile here. Click save when done.
                     </SheetDescription>
                 </SheetHeader>
+                {expenseData.participation.map((participation) => (
+                    <><div className="grid grid-cols-4 items-center gap-4">
+
+                        {participation.user_id}
+
+                    </div><div className="grid grid-cols-4 items-center gap-4">
+
+
+                    </div></>
+                ))}
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         

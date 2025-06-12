@@ -15,14 +15,18 @@ type ExpensesListProps = {
 
 export default function ExpensesList({ expenses, onExpenseDeleted, participants, eventId }: ExpensesListProps) {
     const [openDetails, setOpenDetails] = useState(false)
-    const [detailExpenseId, setDetailExpenseId] = useState<string>("")
+    const [detailExpense, setDetailExpenseId] = useState<ExpenseDetailedType | null>(null)
     const [openDelete, setOpenDelete] = useState(false)
     const [deleteExpenseId, setDeleteExpenseId] = useState<string>("")
     const [openEdit, setOpenEdit] = useState(false)
     const [editExpenseData, setEditExpenseData] = useState<ExpenseDetailedType | null>(null)
-    const handleClickExpense = (idExpense: string) => {
-        setDetailExpenseId(idExpense)
-        setOpenDetails(true)
+    const handleClickExpense = async (idExpense: string) => {
+        const expensesResponse = await fetchExpenseDetail(idExpense);
+        const expense = expensesResponse.success ? expensesResponse.data : null;
+        if (expense) {
+            setDetailExpenseId(expense);
+            setOpenDetails(true);
+        }
     }
 
     const handleEditExpense = async (idExpense: string) => {
@@ -67,12 +71,14 @@ export default function ExpensesList({ expenses, onExpenseDeleted, participants,
                     />
                 ))}
             </div>
-
+            {detailExpense && (
             <ExpenseDetail 
                 open={openDetails} 
                 onOpenChange={setOpenDetails} 
-                idExpense={detailExpenseId} 
+                expenseData={detailExpense} 
             />
+            )}
+            
             <ExpenseDeleteDialog
                 expenseId={deleteExpenseId}
                 open={openDelete}
