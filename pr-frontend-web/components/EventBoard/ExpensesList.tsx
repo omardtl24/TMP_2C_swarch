@@ -5,6 +5,7 @@ import { useState } from "react"
 import ExpenseDetail from "./ExpenseDetail"
 import ExpenseDeleteDialog from "./ExpenseDeleteDialog"
 import { fetchExpenseDetail } from "@/lib/actions/expenseActions"
+import { useSession } from "@/contexts/SessionContext";
 
 type ExpensesListProps = {
   expenses: ExpenseType[];
@@ -76,6 +77,7 @@ export default function ExpensesList({ expenses, onExpenseDeleted, participants,
                 open={openDetails} 
                 onOpenChange={setOpenDetails} 
                 expenseData={detailExpense} 
+                participants={participants}
             />
             )}
             

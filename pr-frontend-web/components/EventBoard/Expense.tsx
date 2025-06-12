@@ -6,6 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { useSession } from "@/contexts/SessionContext";
 
 interface ExpenseProps {
   expense: ExpenseType;
@@ -16,6 +17,8 @@ interface ExpenseProps {
 
 const Expense = ({ expense, handleClickExpense, onEdit, onDelete }: ExpenseProps) => {
 
+    const { session } = useSession();
+    const isCreator = session?.id === expense.creator_id;
   return (
     <div
       onClick={() => handleClickExpense(expense.id)}
@@ -36,35 +39,37 @@ const Expense = ({ expense, handleClickExpense, onEdit, onDelete }: ExpenseProps
           <span className="text-sm font-semibold text-[#3A0092]">
             {expense.type}
           </span>
+          {isCreator && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="hover:bg-gray-200 rounded-full p-1"
+                  onClick={(e) => { 
+                    e.stopPropagation()
+                  }}
+                >
+                  <MoreVertical className="h-4 w-4 text-gray-600" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={(e) => {
+                  onEdit(expense.id)
+                  e.stopPropagation();}}>
+                  <Pencil className="w-4 h-4 mr-2" /> Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(expense.id);
+                  }}
+                  className="text-red-600"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" /> Eliminar gasto
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="hover:bg-gray-200 rounded-full p-1"
-                onClick={(e) => { 
-                  e.stopPropagation()
-                }}
-              >
-                <MoreVertical className="h-4 w-4 text-gray-600" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={(e) => {
-                onEdit(expense.id)
-                e.stopPropagation();}}>
-                <Pencil className="w-4 h-4 mr-2" /> Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(expense.id);
-                }}
-                className="text-red-600"
-              >
-                <Trash2 className="w-4 h-4 mr-2" /> Eliminar gasto
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
     </div>
