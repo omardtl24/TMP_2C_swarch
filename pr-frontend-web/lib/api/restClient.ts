@@ -1,12 +1,13 @@
 // Centralized REST client for SSR y browser
 // Espera que le pases el endpoint completo (url) y los headers (incluyendo Cookie si aplica)
+// Ahora solo espera url absoluta y headers, sin lógica de API_GATEWAY ni cookies
 
 export type RestClientOptions = {
   url: string; // endpoint completo
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   body?: unknown;
   headers?: Record<string, string>;
-  credentials?: "include" | "omit" | "same-origin"; // Opcional: solo útil para client-side
+  credentials?: "include" | "omit" | "same-origin";
 };
 
 export async function restClient<T = unknown>(options: RestClientOptions): Promise<T> {

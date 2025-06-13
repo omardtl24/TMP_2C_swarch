@@ -8,45 +8,39 @@ import ParticipantList from "./ParticipantList"
 import FormCreateExpense from "./FormCreateExpense"
 
 import { ExpenseType, ParticipantType } from "@/lib/types"
-import { BalancesResponse } from "@/lib/actions/expenseActions"
 
+// The props have been updated to receive participants with their balance data.
 interface EventTabsProps {
     expenses: ExpenseType[];
-    BalanceParticipants: BalancesResponse;
-    eventId?: string;
-    participants:ParticipantType[]
+    participantsWithBalances: (ParticipantType & { balance: number; })[];
+    eventId: string;
 }
 
-export default function EventTabs({ 
-    expenses: initialExpenses, 
-    BalanceParticipants,
+export default function EventTabs({
+    expenses: initialExpenses,
+    participantsWithBalances,
     eventId,
-    participants
 }: EventTabsProps) {
     const [expenses, setExpenses] = useState<ExpenseType[]>(initialExpenses);
     const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
-    
-    // Handler for when a new expense is created
-    const handleExpenseCreated = (newExpense: ExpenseType) => {
-        setExpenses([...expenses, newExpense]);
-    };
 
-    // Format participants for the UI
-   
+    const handleExpenseCreated = (newExpense: ExpenseType) => {
+        setExpenses(prevExpenses => [newExpense, ...prevExpenses]);
+    };
 
     return (
         <>
             <Tabs defaultValue="gastos" className="w-full">
-                <TabsList className="grid w-full md:w-fit grid-cols-2 bg-trasparent gap-2">
+                <TabsList className="grid w-full md:w-fit grid-cols-2 bg-transparent gap-2">
                     <TabsTrigger
                         value="gastos"
-                        className="data-[state=active]:bg-primary/20 h-9 md:min-w-40 data-[state=active]:text-primary data-[state=active]:font-bold font-normal text-primary border-1 border-primary rounded-full"
+                        className="data-[state=active]:bg-primary/20 h-9 md:min-w-40 data-[state=active]:text-primary data-[state=active]:font-bold font-normal text-primary border border-primary rounded-full"
                     >
                         Gastos
                     </TabsTrigger>
                     <TabsTrigger
                         value="participantes"
-                        className="data-[state=active]:bg-primary/20 h-9 md:min-w-40 data-[state=active]:text-primary data-[state=active]:font-bold font-normal text-primary border-1 border-primary rounded-full"
+                        className="data-[state=active]:bg-primary/20 h-9 md:min-w-40 data-[state=active]:text-primary data-[state=active]:font-bold font-normal text-primary border border-primary rounded-full"
                     >
                         Participantes
                     </TabsTrigger>
@@ -58,24 +52,19 @@ export default function EventTabs({
                     </div>
                 </TabsContent>
                 <TabsContent value="participantes" className="mt-4">
-                    {BalanceParticipants.success ? (
-                        <ParticipantList BalanceParticipants={BalanceParticipants.data} />
-                    ) : (
-                        <p>ha sucedido un error</p>
-                    )
-                    }
-                    
+                    {/* The ParticipantList now receives the correct prop with balance data. */}
+                    <ParticipantList participantsWithBalances={participantsWithBalances} />
                 </TabsContent>
             </Tabs>
-            
-            {/* Pass both open and setOpen props to the form */}
-            <FormCreateExpense 
-                participants={participants} 
+
+            <FormCreateExpense
+                // The form receives the participant list. It will use the id and name, ignoring the balance.
+                participants={participantsWithBalances}
                 onExpenseCreated={handleExpenseCreated}
                 open={isExpenseFormOpen}
                 setOpen={setIsExpenseFormOpen}
                 eventId={eventId}
-                modalId={`expense-form-${eventId}`} // Add unique ID to prevent conflicts
+                modalId={`expense-form-${eventId}`}
             />
         </>
     );

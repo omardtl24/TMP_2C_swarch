@@ -1,0 +1,75 @@
+scalar Upload
+
+enum ExpenseType {
+  COMIDA_Y_BEBIDA
+  COMPRAS
+  HOGAR
+  TRANSPORTE
+  ENTRETENIMIENTO
+  COMUNICACION
+  GASTOS_FINANCIEROS
+}
+
+type Participation {
+  userId: String!
+  state: Int!
+  portion: Float!
+}
+
+type ExpenseDocument {
+  id: ID!
+  payerId: String!
+  total: Float!
+  concept: String!
+  type: String!           
+  participation: [Participation!]!
+  supportImageId: String
+}
+
+# Query
+type Query {
+  expenseDocumentById(documentId: ID!): ExpenseDocument
+  expensesPaidByMe: [ExpenseDocument!]!
+  expensesParticipatedByMe: [ExpenseDocument!]!
+  searchExpenseDocumentsByType(type: ExpenseType!): [ExpenseDocument!]!
+  searchExpenseDocumentsByConcept(keyword: String!): [ExpenseDocument!]!
+}
+
+# Mutation
+
+input NewParticipationInput {
+  userId: String!
+  state: Int!
+  portion: Float!
+}
+
+
+input NewExpenseDocumentInput {
+  total: Float!
+  concept: String!
+  type: ExpenseType!
+  payerId: String!
+  participation: [NewParticipationInput!]!
+  supportImage: Upload
+}
+
+
+input UpdateExpenseDocumentInput {
+  documentId: ID!
+  total: Float!
+  concept: String!
+  type: ExpenseType!
+  payerId: String!
+  participation: [NewParticipationInput!]! 
+  supportImage: Upload
+}
+
+input DeleteExpenseDocumentInput {
+  documentId: ID!
+}
+
+type Mutation {
+  createExpenseDocument(input: NewExpenseDocumentInput!): ExpenseDocument!
+  updateExpenseDocument(input: UpdateExpenseDocumentInput!): ExpenseDocument!
+  deleteExpenseDocument(input: DeleteExpenseDocumentInput!): Boolean!
+}
