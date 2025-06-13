@@ -37,7 +37,7 @@ export async function fetchEvents(): Promise<EventsResponse> {
       return mockEventsResponse;
     }
     const events = await callApiWithAuth<{ success: string, data: EventType[] }>({ //Este callApiWithAuth siempre deberia tener params explicitos para return de response data
-      path: "/api/events/me",
+      path: "/events/me",
       method: "GET",
       headers: {
         'Cache-Control': 'no-store',
@@ -106,15 +106,17 @@ export async function createEvent(eventData: CreateEventData): Promise<CreateEve
   try {
     
     const createdEvent = await callApiWithAuth<EventType>({
-      path: "/api/events",
+      path: "/events",
       method: "POST",
       body: eventData,
       headers: {
         'Cache-Control': 'no-store'
       }
     });
+    console.log("Event created successfully:", createdEvent);
     return { success: 'success', data: createdEvent };
   } catch (error) {
+    console.log("Error creating event:", error);
     return {
       success: 'error',
       error: error instanceof Error ? error.message : 'Unknown error occurred'
