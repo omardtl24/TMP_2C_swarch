@@ -104,8 +104,8 @@ const FormCreateEvent = ({
             const payload = {
                 name: values.name,
                 description: values.description,
-                begin_date: values.beginDate,
-                end_date: values.endDate,
+                beginDate: values.beginDate,
+                endDate: values.endDate,
             };
             const response = await createEvent(payload);
             

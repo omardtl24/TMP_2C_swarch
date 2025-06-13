@@ -16,17 +16,27 @@ export async function callApiWithAuth<T = unknown>(
   const apiGateway = process.env.API_GATEWAY_URL || "";
   const url = `${apiGateway}${options.path}`;
   let cookieHeader = "";
+  let jwt = "";
   if (context?.req?.headers?.cookie) {
     cookieHeader = context.req.headers.cookie;
+    // Extraer jwt de la cookie manualmente
+    const match = cookieHeader.match(/(?:^|; )jwt=([^;]*)/);
+    if (match) jwt = match[1];
   } else {
-    cookieHeader = (await cookies()).toString();
+    const cookieStore = await cookies();
+    cookieHeader = cookieStore.toString();
+    jwt = cookieStore.get("jwt")?.value || "";
+  }
+  const headers: Record<string, string> = {
+    ...(options.headers || {}),
+    Cookie: cookieHeader,
+  };
+  if (jwt) {
+    headers["Authorization"] = `Bearer ${jwt}`;
   }
   return restClient<T>({
     ...options,
     url,
-    headers: {
-      ...(options.headers || {}),
-      Cookie: cookieHeader,
-    },
+    headers,
   });
 }

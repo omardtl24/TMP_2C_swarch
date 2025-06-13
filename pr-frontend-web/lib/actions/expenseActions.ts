@@ -9,6 +9,8 @@ import {
 import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
 import { cookies } from "next/headers";
 import { mockEventExpensesResponse} from "../mockData/eventMockData";
+import { mockExpenseDetailResponse } from "../mockData/expenseMockData";
+import { mock } from "node:test";
 
 
 export async function getAuthToken(): Promise<string | undefined> {
@@ -129,6 +131,13 @@ export async function fetchEventExpenses(eventId: string): Promise<ExpensesRespo
  */
 export async function fetchExpenseDetail(expenseId: string): Promise<ExpenseDetailedResponse> {
   try {
+    const authToken = await getAuthToken();
+    
+      if (!authToken) {
+        console.log("No auth token available, using mock data for static generation");
+        return mockExpenseDetailResponse;
+      }
+
     const data = await callApiWithAuth<ExpenseDetailedType>({
       path: `/api/expenses/${expenseId}`,
       method: "GET",

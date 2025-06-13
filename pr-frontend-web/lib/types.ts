@@ -58,8 +58,8 @@ export type EventDetailType = EventType & {
 export type CreateEventData = {
   name: string;
   description?: string;
-  begin_date: Date;
-  end_date: Date;   // ISO format date string
+  beginDate: Date;
+  endDate: Date;   // ISO format date string
 };
 
 export type ExpenseType = {

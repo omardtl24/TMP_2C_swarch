@@ -17,10 +17,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import ModalFormBase from "@/components/ModalFormBase"
-import { ExpenseType, ParticipantType, DataExpense, ExpenseParticipation } from '@/lib/types'
+import { ExpenseType, ParticipantType, DataExpense, ExpenseParticipation, ExpenseDetailedType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
-import { createExpense } from '@/lib/actions/expenseActions'
+import { createExpense, editExpense } from '@/lib/actions/expenseActions'
 import { expenseCategories } from '@/lib/utils'
 
 // Schema definition for form validation
@@ -56,6 +56,8 @@ interface FormCreateExpenseProps {
     modalId?: string;
     open?: boolean;
     setOpen?: (value: boolean) => void;
+    initialValues?: ExpenseDetailedType // Add initialValues for edit
+    editMode?: boolean; // Add editMode flag
 }
 
 export default function FormCreateExpense({
@@ -64,11 +66,19 @@ export default function FormCreateExpense({
     onExpenseCreated,
     modalId = 'createExpense',
     open,
-    setOpen
+    setOpen,
+    initialValues,
+    editMode = false
 }: FormCreateExpenseProps) {
     const form = useForm<ExpenseFormValues>({
         resolver: zodResolver(expenseFormSchema),
-        defaultValues: {
+        defaultValues: initialValues ? {
+            concept: initialValues.concept || '',
+            total: initialValues.total ? String(initialValues.total) : '',
+            type: initialValues.type || '',
+            payer_id: initialValues.payer_id || '',
+            participants: initialValues.participation?.map(p => p.user_id) || [],
+        } : {
             concept: '',
             total: '',
             type: '',
@@ -85,21 +95,36 @@ export default function FormCreateExpense({
         if (!open) {
             form.reset();
             setFormattedTotal('');
+        } else if (initialValues) {
+            // Set formattedTotal for edit mode
+            if (initialValues.total) {
+                const numericValue = String(initialValues.total).replace(/\D/g, '');
+                setFormattedTotal(
+                    numericValue
+                        ? Number(numericValue).toLocaleString('es-CO', {
+                            style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0
+                        })
+                        : ''
+                );
+            }
+            // Set all fields for edit mode
+            if (initialValues.concept) form.setValue('concept', initialValues.concept);
+            if (initialValues.type) form.setValue('type', initialValues.type);
+            if (initialValues.payer_id) form.setValue('payer_id', initialValues.payer_id);
+            if (initialValues.participation) form.setValue('participants', initialValues.participation.map(p => p.user_id));
+            if (initialValues.total) form.setValue('total', String(initialValues.total));
         }
-    }, [open, form]);
+    }, [open, form, initialValues]);
 
     const onSubmit = async (values: ExpenseFormValues) => {
         setLoading(true);
         try {
             const totalNumber = Number(values.total);
-
-            // 1. Transform the form data into the required 'DataExpense' structure
             const participationPayload: ExpenseParticipation[] = values.participants.map(userId => ({
                 user_id: userId,
-                state: 0, // Default state
-                portion: totalNumber / values.participants.length, // Calculate portion
+                state: 0,
+                portion: totalNumber / values.participants.length,
             }));
-
             const expensePayload: DataExpense = {
                 event_id: eventId,
                 concept: values.concept,
@@ -108,23 +133,33 @@ export default function FormCreateExpense({
                 payer_id: values.payer_id,
                 participation: participationPayload,
             };
-
-            // 2. Call the server action with the correctly structured payload
-            const response = await createExpense(expensePayload);
-
-            if (response.error || !response.success) {
-                throw new Error(response.error || "Failed to create expense");
+            let response;
+            if (editMode && initialValues && initialValues.id) {
+                // Call editExpense for edit mode
+                response = await editExpense(initialValues.id, {
+                    concept: values.concept,
+                    total: totalNumber,
+                    type: values.type,
+                    payer_id: values.payer_id,
+                    participation: participationPayload,
+                });
+                if (response.error || response.success !== 'success') {
+                    throw new Error(response.error || "Failed to edit expense");
+                }
+                if (onExpenseCreated) onExpenseCreated({ ...(initialValues as any), ...values, total: totalNumber });
+            } else {
+                // Create mode
+                response = await createExpense(expensePayload);
+                if (response.error || !response.success) {
+                    throw new Error(response.error || "Failed to create expense");
+                }
+                if (onExpenseCreated && response.data) {
+                    onExpenseCreated(response.data);
+                }
             }
-
-            if (onExpenseCreated && response.data) {
-                onExpenseCreated(response.data);
-            }
-
             if (setOpen) setOpen(false);
-
         } catch (error) {
             console.error("Error submitting form:", error);
-            // Here you could add a user-facing error message, e.g., using a toast notification
         } finally {
             setLoading(false);
         }

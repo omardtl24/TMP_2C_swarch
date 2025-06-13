@@ -100,23 +100,6 @@ A continuación se resumen los tres enfoques posibles para manejar el callback d
 
 ---
 
-### Resumen visual del flujo recomendado
-
-```
-BROWSER
-  │
-  ▼
-FRONTEND (Next.js)  --redirect-->  API GATEWAY  --proxy-->  MS (Spring Security)  --redirect-->  GOOGLE
-                                                                                                    │
-                                                                                                    ▼
-GOOGLE  --redirect (callback URL)-->  API GATEWAY  --proxy-->  MS (Spring Security)  --JSON/redirect-->  API GATEWAY
-                                                                                                                    │
-                                                                                                                    ▼
-FRONTEND (Next.js) (página /auth/callback)  --redirect-->  BROWSER (dashboard, register, etc)
-```
-
----
-
 ### ¿Qué hace cada uno?
 
 - **BROWSER:**  Solo sigue redirecciones y muestra la página final.

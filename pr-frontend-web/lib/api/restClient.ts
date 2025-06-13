@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Centralized REST client for SSR y browser
 // Espera que le pases el endpoint completo (url) y los headers (incluyendo Cookie si aplica)
 // Ahora solo espera url absoluta y headers, sin lógica de API_GATEWAY ni cookies
@@ -18,6 +19,16 @@ export async function restClient<T = unknown>(options: RestClientOptions): Promi
       ...(options.headers || {}),
     },
   };
+  // Convert headers to a mutable object for manipulation
+  const headersObj = { ...(fetchOptions.headers as Record<string, string>) };
+  // Si el header Authorization no está y hay jwt en Cookie, lo agregamos
+  if (!headersObj["Authorization"] && headersObj["Cookie"]) {
+    const match = headersObj["Cookie"].match(/(?:^|; )jwt=([^;]*)/);
+    if (match) {
+      headersObj["Authorization"] = `Bearer ${match[1]}`;
+    }
+  }
+  fetchOptions.headers = headersObj;
   if (options.body) {
     fetchOptions.body = JSON.stringify(options.body);
   }
@@ -25,6 +36,16 @@ export async function restClient<T = unknown>(options: RestClientOptions): Promi
     fetchOptions.credentials = options.credentials;
   }
   const res = await fetch(options.url, fetchOptions);
-  if (!res.ok) throw new Error(`REST error: ${res.status}`);
-  return res.json();
+  let json: any = null;
+  try {
+    json = await res.json();
+  } catch (e) {
+    console.error("Error parsing JSON response:", e);
+    throw new Error("Respuesta del backend no es JSON válido");
+  }
+  if (!res.ok || (json && json.status === "error")) {
+    console.error("REST error:", res.status, json);
+    throw new Error(json?.message || `REST error: ${res.status}`);
+  }
+  return json;
 }
