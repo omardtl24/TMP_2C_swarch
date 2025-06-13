@@ -6,7 +6,7 @@ This document describes the relational structure of the database used in the pro
 
 The following ER diagram illustrates the relationships between the entities:
 
-![ER Diagram](./ER_Data_Model.png)
+![ER Diagram](./images/ER_Data_Model.png)
 
 > Generated with PlantUML
 

@@ -1,6 +1,6 @@
 services:
 
-  # Presentation Layer
+# Presentation Layer
   pr-frontend-web:
     container_name: pr-frontend-web
     build:
@@ -15,19 +15,29 @@ services:
       - ./pr-frontend-web/.env
     restart: unless-stopped
 
-  # Logic Layer (business logic microservices and broker)
-  
-  lg-apigateway-oc:
-    container_name: lg-apigateway-oc
+# Communication Layer
+  cm-apigateway-orch:
+    container_name: cm-apigateway-orch
     build:
-      context: ./lg-apigateway-oc
+      context: ./cm-apigateway-orch
       dockerfile: Dockerfile
     ports:
         - "8000:8000"
     env_file:
-      - ./lg-apigateway-oc/.env
+      - ./cm-apigateway-orch/.env
     restart: unless-stopped
 
+  cm-broker-mq:
+    image: rabbitmq:3-management
+    container_name: cm-broker-mq
+    ports:
+      - "5672:5672"    # Protocolo AMQP (advanced message queing protocol)
+      - "15672:15672"  # Consola de administración
+    env_file:
+      - ./cm-broker-mq/.env  
+    restart: unless-stopped
+
+# Logic Layer (business logic microservices)
   lg-users-ms:
     container_name: lg-users-ms
     build:
@@ -66,7 +76,7 @@ services:
       - ./lg-personalexpenses-ms/.env
     depends_on:
       - data-personalexpenses-db
-      - lg-broker-mq
+      - cm-broker-mq
     restart: unless-stopped
 
   lg-groupexpenses-ms:
@@ -81,19 +91,10 @@ services:
     depends_on:
       - data-groupexpenses-db
       - data-events-db
-      - lg-broker-mq
-    restart: unless-stopped
-  lg-broker-mq:
-    image: rabbitmq:3-management
-    container_name: lg-broker-mq
-    ports:
-      - "5672:5672"    # Protocolo AMQP (advanced message queing protocol)
-      - "15672:15672"  # Consola de administración
-    env_file:
-      - ./lg-broker-mq/.env  
+      - cm-broker-mq
     restart: unless-stopped
 
-  # Database Layer
+# Database Layer
   data-groupexpenses-db:
     container_name: data-groupexpenses-db
     build:
@@ -146,7 +147,7 @@ services:
       - data-personalexpenses-db:/var/lib/postgresql/data
     restart: unless-stopped
 
-  # Adminer UI
+# Adminer UI
   adminer:
     container_name: adminer
     image: adminer
