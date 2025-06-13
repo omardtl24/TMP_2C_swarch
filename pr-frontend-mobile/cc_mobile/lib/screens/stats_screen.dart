@@ -3,7 +3,7 @@ import 'package:cc_mobile/services/stats_service.dart';
 import 'package:cc_mobile/repository/stats_repository.dart';
 import 'package:cc_mobile/mock/mock_stats_repository.dart';
 import 'package:flutter/material.dart';
-
+import 'package:cc_mobile/utils/session.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -14,8 +14,10 @@ class StatsScreen extends StatefulWidget {
 
 class _StatsPageState extends State<StatsScreen> {
   late Future<StatsModel> futureStats;
-
+  final session = Session(); // Asegúrate de que Session esté importado correctamente
+  final user = Session().user; // Obtiene el usuario de la sesión actual
   @override
+
   void initState() {
     super.initState();
 
@@ -23,7 +25,6 @@ class _StatsPageState extends State<StatsScreen> {
     final service = StatsService();
     final repository = MockStatsRepository();
     // final repository = StatsRepository(service: service);
-
     futureStats = repository.fetchStats();
     
   }
@@ -46,6 +47,10 @@ class _StatsPageState extends State<StatsScreen> {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Text(
+                    'Estadísticas de ${user?.name}',
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
                   StatsCard(statsValue: stats.numberEvents, statsLabel: 'Eventos'),
                   StatsCard(statsValue: stats.numberUsers, statsLabel: 'Usuarios'),
                   StatsCard(statsValue: stats.numberExpenses, statsLabel: 'Gastos'),

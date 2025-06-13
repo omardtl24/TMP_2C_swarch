@@ -1,6 +1,7 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cc_mobile/services/auth_service.dart';
 import 'package:cc_mobile/models/user_model.dart';
+import 'package:cc_mobile/utils/secure_storage.dart';
 
 
 abstract class GoogleAuthRepositoryInterface {
@@ -10,7 +11,12 @@ abstract class GoogleAuthRepositoryInterface {
 
 class GoogleAuthRepository extends GoogleAuthRepositoryInterface {
   final AuthService _authService;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'openid']);
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'openid'],
+    serverClientId: '414832951377-d9t6vqebm0ov63njffrga981ooie637n.apps.googleusercontent.com',
+  );
+
+  //CONSTRUCTOR
   GoogleAuthRepository({required AuthService authService}) : _authService = authService;
  
 
@@ -20,19 +26,16 @@ class GoogleAuthRepository extends GoogleAuthRepositoryInterface {
     try {
       final account = await _googleSignIn.signIn();
       if (account == null) return null;
-
-      final auth = await account.authentication;
-      final idToken = auth.idToken;
-      if (idToken == null) throw Exception('Falta idToken');
-
-      final responseData = await _authService.authenticateInBackend(idToken);
       
-      // Transforma el JSON en un modelo de dominio
-      final user = UserModel.fromJson(responseData['user']);
+      final String? code = account.serverAuthCode;
+      if (code == null) throw Exception('No se recibió serverAuthCode');
+      final responseData = await _authService.authenticateInBackend(code);
 
-      // Aquí podrías también guardar el JWT si es necesario
-      final jwt = responseData['token'];
-      // guardarJWT(jwt); // si lo manejas así
+     
+      final user = UserModel.fromJson(responseData['user']);
+      
+      final jwt = responseData['jwt'];
+      await SecureStorage.instance.write(key: 'jwt', value: jwt);
 
       return user;
     } catch (e) {

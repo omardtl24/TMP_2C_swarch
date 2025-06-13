@@ -4,17 +4,19 @@ import 'package:http/http.dart' as http;
 
 
 class AuthService {
-  Future<Map<String, dynamic>> authenticateInBackend(String idToken) async {
-    final response = await http.post(
-      Uri.parse('${dotenv.env['API_GATEWAY']}/auth/google'),
+  Future<Map<String, dynamic>> authenticateInBackend(String code) async {
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_GATEWAY']}auth/google/callback?code=${code}'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'idToken': idToken}),
+      
     );
 
+    final responseJson = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final data= responseJson['data'];
+      return data;
     } else {
-      throw Exception('Error en autenticación: ${response.body}');
+      throw Exception('Error en autenticación: ${responseJson['message']}');
     }
   }
 }
