@@ -3,6 +3,7 @@ import 'package:cc_mobile/services/stats_service.dart';
 import 'package:cc_mobile/repository/stats_repository.dart';
 import 'package:cc_mobile/mock/mock_stats_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cc_mobile/utils/session.dart';
 
 class StatsScreen extends StatefulWidget {
@@ -14,23 +15,22 @@ class StatsScreen extends StatefulWidget {
 
 class _StatsPageState extends State<StatsScreen> {
   late Future<StatsModel> futureStats;
-  final session = Session(); // Asegúrate de que Session esté importado correctamente
-  final user = Session().user; // Obtiene el usuario de la sesión actual
-  @override
 
+  @override
   void initState() {
     super.initState();
-
-    // Aquí se instancia todo con baseUrl
+    // Instanciar repositorio y servicio
     final service = StatsService();
-    final repository = MockStatsRepository();
-    // final repository = StatsRepository(service: service);
+    final repository = MockStatsRepository(); // O usa StatsRepository(service: service)
     futureStats = repository.fetchStats();
-    
   }
 
   @override
   Widget build(BuildContext context) {
+    // Leer sesión desde el provider para obtener el usuario
+    final session = context.watch<Session>();
+    final user = session.user;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Estadísticas')),
       body: Padding(
@@ -48,7 +48,7 @@ class _StatsPageState extends State<StatsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Estadísticas de ${user?.name}',
+                    'Estadísticas de ${user?.name ?? 'Usuario'}',
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   StatsCard(statsValue: stats.numberEvents, statsLabel: 'Eventos'),
@@ -66,7 +66,6 @@ class _StatsPageState extends State<StatsScreen> {
   }
 }
 
-
 class StatsCard extends StatelessWidget {
   final int statsValue;
   final String statsLabel;
@@ -78,7 +77,6 @@ class StatsCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.all(8.0),
       color: Theme.of(context).colorScheme.primaryContainer,
-
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
@@ -92,13 +90,11 @@ class StatsCard extends StatelessWidget {
               Text(
                 statsValue.toString(),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.deepPurple),
-                
               ),
             ],
-          ),)
+          ),
+        ),
       ),
     );
   }
 }
-
-

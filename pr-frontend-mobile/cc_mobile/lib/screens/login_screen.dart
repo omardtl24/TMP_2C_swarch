@@ -4,6 +4,7 @@ import '../repository/google_auth_repository.dart';
 import '../utils/session.dart';
 import '../services/auth_service.dart';
 import '../utils/secure_storage.dart';
+
 class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -11,14 +12,26 @@ class LoginScreen extends StatelessWidget {
       final authRepository = GoogleAuthRepository(authService: AuthService());
       final user = await authRepository.signInWithGoogle();
       final jwt = await SecureStorage.instance.read(key: 'jwt');
-      
-      if (user != null && jwt != null) {
+      if (user != null  && jwt != null) {
+        print('USERRRRR EN LOGIN: ${user.name}');
         context.read<Session>().updateSession(user: user, jwt: jwt);
         Navigator.pushReplacementNamed(context, '/stats');
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Error al iniciar sesión")));
+        final hasRegisterToken = await authRepository.hasRegisterToken();
+        if (hasRegisterToken) {
+          // ignore: use_build_context_synchronously
+          
+          Navigator.pushReplacementNamed(context, '/register');
+        } else {
+
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text("Error"),
+              content: Text("Ocurrió un error inesperado."),
+            ),
+          );
+        }
       }
     }
 

@@ -8,7 +8,7 @@ class StatsService {
 
   StatsService({String? baseUrl, http.Client? client})
       : client = client ?? http.Client(),
-       baseUrl = dotenv.env['API_GATEWAY']!;
+       baseUrl = dotenv.env['API_GATEWAY_URL']!;
 
   Future<Map<String, dynamic>> getStats() async {
     final response = await http.get(Uri.parse('$baseUrl/stats'));

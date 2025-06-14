@@ -37,6 +37,24 @@ class MockGoogleAuthRepository implements GoogleAuthRepositoryInterface {
       // cualquier otro campo...
     );
   }
+  
+  @override
+  Future<void> clearRegisterToken() {
+    // TODO: implement clearRegisterToken
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<bool> hasRegisterToken() {
+    // TODO: implement hasRegisterToken
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<bool> registerUser({required String email, required String username}) {
+    // TODO: implement registerUser
+    throw UnimplementedError();
+  }
 
   /// Decodifica el payload JWT para extraer claims
   // Map<String, dynamic> _parseIdToken(String idToken) {

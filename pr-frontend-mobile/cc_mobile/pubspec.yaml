@@ -41,6 +41,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   google_sign_in: ^6.3.0
   flutter_secure_storage: ^9.2.4
+  jwt_decoder: ^2.0.1
 
 dev_dependencies:
   flutter_test:
