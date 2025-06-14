@@ -40,12 +40,12 @@ export async function restClient<T = unknown>(options: RestClientOptions): Promi
   try {
     json = await res.json();
   } catch (e) {
-    console.error("Error parsing JSON response:", e);
+    console.log("Error parsing JSON response:", e, "URL:", options.url);
     throw new Error("Respuesta del backend no es JSON válido");
   }
   if (!res.ok || (json && json.status === "error")) {
-    console.error("REST error:", res.status, json);
-    throw new Error(json?.message || `REST error: ${res.status}`);
+    console.log("REST error:", res.status, json, "URL:", options.url);
+    throw new Error(json?.message ? `${json.message} (URL: ${options.url})` : `REST error: ${res.status} (URL: ${options.url})`);
   }
   return json;
 }

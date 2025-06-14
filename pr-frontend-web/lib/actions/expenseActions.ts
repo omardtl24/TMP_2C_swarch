@@ -111,12 +111,12 @@ export async function fetchEventExpenses(eventId: string): Promise<ExpensesRespo
         const authToken = await getAuthToken();
         // If running in generateStaticParams (no auth token available),
         // return mock data for static generation
-        if (!authToken) {
+        if (authToken) {
           console.log("No auth token available, using mock data for static generation");
           return mockEventExpensesResponse;
         }
     const data = await callApiWithAuth<ExpenseType[]>({
-      path: `/api/events/${eventId}/expenses`,
+      path: `/api/group-expenses/events/${eventId}`,
       method: "GET",
     });
     return { success: 'success', data };

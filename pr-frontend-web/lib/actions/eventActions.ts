@@ -64,7 +64,7 @@ export async function fetchEventDetail(id: string): Promise<EventsResponseDetail
     const authToken = await getAuthToken();
     // If running in generateStaticParams (no auth token available),
     // return mock data for static generation
-    if (!authToken) {
+    if (authToken) {
       console.log("No auth token available, using mock data for static generation");
       return mockEventDetailResponse;
     }
@@ -75,6 +75,7 @@ export async function fetchEventDetail(id: string): Promise<EventsResponseDetail
         'Cache-Control': 'no-store',
       },
     });
+    console.log("Event fetched successfully:", event);
     return { success: 'success', data: event };
   } catch (error) {
     return {
@@ -228,14 +229,15 @@ export async function participantsEvent(id: string): Promise<ParticipantsRespons
       console.log("No auth token available, using mock data for static generation");
       return mockEventParticipantsResponse;
     }
-    const data = await callApiWithAuth<ParticipantType[]>({
+    const data = await callApiWithAuth<ParticipantsResponse>({
       path: `/api/events/${id}/participants`,
       method: "GET",
       headers: {
         'Cache-Control': 'no-store'
       }
     });
-    return { success: 'success', data };
+    console.log("HOLA");
+    return data;
   } catch (error) {
     return {
       success: 'error',

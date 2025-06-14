@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Session } from '@/lib/types';
+import { fetchSessionUniversal } from "@/lib/api/sessionHelpers";
 
 export interface SessionContextType {
   session: Session | null;
@@ -26,17 +27,8 @@ export function SessionProvider({ children, initialSession = null }: SessionProv
   const refreshSession = async () => {
     try {
       setIsLoading(true);
-      
-      // Usamos un endpoint que ejecute getSession en el servidor
-      const response = await fetch('/api/auth/getSession');
-      
-      if (!response.ok) {
-        setSession(null);
-        throw new Error('Error al obtener la sesión');
-      }
-      
-      const data = await response.json();
-      setSession(data.session);
+      const fetchedSession = await fetchSessionUniversal();
+      setSession(fetchedSession);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Error al obtener la sesión'));

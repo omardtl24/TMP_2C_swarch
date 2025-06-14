@@ -5,10 +5,11 @@ import CustomCalendar from "@/components/EventBoard/CustomCalendar";
 import { fetchEvents } from "@/lib/actions/eventActions";
 import Event from "@/components/EventBoard/Event";
 import { AlertCircle } from "lucide-react";
-import RetryButton from "@/components/RetryButton"; // 1. Import your custom component
-import { useSession } from "@/contexts/SessionContext";
+import RetryButton from "@/components/RetryButton"; 
 import InputCodeEvent from "@/components/EventBoard/InputCodeEvent";
 import { EventsResponse } from "@/lib/actions/eventActions";
+import { useRequireSession } from "@/lib/hooks/useRequireSession";
+import Loading  from "@/components/Loading";
 
 // Define the interface for calendar events
 export interface EventItem {
@@ -20,7 +21,7 @@ export interface EventItem {
 export default function EventBoard() {
     const [eventsResponse, setEventsResponse] = useState<EventsResponse>({ success: 'success', data: [] });
     const [isLoading, setIsLoading] = useState(true);
-    const { session } = useSession();
+    const { session } = useRequireSession()
 
     useEffect(() => {
         const loadEvents = async () => {
@@ -29,7 +30,6 @@ export default function EventBoard() {
             setEventsResponse(response);
             setIsLoading(false);
         };
-
         loadEvents();
     }, []);
 
@@ -41,15 +41,13 @@ export default function EventBoard() {
         }))
         : [];
 
-    if (isLoading) {
-        return <div>Loading events...</div>;
-    }
+    if (isLoading) return <Loading message="Cargando Eventos..."/>;
 
     return (
         <div className="w-full h-full flex flex-col p-4 md:px-12 md:py-6">
             <div>
-                <h2 className="text-3xl font-semibold">Bienvenido <span className="text-primary">{session?.name}</span></h2>
-                <p className="text-gray-700 text-sm">Mira y crea los eventos que tienes con tus amigos para que dividas tus gatos rapido y sin complicaciones</p>
+                <h2 className="text-3xl font-semibold">Bienvenido <span className="text-primary">{session?.username}</span></h2>
+                <p className="text-gray-700 text-sm">Mira y crea los eventos que tienes con tus amigos para que dividan sus gastos rapido y sin complicaciones</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-2 md:gap-6 mt-6 md:mt-10">
@@ -59,7 +57,7 @@ export default function EventBoard() {
 
                 <div className="flex flex-col w-full md:flex-1 ">
                     <h3 className="text-primary-20 text-2xl font-semibold">Eventos</h3>
-                    <p className="text-gray-700 text-sm"> Ingresa el codigo del evento de un amigo y unite a el</p>
+                    <p className="text-gray-700 text-sm"> Ingresa el codigo del evento de un amigo y unete al parche!</p>
                     <InputCodeEvent />
                     <div className="mt-4">
                         {!eventsResponse.success ? (
