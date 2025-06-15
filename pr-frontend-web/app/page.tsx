@@ -53,6 +53,18 @@ export default function HomePage() {
             >
               Eliminar cuenta
             </button>
+            <button
+              className="px-8 py-3 bg-blue-600 text-white rounded-lg text-lg font-semibold shadow hover:bg-blue-700 transition"
+              onClick={() => router.push(`/eventBoard`)}
+            > 
+              Eventos
+            </button>
+            <button
+              className="px-8 py-3 bg-green-600 text-white rounded-lg text-lg font-semibold shadow hover:bg-green-700 transition"
+              //onClick={() => }
+            >
+              Gastos Personales
+            </button>
           </>
         ) : (
           <>

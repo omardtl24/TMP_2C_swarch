@@ -1,6 +1,6 @@
 import { ModalProvider } from "@/components/ModalFormBase";
 import Navbar from "@/components/Navbar";
-export default function eventLayout({
+export default function personalLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

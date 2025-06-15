@@ -28,18 +28,18 @@ const ExpenseDetail = ({open, onOpenChange, expenseData, participants}:ExpenseDe
                     </SheetDescription>
                 </SheetHeader>
                 <div className="mb-4">
-                    <div className="font-semibold text-lg">{expenseData.concept}</div>
-                    <div className="text-sm text-gray-600 mb-1">Tipo: <span className="font-medium">{expenseData.type}</span></div>
-                    <div className="text-sm text-gray-600 mb-1">Total: <span className="font-medium">${expenseData.total.toLocaleString('es-CO')}</span></div>
-                    <div className="text-sm text-gray-600 mb-1">Pagado por: <span className="font-medium">{expenseData.payer_name}</span></div>
+                    <div className="font-semibold text-lg px-4">{expenseData.concept}</div>
+                    <div className="text-sm text-gray-600 mb-1 px-4">Tipo: <span className="font-medium">{expenseData.type}</span></div>
+                    <div className="text-sm text-gray-600 mb-1 px-4">Total: <span className="font-medium">${expenseData.total.toLocaleString('es-CO')}</span></div>
+                    <div className="text-sm text-gray-600 mb-1 px-4">Pagado por: <span className="font-medium">{expenseData.payer_name}</span></div>
                 </div>
                 <div>
-                    <div className="font-semibold mb-2">Participantes</div>
+                    <div className="font-semibold mb-2 p-4">Participantes</div>
                     <div className="space-y-2">
                         {expenseData.participation.map((participation) => {
                             const participant = participants.find(p => p.participant_id === participation.user_id);
                             return (
-                                <div key={participation.user_id} className="flex justify-between items-center border-b pb-1">
+                                <div key={participation.user_id} className="flex justify-between items-center border-b px-4">
                                     <span>{participant ? participant.participant_name : participation.user_id}</span>
                                     <span className="text-xs text-gray-500">{participation.state === 1 ? 'Pagado' : 'Pendiente'}</span>
                                     <span className="text-xs">${participation.portion.toLocaleString('es-CO')}</span>
