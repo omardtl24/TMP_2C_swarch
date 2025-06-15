@@ -69,8 +69,11 @@ async def fetch_events_detail(
                 pass
 
     response_json = {
+        "id": event.get("id"),
+        "name": event.get("name"),
+        "description": event.get("description"),
         "creatorId": event.get("creatorId"),
-        "invitacion_enabled": event.get("invitationEnabled"),
+        "invitation_enabled": event.get("invitationEnabled"),
         "invitationCode": event.get("invitationCode"),
         "total_expense": total_event,
         "my_balance": my_balance,
