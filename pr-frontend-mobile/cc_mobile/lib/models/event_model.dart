@@ -1,5 +1,5 @@
 class EventModel {
-  final String id;
+  final int id;
   final String name;
   final String description;
   final String creatorName;
@@ -13,7 +13,7 @@ class EventModel {
 
   factory EventModel.fromJson(Map<String, dynamic> json) {
     return EventModel(
-      id: json['id'] as String,
+      id: json['id'] as int,
       name: json['name'] as String,
       description: json['description'] as String,
       creatorName: json['creator_name'] as String,

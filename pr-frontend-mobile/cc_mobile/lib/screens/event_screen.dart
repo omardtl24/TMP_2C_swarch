@@ -203,14 +203,7 @@ class EventCard extends StatelessWidget {
               ),
             ),
             // Right price
-            Text(
-              '\$-20.000', // This would come from event.amount or similar field
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
+            
           ],
         ),
       ),
