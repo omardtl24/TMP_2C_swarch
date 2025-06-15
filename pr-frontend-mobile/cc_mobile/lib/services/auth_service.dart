@@ -41,7 +41,7 @@ class AuthService {
     );
 
     final responseJson = jsonDecode(response.body);
-
+    print('Response del registro en el servicio: $responseJson');
     if (response.statusCode == 200 ) {
       return responseJson;
     } else {

@@ -6,7 +6,6 @@ import 'package:flutter/gestures.dart';
 import 'dart:ui';
 import '../themes/app_theme.dart';
 
-
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -20,6 +19,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final GoogleAuthRepository authRepository= GoogleAuthRepository();
   String? _email;
   bool _isSubmitting = false;
+  bool _isLoading = false;
   String? _error;
 
   @override
@@ -28,19 +28,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _loadEmail();
   }
 
-  Future<void> _loadEmail() async {
-  final token = await SecureStorage.instance.read(key: 'register_token');
-  if (token != null && JwtDecoder.isExpired(token) == false) {
-    final decoded = JwtDecoder.decode(token);
-    setState(() {
-      _email = decoded['email'];
-    });
-  } else {
-    setState(() {
-      _email = null; 
-    });
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        action: SnackBarAction(
+          label: 'OK',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
   }
-}
+
+  Future<void> _loadEmail() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final token = await SecureStorage.instance.read(key: 'register_token');
+      if (token != null && JwtDecoder.isExpired(token) == false) {
+        final decoded = JwtDecoder.decode(token);
+        setState(() {
+          _email = decoded['email'];
+        });
+      } else {
+        setState(() {
+          _email = null;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Error al cargar los datos: ${e.toString()}';
+      });
+      _showErrorSnackBar(_error!);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -51,32 +83,82 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      final success = await authRepository.registerUser(
+      final response = await authRepository.registerUser(
         email: _email!,
         username: _usernameController.text.trim(),
       );
 
-      if (success) {
-        // Puedes navegar al Home u otra pantalla
+      if (response.isSuccess) {
+        // ignore: use_build_context_synchronously
         Navigator.pushReplacementNamed(context, '/login');
       } else {
         setState(() {
-          _error = 'Error al registrar el usuario.';
+          _error = response.message ?? 'Error al registrar el usuario';
         });
+        _showErrorSnackBar(_error!);
       }
     } catch (e) {
       setState(() {
         _error = e.toString();
       });
+      _showErrorSnackBar(_error!);
     } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final response = await authRepository.signInWithGoogle();
+      
+      if (response.isError && response.message == 'Se requiere registro') {
+        await _loadEmail();
+      } else if (response.isSuccess) {
+        // Should not happen in register flow, but handle it gracefully
+        final jwt = await SecureStorage.instance.read(key: 'jwt');
+        if (jwt != null && response.data != null) {
+          // ignore: use_build_context_synchronously
+          Navigator.pushReplacementNamed(context, '/stats');
+        }
+      } else {
+        setState(() {
+          _error = response.message ?? 'Error al iniciar sesión con Google';
+        });
+        _showErrorSnackBar(_error!);
+      }
+    } catch (e) {
       setState(() {
-        _isSubmitting = false;
+        _error = 'Error inesperado: ${e.toString()}';
       });
+      _showErrorSnackBar(_error!);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    
     return Scaffold(
       body: Column(
         children: [
@@ -137,6 +219,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
+                                      
                                     ],
                                   ),
                                 ),
@@ -160,6 +243,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
           
+      
+          
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -175,13 +260,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           children: [
                             Center(
                               child: ElevatedButton(
-                                onPressed: () async {
-                                  final success = await authRepository.signInWithGoogle();
-                                  if (success != null) {
-                                    // If successful, the _loadEmail will handle the navigation
-                                    await _loadEmail();
-                                  }
-                                },
+                                onPressed: _isLoading ? null : _handleGoogleSignIn,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
                                   foregroundColor: Colors.black87,
@@ -192,21 +271,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   elevation: 2,
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/google_logo.png',
+                                child: _isLoading
+                                  ? SizedBox(
+                                      width: 24, 
                                       height: 24,
-                                      width: 24,
-                                    ),
-                                    SizedBox(width: 12),
-                                    Text(
-                                      "Registrate con Google", 
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)
-                                    ),
-                                  ],
-                                ),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: primaryShades[40],
+                                      ))
+                                  : Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/google_logo.png',
+                                        height: 24,
+                                        width: 24,
+                                      ),
+                                      SizedBox(width: 12),
+                                      Text(
+                                        "Registrate con Google", 
+                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)
+                                      ),
+                                    ],
+                                  ),
                               ),
                             ),
                             SizedBox(height: 8),
@@ -252,7 +339,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: Form(
                           key: _formKey,
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
@@ -263,10 +350,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   color: primaryShades[30],
                                 ),
                               ),
-                              SizedBox(height: 20),
+                              SizedBox(height: 14),
                               Text(
                                 'Email detectado: $_email',
-                                style: TextStyle(fontSize: 16, color: Colors.black87),
+                                style: TextStyle(fontSize: 14, color: Colors.black87),
+                                textAlign: TextAlign.start,
                               ),
                               SizedBox(height: 16),
                               TextFormField(
@@ -286,15 +374,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              SizedBox(height: 24),
-                              if (_error != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 16),
-                                  child: Text(
-                                    _error!,
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ),
+                              SizedBox(height: 25),
                               ElevatedButton(
                                 onPressed: _isSubmitting ? null : _submit,
                                 style: ElevatedButton.styleFrom(
@@ -344,7 +424,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      
                     ],
                   ),
             ),
