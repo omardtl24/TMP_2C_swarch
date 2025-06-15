@@ -1,4 +1,4 @@
-import 'package:cc_mobile/services/events_service.dart';
+import 'package:cc_mobile/dataSource/events_data_source.dart';
 import 'package:cc_mobile/models/event_model.dart';
 import 'package:cc_mobile/models/response.dart';
 import 'package:cc_mobile/utils/secure_storage.dart';
@@ -11,9 +11,9 @@ abstract class EventRepositoryInterface {
 
 
 class EventRepository implements EventRepositoryInterface {
-  final EventsService _eventsService;
-  EventRepository({EventsService? eventsService})
-      : _eventsService = eventsService ?? EventsService();
+  final EventsDataSource _eventsDataSource;
+  EventRepository({EventsDataSource? eventsDataSource})
+      : _eventsDataSource = eventsDataSource ?? EventsDataSource();
 
 
   @override
@@ -23,7 +23,7 @@ class EventRepository implements EventRepositoryInterface {
       if (jwt == null) {
         return Response.error('No se encontró el token JWT');
       }
-      final response = await _eventsService.getMyEvents(jwt:jwt);
+      final response = await _eventsDataSource.getMyEvents(jwt:jwt);
       if(response['status'] == 'success') {
         final List<EventModel> events = (response['data'] as List)
             .map((event) => EventModel.fromJson(event))

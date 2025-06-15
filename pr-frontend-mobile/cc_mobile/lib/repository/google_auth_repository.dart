@@ -1,5 +1,5 @@
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cc_mobile/services/auth_service.dart';
+import 'package:cc_mobile/dataSource/auth_data_source.dart';
 import 'package:cc_mobile/models/user_model.dart';
 import 'package:cc_mobile/utils/secure_storage.dart';
 import 'package:cc_mobile/models/response.dart';
@@ -15,13 +15,13 @@ abstract class GoogleAuthRepositoryInterface {
 }
 
 class GoogleAuthRepository extends GoogleAuthRepositoryInterface {
-  final AuthService _authService;
+  final AuthDataSource _authDataSource;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'openid'],
     serverClientId: '414832951377-d9t6vqebm0ov63njffrga981ooie637n.apps.googleusercontent.com',
   );
 
-  GoogleAuthRepository({ AuthService? authService}) : _authService = authService ?? AuthService();
+  GoogleAuthRepository({ AuthDataSource? authDataSource}) : _authDataSource = authDataSource ?? AuthDataSource();
 
   @override
   Future<Response<UserModel>> signInWithGoogle() async {
@@ -36,7 +36,7 @@ class GoogleAuthRepository extends GoogleAuthRepositoryInterface {
         return Response.error('No se recibió el código de autenticación');
       }
 
-      final responseData = await _authService.authenticateInBackend(code);
+      final responseData = await _authDataSource.authenticateInBackend(code);
       
       if (responseData.containsKey('jwt')) {
         print('RESPONSE DATA: $responseData');
@@ -69,7 +69,7 @@ class GoogleAuthRepository extends GoogleAuthRepositoryInterface {
         return Response.error('No se encontró token de registro');
       }
       print('Token de registro: $registerToken');
-      final response = await _authService.registerUserInBackend(
+      final response = await _authDataSource.registerUserInBackend(
         email: email,
         username: username,
         registerToken: registerToken,

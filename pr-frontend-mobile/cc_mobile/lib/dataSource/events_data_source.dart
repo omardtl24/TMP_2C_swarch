@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class EventsService {
+class EventsDataSource {
   final String baseUrl;
   final http.Client client;
 
-  EventsService({String? baseUrl, http.Client? client})
+  EventsDataSource({String? baseUrl, http.Client? client})
       : client = client ?? http.Client(),
        baseUrl = dotenv.env['API_GATEWAY_URL']!;
 

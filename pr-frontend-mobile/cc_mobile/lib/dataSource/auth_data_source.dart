@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 
-class AuthService {
+class AuthDataSource {
   final String baseUrl= dotenv.env['API_GATEWAY_URL']!;
 
 

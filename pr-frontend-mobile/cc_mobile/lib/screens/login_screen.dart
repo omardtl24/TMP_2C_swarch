@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../repository/google_auth_repository.dart';
 import '../utils/session.dart';
-import '../services/auth_service.dart';
+import '../dataSource/auth_data_source.dart';
 import '../utils/secure_storage.dart';
 import 'dart:ui';
 import '../themes/app_theme.dart';
@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final authRepository = GoogleAuthRepository(authService: AuthService());
+      final authRepository = GoogleAuthRepository(authDataSource: AuthDataSource());
       final response = await authRepository.signInWithGoogle();
       
       if (response.isSuccess && response.data != null) {
