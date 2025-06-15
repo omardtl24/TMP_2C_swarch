@@ -5,7 +5,6 @@ import { useState } from "react"
 import ExpenseDetail from "./ExpenseDetail"
 import ExpenseDeleteDialog from "./ExpenseDeleteDialog"
 import { fetchExpenseDetail } from "@/lib/actions/expenseActions"
-import { useSession } from "@/contexts/SessionContext";
 
 type ExpensesListProps = {
   expenses: ExpenseType[];
@@ -22,8 +21,7 @@ export default function ExpensesList({ expenses, onExpenseDeleted, participants,
     const [openEdit, setOpenEdit] = useState(false)
     const [editExpenseData, setEditExpenseData] = useState<ExpenseDetailedType | null>(null)
     const handleClickExpense = async (idExpense: string) => {
-        const expensesResponse = await fetchExpenseDetail(idExpense);
-        const expense = expensesResponse.success ? expensesResponse.data : null;
+        const expense = await fetchExpenseDetail(idExpense);
         if (expense) {
             setDetailExpenseId(expense);
             setOpenDetails(true);
@@ -31,11 +29,11 @@ export default function ExpensesList({ expenses, onExpenseDeleted, participants,
     }
 
     const handleEditExpense = async (idExpense: string) => {
-        const expensesResponse = await fetchExpenseDetail(idExpense);
-        const expense = expensesResponse.success ? expensesResponse.data : null;
+        const expense = await fetchExpenseDetail(idExpense);
         if (expense) {
-            setEditExpenseData(expense)
-            setOpenEdit(true)
+            // Asegura que el objeto de detalle tenga el id
+            setEditExpenseData({ ...expense, id: idExpense });
+            setOpenEdit(true);
         }
     }
 
@@ -45,10 +43,9 @@ export default function ExpensesList({ expenses, onExpenseDeleted, participants,
     }
 
     // Handler for when an expense is edited
-    const handleExpenseEdited = async (updatedExpense: ExpenseType) => {
+    const handleExpenseEdited = async () => {
         setOpenEdit(false)
         setEditExpenseData(null)
-        if (onExpenseDeleted) onExpenseDeleted() // reuse to refresh list
     }
 
     if (expenses.length === 0) {

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react"
 import "react-day-picker/dist/style.css"
 import FormCreateEvent from "./FormCreateEvent"
+import { EventType } from "@/lib/types"
 
 // Tipado de eventos
 export interface EventItem {
@@ -18,7 +19,7 @@ export interface EventItem {
 }
 
 interface CustomCalendarProps {
-  events: EventItem[]
+  events: EventType[];
 }
 
 const CustomCalendar = ({ events }: CustomCalendarProps) => {
@@ -30,16 +31,24 @@ const CustomCalendar = ({ events }: CustomCalendarProps) => {
 
   // Separate function to trigger the modal opening for the currently selected date
   const handleCreateEvent = (day: Date | undefined) => {
-    console.log("handleCreateEvent", day)
-    setSelected(day)
-    console.log("creandoooooo")
-    setOpenModalTrigger(true)
+    // Si no hay día, usar hoy
+    const dateToUse = day || new Date();
+    setSelected(dateToUse);
+    setOpenModalTrigger(true);
   }
 
   // Prepare modifiers
   const modifiers = React.useMemo(
     () => ({
-      event: events.map(e => e.date),
+      event: events
+        .map(e => {
+          // Ensure begin_date is a Date object and not undefined or string
+          if (!e.begin_date) return undefined;
+          return typeof e.begin_date === "string"
+            ? new Date(e.begin_date)
+            : e.begin_date;
+        })
+        .filter((d): d is Date => d instanceof Date && !isNaN(d.getTime())),
     }),
     [events]
   )
@@ -89,7 +98,7 @@ const CustomCalendar = ({ events }: CustomCalendarProps) => {
         <Button 
           variant="outline" 
           className="border-amber-300 bg-transparent text-amber-300 font-semibold hover:bg-amber-400/50 hover:text-white md:w-40 md:h-10"
-          onClick={()=>handleCreateEvent(undefined)} // Pass undefined to open the modal without a date
+          onClick={()=>handleCreateEvent(undefined)} // Ahora abrirá con la fecha de hoy
         >
           <CalendarIcon className="h-4 w-4" />
           Crear evento
@@ -109,7 +118,7 @@ const CustomCalendar = ({ events }: CustomCalendarProps) => {
         fixedWeeks
         modifiers={modifiers}
         modifiersClassNames={modifiersClassNames}
-
+        disabled={{ before: new Date() }}
         //navLayout="around"
         components={{ Nav: CustomNav }}
         classNames={{
@@ -131,9 +140,9 @@ const CustomCalendar = ({ events }: CustomCalendarProps) => {
 
       {/* Pass the selected date and the trigger counter */}
       <FormCreateEvent 
-        defaultbeginDate={selected} 
+        defaultbeginDate={selected || new Date()} 
         open={openModalTrigger}
-        setOpen={setOpenModalTrigger} // Use the trigger counter to open/close the modal
+        setOpen={setOpenModalTrigger}
       />
     </div>
   )

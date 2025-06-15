@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { deleteExpense } from "@/lib/actions/expenseActions"
 import ModalFormBase from "@/components/ModalFormBase"
 import { Button } from "@/components/ui/button"
+import { useRouter } from 'next/navigation'
 
 interface ExpenseDeleteDialogProps {
     expenseId: string;
@@ -20,14 +21,12 @@ export default function ExpenseDeleteDialog({
     setOpen
 }: ExpenseDeleteDialogProps) {
     const [isDeleting, setIsDeleting] = useState(false);
+    const router = useRouter();
 
     const handleDelete = async () => {
         setIsDeleting(true);
         try {
-            const response = await deleteExpense(expenseId);
-            if (response.error || !response.success) {
-                throw new Error(response.error || "Error deleting expense");
-            }
+            await deleteExpense(expenseId);
             // First notify parent of successful deletion
             if (onExpenseDeleted) {
                 onExpenseDeleted();
@@ -36,6 +35,7 @@ export default function ExpenseDeleteDialog({
             if (setOpen) {
                 setOpen(false);
             }
+            router.refresh();
         } catch (error) {
             console.error('Error deleting expense:', error);
         } finally {

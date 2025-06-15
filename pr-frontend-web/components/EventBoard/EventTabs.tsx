@@ -9,30 +9,19 @@ import FormCreateExpense from "./FormCreateExpense"
 
 import { ExpenseType, ParticipantType } from "@/lib/types"
 
-// The props have been updated to receive participants with their balance data.
+// The props have been updated to receive participants without balance data.
 interface EventTabsProps {
     expenses: ExpenseType[];
-    participantsWithBalances: (ParticipantType & { balance: number; })[];
+    participants: ParticipantType[];
     eventId: string;
 }
 
 export default function EventTabs({
-    expenses: initialExpenses,
-    participantsWithBalances,
+    expenses,
+    participants,
     eventId,
 }: EventTabsProps) {
-    const [expenses, setExpenses] = useState<ExpenseType[]>(initialExpenses);
     const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
-    const [deleteExpenseId, setDeleteExpenseId] = useState<string | null>(null);
-
-    const handleExpenseCreated = (newExpense: ExpenseType) => {
-        setExpenses(prevExpenses => [newExpense, ...prevExpenses]);
-    };
-
-    const handleExpenseDeleted = () => {
-        // Remove the deleted expense from the list
-        setExpenses(prevExpenses => prevExpenses.filter(expense => expense.id !== deleteExpenseId));
-    };
 
     return (
         <>
@@ -40,13 +29,13 @@ export default function EventTabs({
                 <TabsList className="grid w-full md:w-fit grid-cols-2 bg-transparent gap-2">
                     <TabsTrigger
                         value="gastos"
-                        className="data-[state=active]:bg-primary/20 h-9 md:min-w-40 data-[state=active]:text-primary data-[state=active]:font-bold font-normal text-primary border border-primary rounded-full"
+                        className="cursor-pointer data-[state=active]:bg-primary/20 h-9 md:min-w-40 data-[state=active]:text-primary data-[state=active]:font-bold font-normal text-primary border border-primary rounded-full"
                     >
                         Gastos
                     </TabsTrigger>
                     <TabsTrigger
                         value="participantes"
-                        className="data-[state=active]:bg-primary/20 h-9 md:min-w-40 data-[state=active]:text-primary data-[state=active]:font-bold font-normal text-primary border border-primary rounded-full"
+                        className="cursor-pointer data-[state=active]:bg-primary/20 h-9 md:min-w-40 data-[state=active]:text-primary data-[state=active]:font-bold font-normal text-primary border border-primary rounded-full"
                     >
                         Participantes
                     </TabsTrigger>
@@ -56,22 +45,18 @@ export default function EventTabs({
                     <div className="mt-4">
                         <ExpensesList
                             expenses={expenses}
-                            onExpenseDeleted={handleExpenseDeleted}
-                            participants={participantsWithBalances}
+                            participants={participants}
                             eventId={eventId}
                         />
                     </div>
                 </TabsContent>
                 <TabsContent value="participantes" className="mt-4">
-                    {/* The ParticipantList now receives the correct prop with balance data. */}
-                    <ParticipantList participantsWithBalances={participantsWithBalances} />
+                    <ParticipantList participants={participants} />
                 </TabsContent>
             </Tabs>
 
             <FormCreateExpense
-                // The form receives the participant list. It will use the id and name, ignoring the balance.
-                participants={participantsWithBalances}
-                onExpenseCreated={handleExpenseCreated}
+                participants={participants}
                 open={isExpenseFormOpen}
                 setOpen={setIsExpenseFormOpen}
                 eventId={eventId}

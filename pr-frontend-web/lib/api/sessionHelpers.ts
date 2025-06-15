@@ -7,13 +7,11 @@ import { Session } from "@/lib/types";
 // Helper universal para obtener la sesión, funciona en SSR y server actions
 export async function fetchSessionUniversal(context?: any): Promise<Session | null> {
   try {
-    const response = await callApiWithAuth<any>({
+    const session = await callApiWithAuth<Session>({
       path: "/auth/me",
       method: "GET",
     }, context);
-
-    return response.data as Session;
-
+    return session; // callApiWithAuth ya retorna el data
   } catch (e: any) {
     // Si es un 401 (no autenticado), simplemente retorna null sin loguear
     if (typeof e?.message === "string" && (e.message.includes("401") || e.message.toLowerCase().includes("unauthorized"))) {

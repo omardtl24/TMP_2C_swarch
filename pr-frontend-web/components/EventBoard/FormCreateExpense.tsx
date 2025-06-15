@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronsUpDown, Database } from 'lucide-react'
+import { ChevronsUpDown } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 import {
     Form,
@@ -17,11 +18,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import ModalFormBase from "@/components/ModalFormBase"
-import { ExpenseType, ParticipantType, DataExpense, ExpenseParticipation, ExpenseDetailedType } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import { ExpenseType, ParticipantType, DataExpense, ExpenseParticipation, ExpenseDetailedType, EditExpensePayload } from '@/lib/types'
+import { cn, mapExpenseLabelToEnum } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import { createExpense, editExpense } from '@/lib/actions/expenseActions'
 import { expenseCategories } from '@/lib/utils'
+import { getErrorMessage } from '@/lib/utils/errorHelpers'
 
 // Schema definition for form validation
 const expenseFormSchema = z.object({
@@ -63,7 +65,6 @@ interface FormCreateExpenseProps {
 export default function FormCreateExpense({
     eventId,
     participants,
-    onExpenseCreated,
     modalId = 'createExpense',
     open,
     setOpen,
@@ -88,6 +89,7 @@ export default function FormCreateExpense({
         mode: "onChange",
     });
 
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [formattedTotal, setFormattedTotal] = useState('');
 
@@ -125,41 +127,41 @@ export default function FormCreateExpense({
                 state: 0,
                 portion: totalNumber / values.participants.length,
             }));
+            const participationApiPayload: EditExpensePayload["participation"] = participationPayload.map(({ user_id, ...p }) => ({
+                userId: user_id,
+                ...p,
+            }));
             const expensePayload: DataExpense = {
                 event_id: eventId,
                 concept: values.concept,
                 total: totalNumber,
-                type: values.type,
+                type: mapExpenseLabelToEnum(values.type),
                 payer_id: values.payer_id,
                 participation: participationPayload,
             };
-            let response;
-            if (editMode && initialValues && initialValues.id) {
-                // Call editExpense for edit mode
-                response = await editExpense(initialValues.id, {
-                    concept: values.concept,
-                    total: totalNumber,
-                    type: values.type,
-                    payer_id: values.payer_id,
-                    participation: participationPayload,
-                });
-                if (response.error || response.success !== 'success') {
-                    throw new Error(response.error || "Failed to edit expense");
+            console.log('editMode:', editMode, 'initialValues:', initialValues);
+            if (editMode) {
+                if (initialValues && initialValues.id) {
+                    console.log('Calling editExpense with id:', initialValues.id);
+                    await editExpense(initialValues.id, {
+                        concept: values.concept,
+                        total: totalNumber,
+                        type: mapExpenseLabelToEnum(values.type),
+                        payerId: values.payer_id,
+                        participation: participationApiPayload,
+                    } as EditExpensePayload);
+                } else {
+                    throw new Error('No se puede editar: falta el id del gasto.');
                 }
-                if (onExpenseCreated) onExpenseCreated({ ...(initialValues as any), ...values, total: totalNumber });
             } else {
                 // Create mode
-                response = await createExpense(expensePayload);
-                if (response.error || !response.success) {
-                    throw new Error(response.error || "Failed to create expense");
-                }
-                if (onExpenseCreated && response.data) {
-                    onExpenseCreated(response.data);
-                }
+                await createExpense(expensePayload);
             }
             if (setOpen) setOpen(false);
+            router.refresh();
         } catch (error) {
             console.error("Error submitting form:", error);
+            alert(getErrorMessage(error));
         } finally {
             setLoading(false);
         }
@@ -168,7 +170,7 @@ export default function FormCreateExpense({
     return (
         <ModalFormBase
             id={modalId}
-            title="Nuevo gasto"
+            title={editMode ? "Editar gasto" : "Nuevo gasto"}
             open={open}
             setOpen={setOpen}
             // Additional props for styling...

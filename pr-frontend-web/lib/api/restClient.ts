@@ -37,6 +37,10 @@ export async function restClient<T = unknown>(options: RestClientOptions): Promi
   }
   const res = await fetch(options.url, fetchOptions);
   let json: any = null;
+  if (res.status === 204) {
+    // No Content: acción exitosa pero sin body (ej: DELETE)
+    return undefined as T;
+  }
   try {
     json = await res.json();
   } catch (e) {
@@ -45,7 +49,8 @@ export async function restClient<T = unknown>(options: RestClientOptions): Promi
   }
   if (!res.ok || (json && json.status === "error")) {
     console.log("REST error:", res.status, json, "URL:", options.url);
-    throw new Error(json?.message ? `${json.message} (URL: ${options.url})` : `REST error: ${res.status} (URL: ${options.url})`);
+    throw new Error(json?.message ? `${json.message}` : `REST error: ${res.status}`);
   }
-  return json;
+  // Devuelve solo el campo data si todo fue bien
+  return json.data as T;
 }

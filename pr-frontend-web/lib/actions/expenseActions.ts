@@ -3,15 +3,13 @@ import {
   ExpenseType,
   ExpenseDetailedType,
   DataExpense,
-  ExpenseParticipation,
-  participartionType,
+  EditExpensePayload,
 } from "../types";
 import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
 import { cookies } from "next/headers";
 import { mockEventExpensesResponse} from "../mockData/eventMockData";
 import { mockExpenseDetailResponse } from "../mockData/expenseMockData";
-import { mock } from "node:test";
-
+import { mapExpenseEnumToLabel } from "@/lib/utils";
 
 export async function getAuthToken(): Promise<string | undefined> {
   try {
@@ -25,141 +23,80 @@ export async function getAuthToken(): Promise<string | undefined> {
   }
 }
 
-// Response wrapper types
-export type ExpenseResponse = {
-  success: string;
-  data?: ExpenseType;
-  error?: string;
-};
-
-export type ExpensesResponse = {
-  success: string;
-  data?: ExpenseType[];
-  error?: string;
-};
-
-export type ExpenseDetailedResponse = {
-  success: string;
-  data?: ExpenseDetailedType;
-  error?: string;
-};
-
-export type GeneralMutationResponse = {
-  success: string;
-  message?: string;
-  error?: string;
-};
-// TODO: Change the routes when they are actually defined in the API
-/**
- * Creates a new expense for an event.
- * Corresponds to: createExpense POST
- */
-/* This one explicitly requires participation data, so it is not used in the current implementation.
-export async function createExpense(participationData: participartionType, expenseData: DataExpense): Promise<ExpenseResponse> {
-  try {
-    const data = await callApiWithAuth<ExpenseType>({
-      path: `/api/expenses`,
-      method: "POST",
-      body: { ...participationData, ...expenseData }
-    });
-    return { success: 'success', data };
-  } catch (error) {
-    return { success: 'error', error: error instanceof Error ? error.message : 'Unknown error occurred' };
-  }
+// Crea un gasto
+export async function createExpense(expenseData: DataExpense): Promise<ExpenseType> {
+  // Extraer event_id y preparar el body según el contrato esperado
+  const { event_id, payer_id, participation, ...rest } = expenseData;
+  const body = {
+    ...rest,
+    payerId: payer_id,
+    participation: participation.map(({ user_id, ...p }) => ({
+      userId: user_id,
+      ...p,
+    })),
+  };
+  return await callApiWithAuth<ExpenseType>({
+    path: `/api/group-expenses/events/${event_id}`,
+    method: "POST",
+    body,
+  });
 }
-*/
-export async function createExpense(expenseData: DataExpense): Promise<ExpenseResponse> {
-  try {
-    const data = await callApiWithAuth<ExpenseType>({
-      path: `/api/expenses`,
-      method: "POST",
-      body: expenseData,
-    });
-    return { success: 'success', data };
-  } catch (error) {
-    return { success: 'error', error: error instanceof Error ? error.message : 'Unknown error occurred' };
-  }
-}
-/**
- * Edits an existing expense.
- * Corresponds to: editExpense PATCH
- */
+
+// Edita un gasto
 export async function editExpense(
   expenseId: string,
-  expenseData: Omit<DataExpense, 'event_id'>
-): Promise<GeneralMutationResponse> {
-  try {
-    // The API directive asks for a success/error message on return
-    const data = await callApiWithAuth<{ success: string, message: string }>({
-      path: `/api/expenses/${expenseId}`,
-      method: "PATCH",
-      body: expenseData,
-    });
-    return { success: data.success, message: data.message };
-  } catch (error) {
-    return { success: 'error', error: error instanceof Error ? error.message : 'Unknown error occurred' };
-  }
+  expenseData: EditExpensePayload
+): Promise<{ message: string }> {
+  const data = await callApiWithAuth<{ message: string }>({
+    path: `/api/group-expenses/${expenseId}`,
+    method: "PUT",
+    body: expenseData,
+  });
+  return { message: data.message };
 }
 
-/**
- * Fetches all expenses for a specific event.
- * Corresponds to: fetchEventExpenses GET
- */
-export async function fetchEventExpenses(eventId: string): Promise<ExpensesResponse> {
-  try {
-    //const authToken = token || await getAuthToken();
-        const authToken = await getAuthToken();
-        // If running in generateStaticParams (no auth token available),
-        // return mock data for static generation
-        if (authToken) {
-          console.log("No auth token available, using mock data for static generation");
-          return mockEventExpensesResponse;
-        }
-    const data = await callApiWithAuth<ExpenseType[]>({
+// Obtiene todos los gastos de un evento
+export async function fetchEventExpenses(eventId: string): Promise<ExpenseType[]> {
+  const authToken = await getAuthToken();
+  let expenses: ExpenseType[];
+  if (!authToken) {
+    expenses = mockEventExpensesResponse.data!;
+  } else {
+    expenses = await callApiWithAuth<ExpenseType[]>({
       path: `/api/group-expenses/events/${eventId}`,
       method: "GET",
     });
-    return { success: 'success', data };
-  } catch (error) {
-    return { success: 'error', error: error instanceof Error ? error.message : 'Unknown error occurred' };
   }
+  // Mapear el tipo al formato bonito en cada gasto
+  return expenses.map(exp => ({
+    ...exp,
+    type: mapExpenseEnumToLabel(exp.type),
+  }));
 }
 
-/**
- * Fetches the detailed information for a single expense.
- * Corresponds to: fetchExpenseDetail GET
- */
-export async function fetchExpenseDetail(expenseId: string): Promise<ExpenseDetailedResponse> {
-  try {
-    const authToken = await getAuthToken();
-    
-      if (!authToken) {
-        console.log("No auth token available, using mock data for static generation");
-        return mockExpenseDetailResponse;
-      }
-
-    const data = await callApiWithAuth<ExpenseDetailedType>({
-      path: `/api/expenses/${expenseId}`,
+// Obtiene el detalle de un gasto
+export async function fetchExpenseDetail(expenseId: string): Promise<ExpenseDetailedType> {
+  const authToken = await getAuthToken();
+  let data: ExpenseDetailedType;
+  if (!authToken) {
+    data = mockExpenseDetailResponse.data!;
+  } else {
+    data = await callApiWithAuth<ExpenseDetailedType>({
+      path: `/api/group-expenses/${expenseId}`,
       method: "GET",
     });
-    return { success: 'success', data };
-  } catch (error) {
-    return { success: 'error', error: error instanceof Error ? error.message : 'Unknown error occurred' };
   }
+  // Mapear el tipo al formato bonito
+  return {
+    ...data,
+    type: mapExpenseEnumToLabel(data.type),
+  };
 }
 
-/**
- * Deletes an expense.
- * Corresponds to: deleteExpense DELETE
- */
-export async function deleteExpense(expenseId: string): Promise<GeneralMutationResponse> {
-  try {
-    const data = await callApiWithAuth<{ message: string }>({
-      path: `/api/expenses/${expenseId}`,
-      method: "DELETE",
-    });
-    return { success: 'success', message: data.message };
-  } catch (error) {
-    return { success: 'error', error: error instanceof Error ? error.message : 'Unknown error occurred' };
-  }
+// Elimina un gasto
+export async function deleteExpense(expenseId: string): Promise<void> {
+  await callApiWithAuth<{ message: string }>({
+    path: `/api/group-expenses/${expenseId}`,
+    method: "DELETE",
+  });
 }

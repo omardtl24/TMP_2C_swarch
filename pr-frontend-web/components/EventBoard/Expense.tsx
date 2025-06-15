@@ -18,7 +18,7 @@ interface ExpenseProps {
 const Expense = ({ expense, handleClickExpense, onEdit, onDelete }: ExpenseProps) => {
 
     const { session } = useSession();
-    const isCreator = session?.id === expense.creator_id;
+    const isCreator = String(session?.id) === String(expense.creator_id);
   return (
     <div
       onClick={() => handleClickExpense(expense.id)}
