@@ -32,7 +32,6 @@ export default async function RootLayout({
 }) {
   // Precargar la sesión del servidor para hidratar el cliente
   const initialSession = await fetchSessionUniversal(); 
-  
   return (
     <html lang="en">
       <body

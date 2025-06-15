@@ -67,14 +67,10 @@ async def fetch_events_detail(
                         my_balance += part.get("portion", 0)
             else:
                 pass
-
-    response_json = {
-        "creatorId": event.get("creatorId"),
-        "invitacion_enabled": event.get("invitationEnabled"),
-        "invitationCode": event.get("invitationCode"),
-        "total_expense": total_event,
-        "my_balance": my_balance,
-    }
+    
+    response_json = event.copy()
+    response_json["total_expense"] = total_event
+    response_json["my_balance"] = my_balance
 
     return Response(
         content=json.dumps(response_json),

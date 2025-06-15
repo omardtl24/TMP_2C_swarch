@@ -3,10 +3,8 @@
 export type Session = {
   id: string;
   email: string;
-  username?: string;
-  roles?: string[];
-  exp?: number;
-  [key: string]: unknown;
+  name: string;
+  username: string;
 };
 
 /* old type

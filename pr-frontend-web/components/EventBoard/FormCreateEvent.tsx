@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 
-
 import {
     Form,
     FormControl,
@@ -20,8 +19,6 @@ import { Button } from "@/components/ui/button"
 
 import ModalFormBase from "@/components/ModalFormBase"
 import { createEvent } from '@/lib/actions/eventActions'
-
-
 
 // Schema definition with zod
 const eventFormSchema = z.object({

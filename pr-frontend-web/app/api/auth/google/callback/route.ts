@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
 
-type GoogleCallbackResponse =
-  | {
+type GoogleCallbackResponse = {
       status: "success";
       data: {
         name: string;
@@ -70,7 +69,7 @@ export async function GET(request: Request) {
     // Usuario existente: setea cookie JWT y redirige a eventBoard
     const data = apiResponse.data as Extract<GoogleCallbackResponse, { data: { jwt: string } }>['data'];
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${request.headers.get("x-forwarded-proto") || "http"}://${request.headers.get("host")}`;
-    response = NextResponse.redirect(`${baseUrl}/`);
+    response = NextResponse.redirect(`${baseUrl}/eventBoard`);
     response.cookies.set("jwt", data.jwt, {
       httpOnly: true,
       sameSite: "lax",

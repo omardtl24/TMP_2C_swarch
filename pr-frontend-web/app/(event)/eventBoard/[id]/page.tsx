@@ -16,7 +16,7 @@ export default async function EventDetailPage({
     params: { id: string }
 }) {
     // Get the event ID from the route parameters.
-    const { id } = params;
+    const { id } = await params;
 
     // Fetch the event details, expenses, and participants list in parallel for better performance.
     const [eventResponse, expensesResponse, participantsResponse] = await Promise.all([
@@ -34,8 +34,8 @@ export default async function EventDetailPage({
     // Prepare the data with safe fallbacks to prevent errors if API calls fail.
     const eventDetails = eventResponse.data;
     const expenses = expensesResponse.success ? expensesResponse.data || [] : [];
-    const participants = participantsResponse.success ? participantsResponse.data || [] : [];
 
+    const participants = participantsResponse.success ? participantsResponse.data || [] : [];
     // Create the 'participantsWithBalances' array required by the 'EventTabs' component.
     // A default balance of 0 is added to each participant.
     // We should fetch the actual balances from the API, but for now, we initialize them to 0.
