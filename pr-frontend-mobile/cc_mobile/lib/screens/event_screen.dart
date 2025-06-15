@@ -239,7 +239,7 @@ class EventCard extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   Text(
-                    event.creatorName ?? "Creador",
+                    event.creatorName,
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                   SizedBox(height: 4),

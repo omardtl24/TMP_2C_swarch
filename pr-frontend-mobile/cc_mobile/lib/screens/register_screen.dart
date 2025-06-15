@@ -5,7 +5,7 @@ import 'package:cc_mobile/utils/secure_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:ui';
 import '../themes/app_theme.dart';
-import '../models/response.dart'; // Add this import
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
