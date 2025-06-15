@@ -69,10 +69,8 @@ async def fetch_events_detail(
                 pass
     
     response_json = event.copy()
-    response_json = {
-        "total_expense": total_event,
-        "my_balance": my_balance,
-    }
+    response_json["total_expense"] = total_event
+    response_json["my_balance"] = my_balance
 
     return Response(
         content=json.dumps(response_json),
