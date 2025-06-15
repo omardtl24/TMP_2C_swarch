@@ -182,7 +182,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                 children: [
                   
-                  
+                  Text("Entra a tu cuenta", 
+                    style: TextStyle(
+                      fontSize: 26, 
+                      fontWeight: FontWeight.bold, 
+                      color:  primaryShades[50],
+                    ),
+                  ),
                   Expanded(
                     child: Column(
                       mainAxisAlignment:  MainAxisAlignment.end,
@@ -194,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               backgroundColor: Colors.white,
                               foregroundColor: Colors.black87,
                               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                              side: BorderSide(color: primaryShades[40]!.withOpacity(0.7), width: 1.5),
+                              side: BorderSide(color: primaryShades[40]!.withValues(alpha: 0.7), width: 1.5),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
@@ -225,11 +231,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                           ),
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: 16),
                         RichText(
                           text: TextSpan(
                             text: '¿No tienes cuenta? Registrate ahora',
-                            style: TextStyle(color: Colors.black54, fontSize: 16),
+                            style: TextStyle(color: primaryShades[70], fontSize: 16 , fontWeight: FontWeight.bold),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
                                 Navigator.pushNamed(context, '/register');

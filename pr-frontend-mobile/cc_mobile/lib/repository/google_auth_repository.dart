@@ -111,4 +111,16 @@ class GoogleAuthRepository extends GoogleAuthRepositoryInterface {
   Future<void> clearRegisterToken() async {
     await SecureStorage.instance.delete(key: 'register_token');
   }
+
+  Future<void> logOut() async {
+    try {
+      await _googleSignIn.signOut();
+      await SecureStorage.instance.delete(key: 'jwt');
+      await SecureStorage.instance.delete(key: 'register_token');
+      await SecureStorage.instance.delete(key: 'register_email');
+    } catch (e) {
+      print('Error al cerrar sesión: $e');
+    }
+  }
+
 }

@@ -2,7 +2,7 @@
 <!-- Required to fetch data from the internet. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="cc_mobile"
+        android:label="Cuentas Claras"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

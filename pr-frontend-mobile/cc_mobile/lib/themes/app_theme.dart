@@ -21,7 +21,7 @@ const Map<int, Color> primaryShades = {
   100: Color(0xFFFFFFFF),
 };
 
-const MaterialColor primarySwatch = MaterialColor(0xFF8653FF, {
+const MaterialColor primarySwatch = MaterialColor(0xFF6E26F5, {
   50: Color(0xFFE9DDFF),
   100: Color(0xFFF6EEFF),
   200: Color(0xFFCFBCFF),
