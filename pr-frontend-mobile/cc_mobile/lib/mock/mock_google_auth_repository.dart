@@ -1,7 +1,7 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import '../models/user_model.dart';
 import '../repository/google_auth_repository.dart';
-import '../models/auth_response.dart'; // Make sure this import exists
+import '../models/response.dart'; // Updated import
 
 
 
@@ -17,7 +17,7 @@ class MockGoogleAuthRepository implements GoogleAuthRepositoryInterface {
       
 
   @override
-  Future<AuthResponse<UserModel>> signInWithGoogle() async {
+  Future<Response<UserModel>> signInWithGoogle() async {
     
 
  
@@ -30,26 +30,26 @@ class MockGoogleAuthRepository implements GoogleAuthRepositoryInterface {
       username: "juanda",
       // cualquier otro campo...
     );
-    return AuthResponse<UserModel>.success(user);
+    return Response<UserModel>.success(user);
   }
   
   
   @override
-  Future<AuthResponse<void>> clearRegisterToken() async {
+  Future<Response<void>> clearRegisterToken() async {
     // TODO: implement clearRegisterToken
-    return AuthResponse<void>.success(null); // Mock response
+    return Response<void>.success(null); // Mock response
   }
   
   @override
-  Future<AuthResponse<bool>> hasRegisterToken() async {
+  Future<Response<bool>> hasRegisterToken() async {
     // TODO: implement hasRegisterToken
-    return AuthResponse<bool>.success(true); // Mock response
+    return Response<bool>.success(true); // Mock response
   }
   
   @override
-  Future<AuthResponse<bool>> registerUser({required String email, required String username}) async {
+  Future<Response<bool>> registerUser({required String email, required String username}) async {
     // TODO: implement registerUser
-    return AuthResponse<bool>.success(true); // Mock response
+    return Response<bool>.success(true); // Mock response
   }
 
   /// Decodifica el payload JWT para extraer claims

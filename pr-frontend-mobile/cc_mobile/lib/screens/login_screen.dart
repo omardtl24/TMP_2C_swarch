@@ -7,6 +7,7 @@ import '../services/auth_service.dart';
 import '../utils/secure_storage.dart';
 import 'dart:ui';
 import '../themes/app_theme.dart';
+import '../models/response.dart'; // Add this import
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -49,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final jwt = await SecureStorage.instance.read(key: 'jwt');
         if (jwt != null) {
           context.read<Session>().updateSession(user: response.data!, jwt: jwt);
-          Navigator.pushReplacementNamed(context, '/stats');
+          Navigator.pushReplacementNamed(context, '/event');
         } else {
           setState(() {
             _errorMessage = 'Error al obtener token de autenticación';

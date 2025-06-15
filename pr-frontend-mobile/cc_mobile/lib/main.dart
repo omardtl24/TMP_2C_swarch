@@ -1,6 +1,6 @@
+import 'package:cc_mobile/screens/event_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
-import 'screens/stats_screen.dart';
 import 'screens/register_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/login': (context) => LoginScreen(),
-        '/stats': (context) => StatsScreen(),
+        '/event': (context) => EventScreen(),
         '/register': (context) => RegisterScreen(key: const ValueKey('register_screen')),
       },
     );

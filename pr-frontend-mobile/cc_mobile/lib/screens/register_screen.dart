@@ -5,6 +5,7 @@ import 'package:cc_mobile/utils/secure_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:ui';
 import '../themes/app_theme.dart';
+import '../models/response.dart'; // Add this import
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -127,7 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final jwt = await SecureStorage.instance.read(key: 'jwt');
         if (jwt != null && response.data != null) {
           // ignore: use_build_context_synchronously
-          Navigator.pushReplacementNamed(context, '/stats');
+          Navigator.pushReplacementNamed(context, '/event');
         }
       } else {
         setState(() {

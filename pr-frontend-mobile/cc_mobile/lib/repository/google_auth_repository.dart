@@ -2,12 +2,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cc_mobile/services/auth_service.dart';
 import 'package:cc_mobile/models/user_model.dart';
 import 'package:cc_mobile/utils/secure_storage.dart';
-import 'package:cc_mobile/models/auth_response.dart';
+import 'package:cc_mobile/models/response.dart';
 
 abstract class GoogleAuthRepositoryInterface {
-  Future<AuthResponse<UserModel>> signInWithGoogle();
-  Future<AuthResponse<bool>> hasRegisterToken();
-  Future<AuthResponse<bool>> registerUser({
+  Future<Response<UserModel>> signInWithGoogle();
+  Future<Response<bool>> hasRegisterToken();
+  Future<Response<bool>> registerUser({
     required String email,
     required String username,
   });
@@ -24,49 +24,49 @@ class GoogleAuthRepository extends GoogleAuthRepositoryInterface {
   GoogleAuthRepository({ AuthService? authService}) : _authService = authService ?? AuthService();
 
   @override
-  Future<AuthResponse<UserModel>> signInWithGoogle() async {
+  Future<Response<UserModel>> signInWithGoogle() async {
     try {
       final account = await _googleSignIn.signIn();
       if (account == null) {
-        return AuthResponse.error('Inicio de sesión cancelado por el usuario');
+        return Response.error('Inicio de sesión cancelado por el usuario');
       }
 
       final String? code = account.serverAuthCode;
       if (code == null) {
-        return AuthResponse.error('No se recibió el código de autenticación');
+        return Response.error('No se recibió el código de autenticación');
       }
 
       final responseData = await _authService.authenticateInBackend(code);
       
-      if (responseData.containsKey('jwsst')) {
+      if (responseData.containsKey('jwt')) {
         print('RESPONSE DATA: $responseData');
         final user = UserModel.fromJson(responseData['user']);
         final jwt = responseData['jwt'];
         await SecureStorage.instance.write(key: 'jwt', value: jwt);
 
-        return AuthResponse.success(user);
-      } else if (responseData.containsKey('register_tokenss')) {
+        return Response.success(user);
+      } else if (responseData.containsKey('register_token')) {
         final registerToken = responseData['register_token'];
         await SecureStorage.instance.write(key: 'register_token', value: registerToken);
-        return AuthResponse.error('Se requiere registro');
+        return Response.error('Se requiere registro');
       } else {
-        return AuthResponse.error('Respuesta inesperada del servidor');
+        return Response.error('Respuesta inesperada del servidor');
       }
     } catch (e) {
       print('Error en GoogleAuthRepository: $e');
-      return AuthResponse.error('Error de conexión: ${e.toString()}');
+      return Response.error('Error de conexión: ${e.toString()}');
     }
   }
 
   @override
-  Future<AuthResponse<bool>> registerUser({
+  Future<Response<bool>> registerUser({
     required String email,
     required String username,
   }) async {
     try {
       final registerToken = await SecureStorage.instance.read(key: 'register_token');
       if (registerToken == null) {
-        return AuthResponse.error('No se encontró token de registro');
+        return Response.error('No se encontró token de registro');
       }
       print('Token de registro: $registerToken');
       final response = await _authService.registerUserInBackend(
@@ -82,28 +82,28 @@ class GoogleAuthRepository extends GoogleAuthRepositoryInterface {
         
         await SecureStorage.instance.delete(key: 'register_token');
         await SecureStorage.instance.delete(key: 'register_email');
-        return AuthResponse.success(true);
+        return Response.success(true);
       } else {
         String errorMsg = 'Error en el registro';
         if (response.containsKey('message')) {
           errorMsg = response['message'];
         }
-        return AuthResponse.error(errorMsg);
+        return Response.error(errorMsg);
       }
     } catch (e) {
       print('Error en registro de usuario: $e');
-      return AuthResponse.error('Error al procesar el registro: ${e.toString()}');
+      return Response.error('Error al procesar el registro: ${e.toString()}');
     }
   }
 
   @override
-  Future<AuthResponse<bool>> hasRegisterToken() async {
+  Future<Response<bool>> hasRegisterToken() async {
     try {
       final token = await SecureStorage.instance.read(key: 'register_token');
-      return AuthResponse.success(token != null);
+      return Response.success(token != null);
     } catch (e) {
       print('Error al verificar token de registro: $e');
-      return AuthResponse.error('Error al verificar estado de registro');
+      return Response.error('Error al verificar estado de registro');
     }
   }
 

@@ -42,7 +42,7 @@ class AuthService {
 
     final responseJson = jsonDecode(response.body);
     print('Response del registro en el servicio: $responseJson');
-    if (response.statusCode == 200 ) {
+    if (responseJson['status'] == 'success') {
       return responseJson;
     } else {
       final error = responseJson['message'] ?? 'Error desconocido en el registro';
