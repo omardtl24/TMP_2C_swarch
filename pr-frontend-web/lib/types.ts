@@ -129,4 +129,18 @@ export type EditExpensePayload = {
   }[];
 };
 
+export type PersonalExpenseType = {
+  id: string;
+  concept: string;
+  type: string;
+  total: number;
+  date: string; // ISO format date string
+};
+
+export type EditPersonalExpensePayload = {
+  concept: string;
+  type: string;
+  total: number;
+  date: string; // ISO format date string
+};
 

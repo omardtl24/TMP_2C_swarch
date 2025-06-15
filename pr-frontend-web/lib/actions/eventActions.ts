@@ -3,18 +3,7 @@
 import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
 import { mockEventDetailResponse, mockEventParticipantsResponse } from "../mockData/eventMockData";
 import { EventDetailType, EventType, ParticipantType, CreateEventData } from "../types";
-import { cookies } from "next/headers";
-
-// Obtiene el token JWT de las cookies
-export async function getAuthToken(): Promise<string | undefined> {
-  try {
-    const cookieStore = await cookies();
-    return cookieStore.get('jwt')?.value;
-  } catch {
-    console.log("Cookie access error - likely outside request context");
-    return undefined;
-  }
-}
+import { getAuthToken } from "@/lib/api/authTokenHelper";
 
 // Obtiene todos los eventos del usuario
 export async function fetchEvents(): Promise<EventType[]> {

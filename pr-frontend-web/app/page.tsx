@@ -61,7 +61,7 @@ export default function HomePage() {
             </button>
             <button
               className="px-8 py-3 bg-green-600 text-white rounded-lg text-lg font-semibold shadow hover:bg-green-700 transition"
-              //onClick={() => }
+              onClick={() => router.push(`/personalExpenses`)}
             >
               Gastos Personales
             </button>
