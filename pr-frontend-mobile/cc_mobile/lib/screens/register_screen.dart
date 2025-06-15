@@ -34,6 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
+        duration: Duration(seconds: 5),
         action: SnackBarAction(
           label: 'OK',
           textColor: Colors.white,

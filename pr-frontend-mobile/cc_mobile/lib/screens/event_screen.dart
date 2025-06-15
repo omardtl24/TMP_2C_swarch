@@ -32,6 +32,7 @@ class _EventScreenState extends State<EventScreen> {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
+        duration: Duration(seconds: 5),
         action: SnackBarAction(
           label: 'OK',
           textColor: Colors.white,
