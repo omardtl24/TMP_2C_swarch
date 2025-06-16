@@ -3,6 +3,7 @@ import 'package:cc_mobile/dataSource/auth_data_source.dart';
 import 'package:cc_mobile/models/user_model.dart';
 import 'package:cc_mobile/utils/secure_storage.dart';
 import 'package:cc_mobile/models/response.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 abstract class GoogleAuthRepositoryInterface {
   Future<Response<UserModel>> signInWithGoogle();
@@ -18,7 +19,7 @@ class GoogleAuthRepository extends GoogleAuthRepositoryInterface {
   final AuthDataSource _authDataSource;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'openid'],
-    serverClientId: '414832951377-d9t6vqebm0ov63njffrga981ooie637n.apps.googleusercontent.com',
+    serverClientId: dotenv.env['GOOGLE_CLIENT_ID'] ?? '',
   );
 
   GoogleAuthRepository({ AuthDataSource? authDataSource}) : _authDataSource = authDataSource ?? AuthDataSource();
