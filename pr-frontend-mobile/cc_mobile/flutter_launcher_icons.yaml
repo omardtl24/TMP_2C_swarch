@@ -1,0 +1,10 @@
+flutter_launcher_icons:
+  image_path: "assets/images/CuentasClaras.png"
+  android: true
+  ios: true
+  web:
+    generate: true
+  windows:
+    generate: true
+  macos:
+    generate: true
