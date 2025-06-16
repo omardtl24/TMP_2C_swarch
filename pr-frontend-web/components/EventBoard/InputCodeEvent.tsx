@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { joinEvent } from "@/lib/actions/eventActions";
 import { useRouter } from "next/navigation";
+import { getErrorMessage } from "@/lib/utils/errorHelpers";
 
 const InputCodeEvent = () => {
     const [code, setCode] = useState<string>("");
@@ -25,18 +26,12 @@ const InputCodeEvent = () => {
         try {
             setLoading(true);
             setError(null);
-            const response = await joinEvent(code);
-            console.log("response", response);
-            
-            if (response.success) {
-                // Redirect to the event page if join was successful
-                router.push(`/eventBoard/${response.data?.id}`);
-            } else {
-                setError(response.error || "No se pudo unir al evento");
-            }
+            await joinEvent(code);
+            router.refresh(); // Forzar refresh para que SSR traiga el nuevo evento
+            setCode(""); // Limpiar input tras éxito
         } catch (err) {
             console.error("Error joining event:", err);
-            setError("Ocurrió un error al unirse al evento");
+            setError(getErrorMessage(err, "Ocurrió un error al unirse al evento"));
         } finally {
             setLoading(false);
         }

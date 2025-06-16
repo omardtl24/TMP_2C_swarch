@@ -13,20 +13,30 @@ export async function callApiWithAuth<T = unknown>(
   options: Omit<RestClientOptions, "url" | "headers"> & { path: string; headers?: Record<string, string> },
   context?: UniversalContext
 ): Promise<T> {
-  const apiGateway = process.env.API_GATEWAY || "";
+  const apiGateway = process.env.API_GATEWAY_URL || "";
   const url = `${apiGateway}${options.path}`;
   let cookieHeader = "";
+  let jwt = "";
   if (context?.req?.headers?.cookie) {
     cookieHeader = context.req.headers.cookie;
+    // Extraer jwt de la cookie manualmente
+    const match = cookieHeader.match(/(?:^|; )jwt=([^;]*)/);
+    if (match) jwt = match[1];
   } else {
-    cookieHeader = cookies().toString();
+    const cookieStore = await cookies();
+    cookieHeader = cookieStore.toString();
+    jwt = cookieStore.get("jwt")?.value || "";
+  }
+  const headers: Record<string, string> = {
+    ...(options.headers || {}),
+    Cookie: cookieHeader,
+  };
+  if (jwt) {
+    headers["Authorization"] = `Bearer ${jwt}`;
   }
   return restClient<T>({
     ...options,
     url,
-    headers: {
-      ...(options.headers || {}),
-      Cookie: cookieHeader,
-    },
+    headers,
   });
 }

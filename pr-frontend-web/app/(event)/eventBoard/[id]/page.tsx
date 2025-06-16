@@ -1,64 +1,61 @@
 import EventHeader from "@/components/EventBoard/EventHeader"
 import EventTabs from "@/components/EventBoard/EventTabs"
-import { 
+import {
     fetchEventDetail,
     participantsEvent
 } from "@/lib/actions/eventActions"
-import { fetchEventBalances, fetchEventExpenses, getSumExpensesByEvent } from "@/lib/actions/expenseActions"
+import { fetchEventExpenses } from "@/lib/actions/expenseActions"
 import { notFound } from "next/navigation"
 
-
-// Force server-side rendering for this page
+// Force this page to be dynamically rendered, ensuring it fetches fresh data on every request.
 export const dynamic = 'force-dynamic'
 
 export default async function EventDetailPage({
     params,
 }: {
-    params: { id: string }
+    params: Promise<{ id: string }>
 }) {
-    // Get auth token for authenticated requests
-    const { id } = await params; // Fixed: Remove unnecessary await
-    
-    // Fetch the specific event using the ID from the route params
-    const eventResponse = await fetchEventDetail(id);
+    // Get the event ID from the route parameters.
+    const { id } = await params;
 
-    // Handle error states appropriately
-    if (!eventResponse.success || !eventResponse.data) {
-        console.error("Failed to fetch event:", eventResponse.error);
+    // Fetch the event details, expenses, and participants list in parallel for better performance.
+    let eventDetails, expenses, participants;
+    try {
+        [eventDetails, expenses, participants] = await Promise.all([
+            fetchEventDetail(id),
+            fetchEventExpenses(id),
+            participantsEvent(id)
+        ]);
+        console.log("fetchEventExpenses:", expenses);
+    } catch (error) {
+        console.error("Failed to fetch event data:", error);
         notFound();
     }
 
-    const eventDetails = eventResponse.data;
+    if (!eventDetails) {
+        notFound();
+    }
 
-    // Fetch expenses for this event using GraphQL
-    const expensesResponse = await fetchEventExpenses(id);
-    const expenses = expensesResponse.success ? expensesResponse.data || [] : [];
+    // Ensure eventDetails has the required properties, using defaults if necessary
+    if (eventDetails) {
+      eventDetails = {
+        ...eventDetails,
+        id: eventDetails.id || id, // Usa el id de la ruta si no viene
+        name: eventDetails.name || "Evento sin nombre", // Valor por defecto
+      };
+    }
 
-    // Fetch participants already formatted for UI
-    const participantsResponse = await participantsEvent(id);
-    const participants = participantsResponse.success ? participantsResponse.data || [] : [];
-    const totalSum = await getSumExpensesByEvent(id);
-
-    const BalanceParticipants = await fetchEventBalances(id)
-    console.log("Balance participants response:", BalanceParticipants);
-    
     return (
         <div className="w-full h-full">
-            <EventHeader 
-                name={eventDetails.name} 
-                creatorId={eventDetails.creatorId} 
-                code={eventDetails.invitationCode} 
-                eventId={eventDetails.id}
-                total={totalSum.data}
-                balance={BalanceParticipants.data}
+            <EventHeader
+                event={eventDetails}
+                participants={participants}
             />
             <div className="px-4 md:px-16 mt-4 space-y-4 ">
-                <EventTabs 
-                    expenses={expenses} 
-                    BalanceParticipants={BalanceParticipants} 
-                    eventId={eventDetails.id} 
-                    participants={participants}
-                    
+                <EventTabs
+                    expenses={expenses || []}
+                    participants={participants || []}
+                    eventId={eventDetails.id}
                 />
             </div>
         </div>

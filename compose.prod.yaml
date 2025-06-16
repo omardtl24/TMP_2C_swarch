@@ -1,13 +1,171 @@
-# docker compose -f compose.prod.yaml up --build
-
 services:
-  frontend:
-    container_name: frontend
+
+# Presentation Layer
+  pr-frontend-web:
+    container_name: pr-frontend-web
     build:
-      context: ./frontend
+      context: ./pr-frontend-web
       dockerfile: prod.Dockerfile
     ports:
       - "3000:3000"
-    restart: always
+    volumes:
+      - ./pr-frontend-web/app:/app/app
+      - ./pr-frontend-web/public:/app/public
     env_file:
-      - ./frontend/.env.local
+      - ./pr-frontend-web/.env
+    restart: unless-stopped
+
+# Communication Layer
+  cm-apigateway-orch:
+    container_name: cm-apigateway-orch
+    build:
+      context: ./cm-apigateway-orch
+      dockerfile: Dockerfile
+    ports:
+        - "8000:8000"
+    env_file:
+      - ./cm-apigateway-orch/.env
+    restart: unless-stopped
+
+  cm-broker-mq:
+    image: rabbitmq:3-management
+    container_name: cm-broker-mq
+    ports:
+      - "5672:5672"    # Protocolo AMQP (advanced message queing protocol)
+      - "15672:15672"  # Consola de administración
+    env_file:
+      - ./cm-broker-mq/.env  
+    restart: unless-stopped
+
+# Logic Layer (business logic microservices)
+  lg-users-ms:
+    container_name: lg-users-ms
+    build:
+      context: ./lg-users-ms
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    env_file:
+      - ./lg-users-ms/.env
+    depends_on:
+      - data-users-db
+    restart: unless-stopped
+
+  lg-events-ms:
+    container_name: lg-events-ms
+    build:
+      context: ./lg-events-ms
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    env_file:
+      - ./lg-events-ms/.env
+    depends_on:
+      - data-groupexpenses-db
+      - data-events-db
+    restart: unless-stopped
+
+  lg-personalexpenses-ms:
+    container_name: lg-personalexpenses-ms
+    build:
+      context: ./lg-personalexpenses-ms
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    env_file:
+      - ./lg-personalexpenses-ms/.env
+    depends_on:
+      - data-personalexpenses-db
+      - cm-broker-mq
+    restart: unless-stopped
+
+  lg-groupexpenses-ms:
+    container_name: lg-groupexpenses-ms
+    build:
+      context: ./lg-groupexpenses-ms
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    env_file:
+      - ./lg-groupexpenses-ms/.env
+    depends_on:
+      - data-groupexpenses-db
+      - data-events-db
+      - cm-broker-mq
+    restart: unless-stopped
+
+# Database Layer
+  data-groupexpenses-db:
+    container_name: data-groupexpenses-db
+    build:
+      context: ./data-groupexpenses-db
+      dockerfile: Dockerfile
+    ports:
+      - "27017:27017"
+    env_file:
+      - ./data-groupexpenses-db/.env
+    volumes:
+      - data-groupexpenses-db:/data/db
+    restart: unless-stopped
+
+  data-users-db:
+    container_name: data-users-db
+    build:
+      context: ./data-users-db
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./data-users-db/.env
+    volumes:
+      - data-users-db:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  data-events-db:
+    container_name: data-events-db
+    build:
+      context: ./data-events-db
+      dockerfile: Dockerfile
+    ports:
+      - "5433:5432"
+    env_file:
+      - ./data-events-db/.env
+    volumes:
+      - data-events-db:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  data-personalexpenses-db:
+    container_name: data-personalexpenses-db
+    build:
+      context: ./data-personalexpenses-db
+      dockerfile: Dockerfile
+    ports:
+      - "5434:5432"
+    env_file:
+      - ./data-personalexpenses-db/.env
+    volumes:
+      - data-personalexpenses-db:/var/lib/postgresql/data
+    restart: unless-stopped
+
+# Adminer UI
+  adminer:
+    container_name: adminer
+    image: adminer
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+    depends_on:
+      - data-events-db
+      - data-users-db
+      - data-personalexpenses-db
+
+# Volumes
+volumes:
+  data-groupexpenses-db:
+    driver: local
+  data-users-db:
+    driver: local
+  data-events-db:
+    driver: local
+  data-personalexpenses-db:
+    driver: local

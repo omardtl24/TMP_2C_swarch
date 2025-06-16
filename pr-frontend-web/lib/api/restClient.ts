@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Centralized REST client for SSR y browser
 // Espera que le pases el endpoint completo (url) y los headers (incluyendo Cookie si aplica)
 // Ahora solo espera url absoluta y headers, sin lógica de API_GATEWAY ni cookies
 
 export type RestClientOptions = {
   url: string; // endpoint completo
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   body?: unknown;
   headers?: Record<string, string>;
   credentials?: "include" | "omit" | "same-origin";
@@ -18,6 +19,16 @@ export async function restClient<T = unknown>(options: RestClientOptions): Promi
       ...(options.headers || {}),
     },
   };
+  // Convert headers to a mutable object for manipulation
+  const headersObj = { ...(fetchOptions.headers as Record<string, string>) };
+  // Si el header Authorization no está y hay jwt en Cookie, lo agregamos
+  if (!headersObj["Authorization"] && headersObj["Cookie"]) {
+    const match = headersObj["Cookie"].match(/(?:^|; )jwt=([^;]*)/);
+    if (match) {
+      headersObj["Authorization"] = `Bearer ${match[1]}`;
+    }
+  }
+  fetchOptions.headers = headersObj;
   if (options.body) {
     fetchOptions.body = JSON.stringify(options.body);
   }
@@ -25,6 +36,21 @@ export async function restClient<T = unknown>(options: RestClientOptions): Promi
     fetchOptions.credentials = options.credentials;
   }
   const res = await fetch(options.url, fetchOptions);
-  if (!res.ok) throw new Error(`REST error: ${res.status}`);
-  return res.json();
+  let json: any = null;
+  if (res.status === 204) {
+    // No Content: acción exitosa pero sin body (ej: DELETE)
+    return undefined as T;
+  }
+  try {
+    json = await res.json();
+  } catch (e) {
+    console.log("Error parsing JSON response:", e, "URL:", options.url);
+    throw new Error("Respuesta del backend no es JSON válido");
+  }
+  if (!res.ok || (json && json.status === "error")) {
+    console.log("REST error:", res.status, json, "URL:", options.url);
+    throw new Error(json?.message ? `${json.message}` : `REST error: ${res.status}`);
+  }
+  // Devuelve solo el campo data si todo fue bien
+  return json.data as T;
 }

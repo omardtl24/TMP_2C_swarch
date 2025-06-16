@@ -1,14 +1,44 @@
 "use client";
 
+import { Suspense } from "react";
 import CuentasClarasIcon from "@/components/Icons/CuentasClarasIcon";
 import RegisterLoginButton from "@/components/Register/RegisterLoginButton";
 import { Button } from "@/components/ui/button";
 import { useSearchParams, useRouter } from "next/navigation";
 
 export default function LoginPage() {
+	return (
+		<Suspense>
+			<LoginPageContent />
+		</Suspense>
+	);
+}
+
+function LoginPageContent() {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const error = searchParams.get("error") || "";
+
+	function getErrorMessage(error: string) {
+		switch (error) {
+			case "oauth2":
+				return "Hubo un problema al iniciar sesión con Google. Intenta de nuevo o contacta soporte.";
+			case "csrf":
+				return "Por seguridad, tu sesión de Google expiró o fue manipulada. Intenta iniciar sesión nuevamente.";
+			case "oauth":
+				return "No se pudo completar el inicio de sesión con Google. Intenta de nuevo.";
+			case "invalid_credentials":
+				return "Correo o contraseña incorrectos.";
+			case "user_not_found":
+				return "No existe una cuenta asociada a ese correo.";
+			case "account_disabled":
+				return "Tu cuenta está deshabilitada. Contacta soporte.";
+			default:
+				return null;
+		}
+	}
+
+	const errorMessage = getErrorMessage(error);
 
 	return (
 		<div className="h-full flex flex-col md:flex-row">
@@ -32,10 +62,10 @@ export default function LoginPage() {
 					Entra a tu cuenta
 				</h2>
 
-				{/* Mensaje de error OAuth2 */}
-				{error === "oauth2" && (
+				{/* Mensaje de error OAuth2 y otros */}
+				{errorMessage && (
 					<div className="mb-4 p-3 bg-red-100 border border-red-400 rounded text-red-900 text-center max-w-md">
-						<strong>Error:</strong> Hubo un problema al iniciar sesión con Google. Intenta de nuevo o contacta soporte.
+						<strong>Error:</strong> {errorMessage}
 					</div>
 				)}
 
