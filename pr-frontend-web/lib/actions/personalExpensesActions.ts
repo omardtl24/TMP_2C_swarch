@@ -21,7 +21,7 @@ export async function createPersonalExpense(expenseData: PersonalExpenseType): P
   };
   
   return await callApiWithAuth<PersonalExpenseType>({
-    path: `/api/personal-expenses`,
+    path: `/personal-expenses`,
     method: "POST",
     body,
   });
@@ -32,7 +32,7 @@ export async function editPersonalExpense(
   expenseData: EditPersonalExpensePayload
 ): Promise<{ message: string }> {
   const data = await callApiWithAuth<{ message: string }>({
-    path: `/api/personal-expenses/${expenseId}`,
+    path: `/personal-expenses/${expenseId}`,
     method: "PUT",
     body: expenseData,
     });
@@ -47,7 +47,7 @@ export async function fetchPersonalExpenses(): Promise<PersonalExpenseType[]> {
   }
   
   expenses = await callApiWithAuth<PersonalExpenseType[]>({
-    path: `/api/personal-expenses/all`,
+    path: `/personal-expenses/all`,
     method: "GET",
   });
   return expenses.map(exp => ({
@@ -58,7 +58,7 @@ export async function fetchPersonalExpenses(): Promise<PersonalExpenseType[]> {
 
  export async function deletePersonalExpense(expenseId: string): Promise<void> {
     await callApiWithAuth<{ message: string }>({
-        path: `/api/personal-expenses/${expenseId}`,
+        path: `/personal-expenses/${expenseId}`,
         method: "DELETE",
     });
 }

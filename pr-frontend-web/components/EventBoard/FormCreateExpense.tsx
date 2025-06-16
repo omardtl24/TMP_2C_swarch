@@ -104,7 +104,10 @@ export default function FormCreateExpense({
                 setFormattedTotal(
                     numericValue
                         ? Number(numericValue).toLocaleString('es-CO', {
-                            style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0
+                            style: 'currency', 
+                            currency: 'COP', 
+                            minimumFractionDigits: 0, 
+                            maximumFractionDigits: 0
                         })
                         : ''
                 );
@@ -191,8 +194,6 @@ export default function FormCreateExpense({
                             </FormItem>
                         )}
                     />
-
-                    {/* Total Field */}
                     <FormField
                         control={form.control}
                         name="total"

@@ -1,20 +1,20 @@
-import EventHeader from "@/components/EventBoard/EventHeader"
-import EventTabs from "@/components/EventBoard/EventTabs"
-import {
-    fetchEventDetail,
-    participantsEvent
-} from "@/lib/actions/eventActions"
-import { fetchEventExpenses } from "@/lib/actions/expenseActions"
+
+import { fetchPersonalExpenses } from "@/lib/actions/personalExpensesActions";
+import { PersonalExpenseType } from "@/lib/types";
 import { notFound } from "next/navigation"
+import PersonalExpensesPageClient from "./PersonalExpensesClient";
 
 // Force this page to be dynamically rendered, ensuring it fetches fresh data on every request.
 export const dynamic = 'force-dynamic'
 
-export default async function personalExpensesPage() {
+export default async function PersonalExpensesPage() {
+  let expenses: PersonalExpenseType[] = [];
+  try {
+    expenses = await fetchPersonalExpenses();
+  } catch (e) {
+    console.error("Error fetching personal expenses:", e);
+    notFound(); // Redirect to 404 if there's an error
+  }
 
-    return (
-        <div className="w-full h-full">
-            
-        </div>
-    )
+  return <PersonalExpensesPageClient expenses={expenses} />;
 }

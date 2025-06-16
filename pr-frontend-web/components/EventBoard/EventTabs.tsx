@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import AddExpenseButton from "./AddExpenesButton"
+import AddExpenseButton from "./AddExpensesButton"
 import ExpensesList from "./ExpensesList"
 import ParticipantList from "./ParticipantList"
 import FormCreateExpense from "./FormCreateExpense"
