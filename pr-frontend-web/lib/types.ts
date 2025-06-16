@@ -38,20 +38,27 @@ export type ExpenseType = {
 }
 */
 export type EventType = {
-  id: string
+  id: string;
   name: string;
   description: string;
-  begin_date: Date;
-  end_date: Date;
-}
+  // begin_date y end_date pueden ser Date o string según el backend
+  begin_date?: Date | string;
+  end_date?: Date | string;
+};
 
-export type EventDetailType = EventType & {
+export type EventDetailType = {
+  id: string;
+  name: string;
+  description: string;
   creator_id: string;
-  invitacion_enabled: boolean; // bro invitacion or invitation, left as per the docs xd
+  invitation_enabled: boolean;
   invitation_code: string | null;
   total_expense: number;
-  my_balance: number
-}
+  my_balance: number;
+  // begin_date y end_date pueden venir si el backend los envía
+  begin_date?: Date | string;
+  end_date?: Date | string;
+};
 
 export type CreateEventData = {
   name: string;
@@ -61,7 +68,7 @@ export type CreateEventData = {
 };
 
 export type ExpenseType = {
-  creator_id: string,
+  creator_id: string;
   id: string;
   concept: string;
   total: number;
@@ -69,16 +76,25 @@ export type ExpenseType = {
   payer_id: string;
   payer_name: string;
 };
+
 export type ExpenseParticipation = {
   user_id: string;
   state: number;
   portion: number;
-}
+};
 
-export type ExpenseDetailedType = ExpenseType & {
+export type ExpenseDetailedType = {
+  // id puede no venir en el detalle, lo dejamos opcional
+  id?: string;
+  concept: string;
+  total: number;
+  type: string;
+  payer_id: string;
+  payer_name: string;
+  creator_id: string;
   participation: ExpenseParticipation[];
   support_image_id?: string;
-}
+};
 
 export type ParticipantType = {
   participant_id: string;
@@ -100,4 +116,31 @@ export type DataExpense = {
   participation: participartionType[];
 };
 
+// Payload para editar un gasto (PUT)
+export type EditExpensePayload = {
+  concept: string;
+  total: number;
+  type: string;
+  payerId: string;
+  participation: {
+    userId: string;
+    state: number;
+    portion: number;
+  }[];
+};
+
+export type PersonalExpenseType = {
+  id: string;
+  concept: string;
+  type: string;
+  total: number;
+  date: string;
+};
+
+export type EditPersonalExpensePayload = {
+  concept: string;
+  type: string;
+  total: number;
+  date: string;
+};
 

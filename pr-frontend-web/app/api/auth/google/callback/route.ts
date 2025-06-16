@@ -2,33 +2,25 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
 
-type GoogleCallbackResponse = {
-      status: "success";
-      data: {
-        name: string;
-        email: string;
-        register_token: string;
-        message: string;
-      };
-    }
-  | {
-      status: "success";
-      data: {
-        jwt: string;
-        user: {
-          id: number;
-          email: string;
-          username: string;
-          name: string;
-        };
-        message: string;
-      };
-    }
-  | {
-      status: string;
-      data?: unknown;
-      error?: string;
-    };
+// Define los posibles tipos de respuesta del backend
+interface GoogleCallbackJwt {
+  jwt: string;
+  user: {
+    id: number;
+    email: string;
+    username: string;
+    name: string;
+  };
+  message: string;
+}
+interface GoogleCallbackRegister {
+  register_token: string;
+  name: string;
+  email: string;
+  message: string;
+}
+
+type GoogleCallbackResponse = GoogleCallbackJwt | GoogleCallbackRegister;
 
 export async function GET(request: Request) {
   // Obtener params de la URL
@@ -42,61 +34,48 @@ export async function GET(request: Request) {
 
   // CSRF check: si falla, redirige a una página de error
   if (!stateFromGoogle || !stateCookie || stateFromGoogle !== stateCookie) {
-    // Puedes personalizar la ruta de error
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${request.headers.get("x-forwarded-proto") || "http"}://${request.headers.get("host")}`;
     return NextResponse.redirect(`${baseUrl}/login?error=csrf`);
   }
 
-  const apiResponse = await callApiWithAuth<GoogleCallbackResponse>({
-    path: `/auth/google/callback?code=${code}`,
-    method: "GET",
-    headers: {
-      "Cache-Control": "no-store"
-    }
-  });
-
-  // Lógica de redirección y seteo de cookies según respuesta
   let response: NextResponse;
   const isProd = process.env.NODE_ENV === "production";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${request.headers.get("x-forwarded-proto") || "http"}://${request.headers.get("host")}`;
 
-  if (
-    apiResponse.status === "success" &&
-    apiResponse.data &&
-    typeof apiResponse.data === "object" &&
-    apiResponse.data !== null &&
-    "jwt" in apiResponse.data
-  ) {
-    // Usuario existente: setea cookie JWT y redirige a eventBoard
-    const data = apiResponse.data as Extract<GoogleCallbackResponse, { data: { jwt: string } }>['data'];
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${request.headers.get("x-forwarded-proto") || "http"}://${request.headers.get("host")}`;
-    response = NextResponse.redirect(`${baseUrl}/eventBoard`);
-    response.cookies.set("jwt", data.jwt, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      secure: isProd
+  try {
+    const apiResponse = await callApiWithAuth<GoogleCallbackResponse>({
+      path: `/auth/google/callback?code=${code}`,
+      method: "GET",
+      headers: {
+        "Cache-Control": "no-store"
+      }
     });
-  } else if (
-    apiResponse.status === "success" &&
-    apiResponse.data &&
-    typeof apiResponse.data === "object" &&
-    apiResponse.data !== null &&
-    "register_token" in apiResponse.data
-  ) {
-    // Usuario NO existe: setea cookie temporal y redirige a registro
-    const data = apiResponse.data as Extract<GoogleCallbackResponse, { data: { register_token: string } }>['data'];
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${request.headers.get("x-forwarded-proto") || "http"}://${request.headers.get("host")}`;
-    response = NextResponse.redirect(`${baseUrl}/register`);
-    response.cookies.set("register_token", data.register_token, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 600, // 10 min
-      secure: isProd
-    });
-  } else {
-    // Error genérico: redirige a login con mensaje
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${request.headers.get("x-forwarded-proto") || "http"}://${request.headers.get("host")}`;
+
+    if ("jwt" in apiResponse) {
+      // Usuario existente: setea cookie JWT y redirige a landing
+      response = NextResponse.redirect(`${baseUrl}/`);
+      response.cookies.set("jwt", apiResponse.jwt, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: isProd
+      });
+    } else if ("register_token" in apiResponse) {
+      // Usuario NO existe: setea cookie temporal y redirige a registro
+      response = NextResponse.redirect(`${baseUrl}/register`);
+      response.cookies.set("register_token", apiResponse.register_token, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 600, // 10 min
+        secure: isProd
+      });
+    } else {
+      // Error inesperado: redirige a login
+      response = NextResponse.redirect(`${baseUrl}/login?error=oauth`);
+    }
+  } catch {
+    // Error en el backend: redirige a login con mensaje
     response = NextResponse.redirect(`${baseUrl}/login?error=oauth`);
   }
 

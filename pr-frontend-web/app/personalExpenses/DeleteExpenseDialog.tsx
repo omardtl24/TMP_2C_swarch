@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { deleteExpense } from "@/lib/actions/expenseActions"
+import { deletePersonalExpense } from "@/lib/actions/personalExpensesActions"
 import ModalFormBase from "@/components/ModalFormBase"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation'
@@ -26,7 +26,7 @@ export default function ExpenseDeleteDialog({
     const handleDelete = async () => {
         setIsDeleting(true);
         try {
-            await deleteExpense(expenseId);
+            await deletePersonalExpense(expenseId);
             // First notify parent of successful deletion
             if (onExpenseDeleted) {
                 onExpenseDeleted();

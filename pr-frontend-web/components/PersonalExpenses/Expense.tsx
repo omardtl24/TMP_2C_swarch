@@ -1,4 +1,4 @@
-import { ExpenseType } from "@/lib/types";
+import { PersonalExpenseType } from "@/lib/types";
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -6,23 +6,18 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { useSession } from "@/contexts/SessionContext";
 
 interface ExpenseProps {
-  expense: ExpenseType;
-  handleClickExpense: (idExpense: string) => void;
+  expense: PersonalExpenseType;
   onEdit: (idExpense: string) => void;
   onDelete: (idExpense: string) => void;
 }
 
-const Expense = ({ expense, handleClickExpense, onEdit, onDelete }: ExpenseProps) => {
+const Expense = ({ expense, onEdit, onDelete }: ExpenseProps) => {
 
-    const { session } = useSession();
-    const isCreator = String(session?.id) === String(expense.creator_id);
   return (
     <div
-      onClick={() => handleClickExpense(expense.id)}
-      className="border-2 border-[#E9DDFF] rounded-xl p-3 hover:bg-primary-80 hover:cursor-pointer"
+      className="border-2 border-[#E9DDFF] rounded-xl p-3 hover:bg-primary-80"
     >
       <div className="flex justify-between items-start">
         <div>
@@ -31,7 +26,7 @@ const Expense = ({ expense, handleClickExpense, onEdit, onDelete }: ExpenseProps
           </p>
           <p className="text-[#3A0092]">{expense.concept}</p>
           <p className="text-xs text-gray-500">
-            Pagado por <span className="font-medium">{expense.payer_name}</span>
+            {expense.date}
           </p>
         </div>
 
@@ -39,7 +34,6 @@ const Expense = ({ expense, handleClickExpense, onEdit, onDelete }: ExpenseProps
           <span className="text-sm font-semibold text-[#3A0092]">
             {expense.type}
           </span>
-          {isCreator && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -68,7 +62,6 @@ const Expense = ({ expense, handleClickExpense, onEdit, onDelete }: ExpenseProps
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
 
         </div>
       </div>

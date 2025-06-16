@@ -10,6 +10,8 @@ function decodeEmailFromJWT(token: string): string | null {
   }
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function RegisterPage() {
   const cookieStore = await cookies();
   const registerToken = cookieStore.get("register_token")?.value || null;

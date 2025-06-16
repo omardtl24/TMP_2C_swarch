@@ -1,4 +1,3 @@
-
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -54,3 +53,45 @@ export const expenseCategories = [
       "bgColor": "bg-cyan-100"
     },
 ]
+
+export function mapExpenseLabelToEnum(label: string): string {
+  switch (label) {
+    case "Comida y Bebida":
+      return "COMIDA_Y_BEBIDA";
+    case "Compras":
+      return "COMPRAS";
+    case "Hogar":
+      return "HOGAR";
+    case "Transporte":
+      return "TRANSPORTE";
+    case "Entretenimiento":
+      return "ENTRETENIMIENTO";
+    case "Comunicacion":
+      return "COMUNICACION";
+    case "Gastos Financieros":
+      return "GASTOS_FINANCIEROS";
+    default:
+      return label;
+  }
+}
+
+export function mapExpenseEnumToLabel(enumValue: string): string {
+  switch (enumValue) {
+    case "COMIDA_Y_BEBIDA":
+      return "Comida y Bebida";
+    case "COMPRAS":
+      return "Compras";
+    case "HOGAR":
+      return "Hogar";
+    case "TRANSPORTE":
+      return "Transporte";
+    case "ENTRETENIMIENTO":
+      return "Entretenimiento";
+    case "COMUNICACION":
+      return "Comunicacion";
+    case "GASTOS_FINANCIEROS":
+      return "Gastos Financieros";
+    default:
+      return enumValue;
+  }
+}

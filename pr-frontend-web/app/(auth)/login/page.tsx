@@ -1,11 +1,20 @@
 "use client";
 
+import { Suspense } from "react";
 import CuentasClarasIcon from "@/components/Icons/CuentasClarasIcon";
 import RegisterLoginButton from "@/components/Register/RegisterLoginButton";
 import { Button } from "@/components/ui/button";
 import { useSearchParams, useRouter } from "next/navigation";
 
 export default function LoginPage() {
+	return (
+		<Suspense>
+			<LoginPageContent />
+		</Suspense>
+	);
+}
+
+function LoginPageContent() {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const error = searchParams.get("error") || "";
