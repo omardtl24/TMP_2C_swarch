@@ -5,10 +5,7 @@ import {
   DataExpense,
   EditExpensePayload,
 } from "../types";
-import { getAuthToken } from "@/lib/api/authTokenHelper";
 import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
-import { mockEventExpensesResponse} from "../mockData/eventMockData";
-import { mockExpenseDetailResponse } from "../mockData/expenseMockData";
 import { mapExpenseEnumToLabel } from "@/lib/utils";
 
 // Crea un gasto
@@ -45,16 +42,11 @@ export async function editExpense(
 
 // Obtiene todos los gastos de un evento
 export async function fetchEventExpenses(eventId: string): Promise<ExpenseType[]> {
-  const authToken = await getAuthToken();
-  let expenses: ExpenseType[];
-  if (!authToken) {
-    expenses = mockEventExpensesResponse.data!;
-  } else {
-    expenses = await callApiWithAuth<ExpenseType[]>({
+  const expenses = await callApiWithAuth<ExpenseType[]>({
       path: `/api/group-expenses/events/${eventId}`,
       method: "GET",
     });
-  }
+  
   // Mapear el tipo al formato bonito en cada gasto
   return expenses.map(exp => ({
     ...exp,
@@ -64,16 +56,10 @@ export async function fetchEventExpenses(eventId: string): Promise<ExpenseType[]
 
 // Obtiene el detalle de un gasto
 export async function fetchExpenseDetail(expenseId: string): Promise<ExpenseDetailedType> {
-  const authToken = await getAuthToken();
-  let data: ExpenseDetailedType;
-  if (!authToken) {
-    data = mockExpenseDetailResponse.data!;
-  } else {
-    data = await callApiWithAuth<ExpenseDetailedType>({
+  const data  = await callApiWithAuth<ExpenseDetailedType>({
       path: `/api/group-expenses/${expenseId}`,
       method: "GET",
     });
-  }
   // Mapear el tipo al formato bonito
   return {
     ...data,

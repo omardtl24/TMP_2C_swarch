@@ -1,9 +1,7 @@
 'use server'
 //import { ENDPOINTS } from "../endpoints";
 import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
-import { mockEventDetailResponse, mockEventParticipantsResponse } from "../mockData/eventMockData";
 import { EventDetailType, EventType, ParticipantType, CreateEventData } from "../types";
-import { getAuthToken } from "@/lib/api/authTokenHelper";
 
 // Obtiene todos los eventos del usuario
 export async function fetchEvents(): Promise<EventType[]> {
@@ -16,11 +14,6 @@ export async function fetchEvents(): Promise<EventType[]> {
 
 // Obtiene el detalle de un evento
 export async function fetchEventDetail(id: string): Promise<EventDetailType> {
-  // Si no hay auth token, retorna mock data (para SSG)
-  const authToken = await getAuthToken();
-  if (!authToken) {
-    return mockEventDetailResponse.data!;
-  }
   return await callApiWithAuth<EventDetailType>({
     path: `/api/events/${id}`,
     method: "GET",
@@ -74,10 +67,6 @@ export async function deleteEvent(eventId: string): Promise<void> {
 
 // Obtiene los participantes de un evento
 export async function participantsEvent(id: string): Promise<ParticipantType[]> {
-  const authToken = await getAuthToken();
-  if (!authToken) {
-    return mockEventParticipantsResponse.data!;
-  }
   const data = await callApiWithAuth<ParticipantType[]>({
     path: `/api/events/${id}/participants`,
     method: "GET",

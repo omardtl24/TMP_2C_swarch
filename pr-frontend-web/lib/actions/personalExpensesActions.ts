@@ -2,15 +2,10 @@
 
 import { PersonalExpenseType, EditPersonalExpensePayload } from "../types"
 import { callApiWithAuth } from "@/lib/api/callApiWithAuth";
-import { getAuthToken } from "@/lib/api/authTokenHelper";
 import { mapExpenseEnumToLabel } from "../utils";
 
 export async function createPersonalExpense(expenseData: PersonalExpenseType): Promise<PersonalExpenseType> {
-  const authToken = await getAuthToken();
   const { id, concept, type, total, date } = expenseData;
-  if (!authToken) {
-    throw new Error("No authentication token found");
-  }
 
   const body = {
     id,
@@ -40,11 +35,6 @@ export async function editPersonalExpense(
 }
 
 export async function fetchPersonalExpenses(): Promise<PersonalExpenseType[]> {
-  const authToken = await getAuthToken();
-  if (!authToken) {
-    throw new Error("No authentication token found");
-  }
-  
   const expenses = await callApiWithAuth<PersonalExpenseType[]>({
     path: `/personal-expenses/all`,
     method: "GET",
