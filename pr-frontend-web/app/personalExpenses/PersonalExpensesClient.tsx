@@ -1,14 +1,11 @@
 "use client";
 
-import { PersonalExpenseType, EditPersonalExpensePayload } from "@/lib/types";
+import { PersonalExpenseType } from "@/lib/types";
 import Expense from "@/components/PersonalExpenses/Expense";
 import { useRequireSession } from "@/lib/hooks/useRequireSession";
 import { useState } from "react";
 import AddExpenseButton from "@/components/EventBoard/AddExpensesButton";
 import CreateExpenseForm from "@/components/PersonalExpenses/CreateExpenseForm";
-import { set } from "date-fns";
-import ExpenseDeleteDialog from "@/components/EventBoard/ExpenseDeleteDialog";
-import { Delete } from "lucide-react";
 import DeleteExpenseDialog from "./DeleteExpenseDialog";
 
 interface PersonalExpensesPageClientProps {
@@ -33,7 +30,7 @@ export default function PersonalExpensesPageClient({ expenses }: PersonalExpense
         setOpenEdit(true);
     }
 
-    const handleExpenseCreated = (expense: PersonalExpenseType) => {
+    const handleExpenseCreated = () => {
         setIsExpenseFormOpen(false);
     }
 

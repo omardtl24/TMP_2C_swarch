@@ -41,12 +41,11 @@ export async function editPersonalExpense(
 
 export async function fetchPersonalExpenses(): Promise<PersonalExpenseType[]> {
   const authToken = await getAuthToken();
-  let expenses: PersonalExpenseType[];
   if (!authToken) {
     throw new Error("No authentication token found");
   }
   
-  expenses = await callApiWithAuth<PersonalExpenseType[]>({
+  const expenses = await callApiWithAuth<PersonalExpenseType[]>({
     path: `/personal-expenses/all`,
     method: "GET",
   });

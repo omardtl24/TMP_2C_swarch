@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { date, z } from "zod";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ModalFormBase from "@/components/ModalFormBase";
 import { EditPersonalExpensePayload, PersonalExpenseType } from "@/lib/types";
@@ -13,7 +13,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { useForm } from "react-hook-form";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { createPersonalExpense, editPersonalExpense } from "@/lib/actions/personalExpensesActions";
 import { Input } from "../ui/input";
 import { ChevronsUpDown } from "lucide-react";
@@ -49,7 +49,6 @@ interface CreateExpenseFormProps {
 }
 
 export default function CreateExpenseForm({
-    onExpenseCreated,
     modalId = "createPersonalExpense",
     open,
     setOpen,
@@ -71,7 +70,6 @@ export default function CreateExpenseForm({
         }
     });
 
-    const date = form.watch('date');
     
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -97,9 +95,7 @@ export default function CreateExpenseForm({
             }
             if (initialData.concept) form.setValue('concept', initialData.concept);
             if (initialData.type) form.setValue('type', initialData.type);
-            if (initialData.date) {
-                const dateValue = new Date(initialData.date);
-            }
+            if (initialData.date) form.setValue('date', new Date(initialData.date))
             if (initialData.total) form.setValue('total', initialData.total.toString());
         }
     }, [open, initialData, form]);

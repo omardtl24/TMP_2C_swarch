@@ -6,7 +6,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { useSession } from "@/contexts/SessionContext";
 
 interface ExpenseProps {
   expense: PersonalExpenseType;

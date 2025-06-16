@@ -1,7 +1,5 @@
 // lib/mockData/eventMockData.ts
 
-import { EventsResponse, EventsResponseDetailed, ParticipantsResponse } from "../actions/eventActions";
-import { ExpensesResponse } from "../actions/expenseActions";
 import { EventType, ParticipantType, ExpenseType, EventDetailType} from "../types";
 
 // --- Mock Event Data ---
@@ -30,7 +28,7 @@ const mockDetailedEvent: EventDetailType = {
   begin_date: new Date("2025-09-10T09:00:00Z"),
   end_date: new Date("2025-09-12T17:00:00Z"),
   creator_id: "1",
-  invitacion_enabled: true,
+  invitation_enabled: true,
   invitation_code: "INVITE-2025-AI",
   total_expense: 870000,
   my_balance: -50000
@@ -104,7 +102,7 @@ const mockEventParticipantsData: ParticipantType[] = [
 /**
  * Mock response for `fetchEvents`
  */
-export const mockEventsResponse: EventsResponse = {
+export const mockEventsResponse = {
   success: 'success',
   data: mockEvents,
 };
@@ -112,7 +110,7 @@ export const mockEventsResponse: EventsResponse = {
 /**
  * Mock response for `fetchEventDetail`
  */
-export const mockEventDetailResponse: EventsResponseDetailed = {
+export const mockEventDetailResponse = {
   success: 'success',
   data: mockDetailedEvent
 };
@@ -121,7 +119,7 @@ export const mockEventDetailResponse: EventsResponseDetailed = {
 /**
  * Mock response for `fetchEventExpenses`
  */
-export const mockEventExpensesResponse: ExpensesResponse = {
+export const mockEventExpensesResponse = {
   success: 'success',
   data: mockEventExpensesData
 };
@@ -129,7 +127,7 @@ export const mockEventExpensesResponse: ExpensesResponse = {
 /**
  * Mock response for `participantsEvent`
  */
-export const mockEventParticipantsResponse: ParticipantsResponse = {
+export const mockEventParticipantsResponse = {
   success: 'success',
   data: mockEventParticipantsData
 };

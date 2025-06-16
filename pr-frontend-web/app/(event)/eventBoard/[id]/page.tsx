@@ -13,10 +13,10 @@ export const dynamic = 'force-dynamic'
 export default async function EventDetailPage({
     params,
 }: {
-    params: { id: string }
+    params: Promise<{ id: string }>
 }) {
     // Get the event ID from the route parameters.
-    const { id } = params;
+    const { id } = await params;
 
     // Fetch the event details, expenses, and participants list in parallel for better performance.
     let eventDetails, expenses, participants;

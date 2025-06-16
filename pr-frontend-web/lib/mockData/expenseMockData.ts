@@ -1,7 +1,6 @@
 // lib/mockData/expenseMockData.ts
 
-import { ExpenseType, ExpenseDetailedType } from "../types";
-import { ExpenseResponse, ExpensesResponse, ExpenseDetailedResponse, GeneralMutationResponse } from '../actions/expenseActions';
+import { ExpenseDetailedType } from "../types";
 
 // --- Base Mock Data Arrays ---
 
@@ -55,7 +54,7 @@ export const mockDetailedExpense: ExpenseDetailedType = {
 /**
  * Mock response for `createExpense`
  */
-export const mockCreateExpenseResponse: ExpenseResponse = {
+export const mockCreateExpenseResponse= {
   success: 'success',
   data: mockExpenses[0],
 };
@@ -63,7 +62,7 @@ export const mockCreateExpenseResponse: ExpenseResponse = {
 /**
  * Mock response for `fetchEventExpenses`
  */
-export const mockExpensesResponse: ExpensesResponse = {
+export const mockExpensesResponse = {
   success: 'success',
   data: mockExpenses,
 };
@@ -71,7 +70,7 @@ export const mockExpensesResponse: ExpensesResponse = {
 /**
  * Mock response for `fetchExpenseDetail`
  */
-export const mockExpenseDetailResponse: ExpenseDetailedResponse = {
+export const mockExpenseDetailResponse = {
   success: 'success',
   data: mockDetailedExpense,
 };
@@ -79,7 +78,7 @@ export const mockExpenseDetailResponse: ExpenseDetailedResponse = {
 /**
  * Mock success response for `editExpense` or `deleteExpense`
  */
-export const mockGeneralMutationSuccessResponse: GeneralMutationResponse = {
+export const mockGeneralMutationSuccessResponse = {
   success: 'success',
   message: 'Operation completed successfully.',
 };
@@ -87,7 +86,7 @@ export const mockGeneralMutationSuccessResponse: GeneralMutationResponse = {
 /**
  * Mock error response for any mutation
  */
-export const mockGeneralMutationErrorResponse: GeneralMutationResponse = {
+export const mockGeneralMutationErrorResponse = {
   success: 'error',
   error: 'An unknown error occurred.',
 };
