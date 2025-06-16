@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react"
 import "react-day-picker/dist/style.css"
 import FormCreateEvent from "./FormCreateEvent"
 import { EventType } from "@/lib/types"
+import ClientOnly from "@/components/ClientOnly"
 
 // Tipado de eventos
 export interface EventItem {
@@ -23,6 +24,7 @@ interface CustomCalendarProps {
 }
 
 const CustomCalendar = ({ events }: CustomCalendarProps) => {
+
   const [selected, setSelected] = React.useState<Date | undefined>()
   const [month, setMonth] = React.useState<Date>(new Date())
   const [openModalTrigger, setOpenModalTrigger] = React.useState(false)
@@ -89,62 +91,64 @@ const CustomCalendar = ({ events }: CustomCalendarProps) => {
   }
 
   return (
-    <div className="max-w-md  bg-gradient-to-b from-primary/80 to-pink-200/70 p-4 rounded-2xl shadow-md">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2">
-          <CalendarIcon className="h-6 w-6 text-white" />
-          <h2 className="text-white text-xl font-bold">Calendario</h2>
+    <ClientOnly>
+      <div className="max-w-md  bg-gradient-to-b from-primary/80 to-pink-200/70 p-4 rounded-2xl shadow-md">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <CalendarIcon className="h-6 w-6 text-white" />
+            <h2 className="text-white text-xl font-bold">Calendario</h2>
+          </div>
+          <Button 
+            variant="outline" 
+            className="border-amber-300 bg-transparent text-amber-300 font-semibold hover:bg-amber-400/50 hover:text-white md:w-40 md:h-10"
+            onClick={()=>handleCreateEvent(undefined)} // Ahora abrirá con la fecha de hoy
+          >
+            <CalendarIcon className="h-4 w-4" />
+            Crear evento
+          </Button>
         </div>
-        <Button 
-          variant="outline" 
-          className="border-amber-300 bg-transparent text-amber-300 font-semibold hover:bg-amber-400/50 hover:text-white md:w-40 md:h-10"
-          onClick={()=>handleCreateEvent(undefined)} // Ahora abrirá con la fecha de hoy
-        >
-          <CalendarIcon className="h-4 w-4" />
-          Crear evento
-        </Button>
+
+        <DayPicker
+          mode="single"
+          selected={selected}
+          onSelect={day => {
+           handleCreateEvent(day);  
+          }}
+          month={month}
+          onMonthChange={setMonth}
+          locale={es}
+          showOutsideDays={false}
+          fixedWeeks
+          modifiers={modifiers}
+          modifiersClassNames={modifiersClassNames}
+          disabled={{ before: new Date() }}
+          //navLayout="around"
+          components={{ Nav: CustomNav }}
+          classNames={{
+            table: 'w-full border-collapse',
+            head_row: 'flex justify-between',
+            head_cell: 'text-white text-xs w-8 text-center',
+            row: 'flex justify-between',
+            cell: 'w-8 p-0 text-end ',
+            day: 'p-[1px] h-10 w-10  text-xs text-end ',
+            today: 'font-bold bg-orange-30/70 text ',
+            month_caption: "hidden",
+            month_grid: "w-full",
+            day_button: "w-full glass-effect hover:bg-yellow-300/60 hover:cursor-pointer rounded-md flex p-1 justify-start items-end  border-1 border-white text-white w-full h-full text-primary-50",
+            month: "w-full ",
+            months: "gap-1",
+            day_selected: "bg-primary-50/70 text-white",
+          }}
+        />
+
+        {/* Pass the selected date and the trigger counter */}
+        <FormCreateEvent 
+          defaultbeginDate={selected || new Date()} 
+          open={openModalTrigger}
+          setOpen={setOpenModalTrigger}
+        />
       </div>
-
-      <DayPicker
-        mode="single"
-        selected={selected}
-        onSelect={day => {
-         handleCreateEvent(day);  
-        }}
-        month={month}
-        onMonthChange={setMonth}
-        locale={es}
-        showOutsideDays={false}
-        fixedWeeks
-        modifiers={modifiers}
-        modifiersClassNames={modifiersClassNames}
-        disabled={{ before: new Date() }}
-        //navLayout="around"
-        components={{ Nav: CustomNav }}
-        classNames={{
-          table: 'w-full border-collapse',
-          head_row: 'flex justify-between',
-          head_cell: 'text-white text-xs w-8 text-center',
-          row: 'flex justify-between',
-          cell: 'w-8 p-0 text-end ',
-          day: 'p-[1px] h-10 w-10  text-xs text-end ',
-          today: 'font-bold bg-orange-30/70 text ',
-          month_caption: "hidden",
-          month_grid: "w-full",
-          day_button: "w-full glass-effect hover:bg-yellow-300/60 hover:cursor-pointer rounded-md flex p-1 justify-start items-end  border-1 border-white text-white w-full h-full text-primary-50",
-          month: "w-full ",
-          months: "gap-1",
-          day_selected: "bg-primary-50/70 text-white",
-        }}
-      />
-
-      {/* Pass the selected date and the trigger counter */}
-      <FormCreateEvent 
-        defaultbeginDate={selected || new Date()} 
-        open={openModalTrigger}
-        setOpen={setOpenModalTrigger}
-      />
-    </div>
+    </ClientOnly>
   )
 }
 

@@ -4,7 +4,7 @@ import { sizeClasses } from "./IconProps";
 
 interface CuentasClarasIconProps {
 	className?: string;
-	size?: "xs" | "sm" | "md" | "lg";
+	size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
 	onClick?: () => void;
 }
 const CuentasClarasIcon = ({
@@ -14,7 +14,7 @@ const CuentasClarasIcon = ({
 }: CuentasClarasIconProps) => {
 	return (
 		<Image
-			src="/images/CuentasClaras.png"
+			src="/images/CuentasClaras.svg"
 			alt="Logo"
 			width={50}
 			height={50}

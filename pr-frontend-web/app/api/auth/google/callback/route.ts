@@ -52,8 +52,8 @@ export async function GET(request: Request) {
     });
 
     if ("jwt" in apiResponse) {
-      // Usuario existente: setea cookie JWT y redirige a eventBoard
-      response = NextResponse.redirect(`${baseUrl}/eventBoard`);
+      // Usuario existente: setea cookie JWT y redirige a landing
+      response = NextResponse.redirect(`${baseUrl}/`);
       response.cookies.set("jwt", apiResponse.jwt, {
         httpOnly: true,
         sameSite: "lax",

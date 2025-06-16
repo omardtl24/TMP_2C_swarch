@@ -12,10 +12,13 @@ import { XIcon } from "lucide-react"
 import MenuIcon from "./Icons/MenuIcon"
 import CuentasClarasIcon from "./Icons/CuentasClarasIcon"
 import routes from "../lib/routes"
+import { useSession } from "@/contexts/SessionContext"
+import { logout } from "@/lib/actions/authActions"
 
 const Navbar = () => {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const { session, clearSession } = useSession()
 
   // Cerrar el menú cuando la pantalla se hace más grande
   useEffect(() => {
@@ -92,11 +95,45 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* User icon - always on the right */}
-      <Link href={"/profile"} className="p-1 hover:cursor-pointer hover:bg-primary-90 rounded-md transition duration-200" >
-        <UserRound className="stroke-primary-50 w-full h-full " size={25} />
-        <span className="sr-only">User profile</span>
-      </Link>
+      {/* User/Login - always on the right */}
+      {session ? (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" className="p-1" size="icon">
+              <UserRound className="stroke-primary-50 w-full h-full" size={25} />
+              <span className="sr-only">User menu</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-44 p-2 mt-2 border-none shadow-lg bg-surface rounded-lg">
+            <div className="flex flex-col space-y-1">
+              <Link href="/eventBoard" className="px-3 py-2 rounded-md text-base font-medium text-primary-60 hover:bg-primary-80/10 hover:text-primary transition-colors">
+                EventBoard
+              </Link>
+              <Link href="/personalExpenses" className="px-3 py-2 rounded-md text-base font-medium text-primary-60 hover:bg-primary-80/10 hover:text-primary transition-colors">
+                Gastos personales
+              </Link>
+              <button
+                className="px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 transition-colors text-left"
+                onClick={async () => {
+                  await logout()
+                  clearSession()
+                  window.location.href = "/"
+                }}
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      ) : (
+        <Button
+          variant="outline"
+          className="border-primary-50 text-primary-50 font-semibold hover:bg-primary-50 hover:text-white"
+          onClick={() => window.location.href = "/login"}
+        >
+          Iniciar sesión
+        </Button>
+      )}
     </nav>
   )
 }

@@ -8,7 +8,7 @@ export function useRequireSession() {
 
   useEffect(() => {
     if (!isLoading && !session) {
-      router.replace("/login");
+      router.replace("/");
     }
   }, [session, isLoading, router]);
 
