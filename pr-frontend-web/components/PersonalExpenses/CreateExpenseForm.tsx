@@ -35,7 +35,6 @@ const expenseFormSchema = z.object({
         .min(1, { message: 'Seleccione una categoría' }),
     date: z
         .date( { required_error: "La fecha de inicio es requerida"})
-        .refine(date => date <= new Date(), { message: 'La fecha no puede ser futura' }),
 });
 
 type ExpenseFormValues = z.infer<typeof expenseFormSchema>;
@@ -158,10 +157,9 @@ export default function CreateExpenseForm({
                             <FormItem>
                                 <FormLabel>Descripción</FormLabel>
                                 <FormControl>
-                                    <input
-                                        {...field}
-                                        className="input"
+                                    <Input
                                         placeholder="Descripción del gasto"
+                                        {...field}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -226,7 +224,7 @@ export default function CreateExpenseForm({
                             <FormItem className="flex flex-col">
                                 <FormLabel className="text-base font-semibold">
                                     <div className="flex items-center gap-1">
-                                        <span className="text-primary">1</span> Fecha Inicio{" "}
+                                        Fecha{" "}
                                         <span className="text-red-500">*</span>
                                     </div>
                                 </FormLabel>
@@ -235,7 +233,6 @@ export default function CreateExpenseForm({
                                         type="date"
                                         className="rounded-xl bg-transparent h-12 pl-3 border-primary text-left font-normal w-full"
                                         value={field.value ? format(field.value, "yyyy-MM-dd") : ""}
-                                        min={format(new Date(), "yyyy-MM-dd")}
                                         onChange={(e) => {
                                             const date = e.target.value ? parseLocalDate(e.target.value) : null;
                                             if (date) field.onChange(date);
