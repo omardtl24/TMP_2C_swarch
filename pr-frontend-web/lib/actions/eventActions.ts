@@ -39,7 +39,6 @@ export async function joinEvent(invitationCode: string): Promise<string> {
     body: { invitationCode },
     headers: { 'Cache-Control': 'no-store' },
   });
-  console.log("Evento unido con éxito:", data);
   return data.id;
 }
 

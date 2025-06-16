@@ -142,10 +142,8 @@ export default function FormCreateExpense({
                 payer_id: values.payer_id,
                 participation: participationPayload,
             };
-            console.log('editMode:', editMode, 'initialValues:', initialValues);
             if (editMode) {
                 if (initialValues && initialValues.id) {
-                    console.log('Calling editExpense with id:', initialValues.id);
                     await editExpense(initialValues.id, {
                         concept: values.concept,
                         total: totalNumber,

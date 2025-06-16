@@ -64,8 +64,6 @@ const FormCreateEvent = ({
 }: FormCreateEventProps) => {
 	const router = useRouter();
 
-	console.log("fecha seleccionada", defaultbeginDate);
-
 	const form = useForm<EventFormValues>({
 		resolver: zodResolver(eventFormSchema),
 		defaultValues: {
@@ -83,7 +81,6 @@ const FormCreateEvent = ({
 	// Update form values when defaultbeginDate changes
 	useEffect(() => {
 		if (defaultbeginDate && open) {
-			console.log("Setting form values with date:", defaultbeginDate);
 
 			// Ensure the date is a valid Date object
 			const beginDate = new Date(defaultbeginDate);
