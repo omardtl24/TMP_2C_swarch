@@ -1,104 +1,171 @@
 services:
 
-  # Presentation Layer
-  pr-frontend-dp:
-    container_name: pr-frontend-dp
+# Presentation Layer
+  pr-frontend-web:
+    container_name: pr-frontend-web
     build:
-      context: ./pr-frontend-dp
+      context: ./pr-frontend-web
       dockerfile: dev.Dockerfile
     ports:
       - "3000:3000"
     volumes:
-      - ./pr-frontend-dp/app:/app/app
-      - ./pr-frontend-dp/public:/app/public
+      - ./pr-frontend-web/app:/app/app
+      - ./pr-frontend-web/public:/app/public
     env_file:
-      - ./pr-frontend-dp/.env
-    restart: always
+      - ./pr-frontend-web/.env
+    restart: unless-stopped
 
-  # Logic Layer (business logic microservices)
-  lg-users-mg:
-    container_name: lg-users-mg
+# Communication Layer
+  cm-apigateway-orch:
+    container_name: cm-apigateway-orch
     build:
-      context: ./lg-users-mg
+      context: ./cm-apigateway-orch
+      dockerfile: Dockerfile
+    ports:
+        - "8000:8000"
+    env_file:
+      - ./cm-apigateway-orch/.env
+    restart: unless-stopped
+
+  cm-broker-mq:
+    image: rabbitmq:3-management
+    container_name: cm-broker-mq
+    ports:
+      - "5672:5672"    # Protocolo AMQP (advanced message queing protocol)
+      - "15672:15672"  # Consola de administración
+    env_file:
+      - ./cm-broker-mq/.env  
+    restart: unless-stopped
+
+# Logic Layer (business logic microservices)
+  lg-users-ms:
+    container_name: lg-users-ms
+    build:
+      context: ./lg-users-ms
       dockerfile: Dockerfile
     ports:
       - "8082:8082"
     env_file:
-      - ./lg-users-mg/.env
+      - ./lg-users-ms/.env
     depends_on:
-      - db-users-ps
-    restart: always
+      - data-users-db
+    restart: unless-stopped
 
-  lg-community-mg:
-    container_name: lg-community-mg
+  lg-events-ms:
+    container_name: lg-events-ms
     build:
-      context: ./lg-community-mg
+      context: ./lg-events-ms
       dockerfile: Dockerfile
     ports:
       - "8083:8083"
     env_file:
-      - ./lg-community-mg/.env
+      - ./lg-events-ms/.env
     depends_on:
-      - db-community-ms
-      - db-community-ps
-    restart: always
+      - data-groupexpenses-db
+      - data-events-db
+    restart: unless-stopped
 
-  # Database Layer
-  db-community-ms:
-    container_name: db-community-ms
+  lg-personalexpenses-ms:
+    container_name: lg-personalexpenses-ms
     build:
-      context: ./db-community-ms
+      context: ./lg-personalexpenses-ms
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    env_file:
+      - ./lg-personalexpenses-ms/.env
+    depends_on:
+      - data-personalexpenses-db
+      - cm-broker-mq
+    restart: unless-stopped
+
+  lg-groupexpenses-ms:
+    container_name: lg-groupexpenses-ms
+    build:
+      context: ./lg-groupexpenses-ms
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    env_file:
+      - ./lg-groupexpenses-ms/.env
+    depends_on:
+      - data-groupexpenses-db
+      - data-events-db
+      - cm-broker-mq
+    restart: unless-stopped
+
+# Database Layer
+  data-groupexpenses-db:
+    container_name: data-groupexpenses-db
+    build:
+      context: ./data-groupexpenses-db
       dockerfile: Dockerfile
     ports:
       - "27017:27017"
     env_file:
-      - ./db-community-ms/.env
+      - ./data-groupexpenses-db/.env
     volumes:
-      - db-community-ms:/data/db
+      - data-groupexpenses-db:/data/db
     restart: unless-stopped
 
-  db-users-ps:
-    container_name: db-users-ps
+  data-users-db:
+    container_name: data-users-db
     build:
-      context: ./db-users-ps
+      context: ./data-users-db
       dockerfile: Dockerfile
     ports:
       - "5432:5432"
     env_file:
-      - ./db-users-ps/.env
+      - ./data-users-db/.env
     volumes:
-      - db-users-ps:/var/lib/postgresql/data
+      - data-users-db:/var/lib/postgresql/data
     restart: unless-stopped
 
-  db-community-ps:
-    container_name: db-community-ps
+  data-events-db:
+    container_name: data-events-db
     build:
-      context: ./db-community-ps
+      context: ./data-events-db
       dockerfile: Dockerfile
     ports:
       - "5433:5432"
     env_file:
-      - ./db-community-ps/.env
+      - ./data-events-db/.env
     volumes:
-      - db-community-ps:/var/lib/postgresql/data
+      - data-events-db:/var/lib/postgresql/data
     restart: unless-stopped
 
-  # Adminer UI
+  data-personalexpenses-db:
+    container_name: data-personalexpenses-db
+    build:
+      context: ./data-personalexpenses-db
+      dockerfile: Dockerfile
+    ports:
+      - "5434:5432"
+    env_file:
+      - ./data-personalexpenses-db/.env
+    volumes:
+      - data-personalexpenses-db:/var/lib/postgresql/data
+    restart: unless-stopped
+
+# Adminer UI
   adminer:
     container_name: adminer
     image: adminer
     ports:
       - "8081:8080"
-    restart: always
+    restart: unless-stopped
     depends_on:
-      - db-community-ps
-      - db-users-ps
+      - data-events-db
+      - data-users-db
+      - data-personalexpenses-db
 
 # Volumes
 volumes:
-  db-community-ms:
+  data-groupexpenses-db:
     driver: local
-  db-users-ps:
+  data-users-db:
     driver: local
-  db-community-ps:
+  data-events-db:
+    driver: local
+  data-personalexpenses-db:
     driver: local
