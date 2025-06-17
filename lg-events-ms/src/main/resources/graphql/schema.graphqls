@@ -1,0 +1,50 @@
+scalar Date
+
+type ExpenseEntity {
+  id: ID!
+  creatorId: String!
+  externalDocId: String!
+  eventId: ID!
+}
+
+type Balance {
+  userId: String!
+  balance: Float!
+}
+
+type Query {
+  # Obtiene todos los gastos SQL de un evento
+  expensesByEvent(eventId: ID!): [ExpenseEntity!]!
+
+  # Obtiene el detalle de un gasto SQL por su ID
+  expenseDetail(expenseId: ID!): ExpenseEntity
+
+  # Suma todos los totales de gastos de un evento
+  sumExpensesByEvent(eventId: ID!): Float!
+
+  # Suma los totales que el usuario autenticado pagó en un evento
+  sumExpensesPaidByUserInEvent(eventId: ID!): Float!
+
+  # Calcula balances por usuario en un evento (paid – owed)
+  calculateBalances(eventId: ID!): [Balance!]!
+
+  # Suma todos los gastos globales (todos los eventos)
+  sumAllExpenses: Float!
+}
+
+input NewExpenseInput {
+  eventId: ID!
+  externalDocId: ID!
+}
+
+input DeleteExpenseInput {
+  expenseId: ID!
+}
+
+type Mutation {
+  # Crea la fila SQL de Expense (tras haber creado el documento en Mongo)
+  createExpense(input: NewExpenseInput!): ExpenseEntity!
+
+  # Elimina un gasto SQL por su ID
+  deleteExpense(input: DeleteExpenseInput!): Boolean!
+}

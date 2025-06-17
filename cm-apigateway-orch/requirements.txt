@@ -1,0 +1,6 @@
+fastapi
+httpx
+python-jose[cryptography]
+python-dotenv
+uvicorn
+gql[httpx]
