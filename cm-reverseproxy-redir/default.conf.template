@@ -1,0 +1,37 @@
+server {
+    # Nginx will listen on this port for incoming traffic.
+    # Port 80 is the standard for HTTP.
+    listen 80;
+    #listen 443 ssl;
+
+    # This can be 'localhost' for local testing or your public domain name.
+    server_name ${NGINX_HOST};;
+
+    # This location block matches all incoming requests ('/').
+    location / {
+        # This is the core directive. All requests are forwarded to your API gateway.
+        proxy_pass ${PROXY_PASS_HOST};
+
+        # --- Best Practice Headers ---
+        # These headers pass along the original client's request information
+        # to the upstream gateway, which is crucial for logging, security, and functionality.
+
+        # Passes the original Host header from the client.
+        proxy_set_header Host $host;
+
+        # Forwards the real IP address of the client.
+        proxy_set_header X-Real-IP $remote_addr;
+
+        # Contains the IP addresses of all servers the request has been proxied through.
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # Informs the gateway if the original request was http or https.
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # --- Optional: WebSocket Support ---
+        # Required for applications that use WebSockets for real-time communication.
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}

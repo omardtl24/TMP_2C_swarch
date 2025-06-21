@@ -21,7 +21,7 @@ Donde:
 | Código | Descripción                         |
 |--------|-------------------------------------|
 | `pr`   | Presentation Tier (Frontend/UI)     |
-| `cm`   | Communication Tier (API Gateway, Broker MQ) |
+| `cm`   | Communication Tier (API Gateway, Broker MQ, Reverse Proxy) |
 | `lg`   | Logic Tier (Backend/Microservicios) |
 | `db`   | Data Tier (Bases de datos)          |
 
@@ -47,6 +47,7 @@ Abreviación de la responsabilidad principal del componente.
 - `orch`: orquestación (usado en la API GATEWAY)
 - `ui`: interfaz de usuario
 - `mq`: cola de mensajes (Broker MQ)
+- `redir`: redirección (Reverse proxy)
 
 ---
 
@@ -57,6 +58,7 @@ Abreviación de la responsabilidad principal del componente.
   
 - cm-apigateway-orch
 - cm-broker-mq
+- cm-reverseproxy-redir
 
 - lg-users-ms
 - lg-community-ms
