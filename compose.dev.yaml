@@ -36,14 +36,14 @@ services:
     env_file:
       - ./cm-broker-mq/.env  
     restart: unless-stopped
-    
+
   cm-reverseproxy-redir:
     container_name: cm-reverseproxy-redir
     build:
       context: ./cm-reverseproxy-redir
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "80:80"  
       - "443:443"
     env_file:
       - ./cm-reverseproxy-redir/.env

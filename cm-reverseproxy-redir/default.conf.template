@@ -5,7 +5,7 @@ server {
     #listen 443 ssl;
 
     # This can be 'localhost' for local testing or your public domain name.
-    server_name ${NGINX_HOST};;
+    server_name ${NGINX_HOST};
 
     # This location block matches all incoming requests ('/').
     location / {
@@ -15,6 +15,9 @@ server {
         # --- Best Practice Headers ---
         # These headers pass along the original client's request information
         # to the upstream gateway, which is crucial for logging, security, and functionality.
+
+        access_log /dev/stdout;
+        error_log /dev/stderr warn;
 
         # Passes the original Host header from the client.
         proxy_set_header Host $host;
