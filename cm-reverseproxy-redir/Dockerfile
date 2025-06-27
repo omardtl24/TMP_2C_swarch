@@ -17,5 +17,8 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 # Make the entrypoint script executable.
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+# List and show the first few lines of the entrypoint script for verification.
+RUN ls -l /usr/local/bin/entrypoint.sh && head -5 /usr/local/bin/entrypoint.sh
+
 # Set the entrypoint script as the command to run when the container starts.
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

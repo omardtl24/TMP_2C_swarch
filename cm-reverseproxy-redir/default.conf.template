@@ -1,38 +1,68 @@
+# HTTP server block
 server {
     # Nginx will listen on this port for incoming traffic.
     # Port 80 is the standard for HTTP.
     listen 80;
-    #listen 443 ssl;
-
-    # This can be 'localhost' for local testing or your public domain name.
     server_name ${NGINX_HOST};
 
-    # This location block matches all incoming requests ('/').
-    location / {
-        # This is the core directive. All requests are forwarded to your API gateway.
-        proxy_pass ${PROXY_PASS_HOST};
+    # Redirección HTTP → HTTPS
+    return 301 https://$host$request_uri;
+}
 
-        # --- Best Practice Headers ---
-        # These headers pass along the original client's request information
-        # to the upstream gateway, which is crucial for logging, security, and functionality.
+# HTTPS server block
+server {
+    listen 443 ssl;
+    server_name ${NGINX_HOST};
 
-        access_log /dev/stdout;
-        error_log /dev/stderr warn;
+    ssl_certificate     /etc/nginx/certs/localhost.crt;
+    ssl_certificate_key /etc/nginx/certs/localhost.key;
 
-        # Passes the original Host header from the client.
+    # Seguridad básica SSL (opcional, puedes ajustar según tus necesidades)
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    # API routes de Next.js (todas las de /api/auth/* y redirect)
+    location ~ ^/api/auth/ {
+        proxy_pass http://pr-frontend-web:3000;
         proxy_set_header Host $host;
-
-        # Forwards the real IP address of the client.
         proxy_set_header X-Real-IP $remote_addr;
-
-        # Contains the IP addresses of all servers the request has been proxied through.
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-
-        # Informs the gateway if the original request was http or https.
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+    location = /google-redirect {
+        proxy_pass http://pr-frontend-web:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
 
-        # --- Optional: WebSocket Support ---
-        # Required for applications that use WebSockets for real-time communication.
+    # Rutas API Gateway (todas las que expone FastAPI)
+    location ~ ^/(api|auth|events|personal-expenses|group-expenses) {
+        proxy_pass ${PROXY_PASS_HOST};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    # Todo lo demás va al frontend
+    location / {
+        proxy_pass http://pr-frontend-web:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";

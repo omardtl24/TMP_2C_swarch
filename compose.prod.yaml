@@ -50,6 +50,9 @@ services:
     depends_on:
       - cm-apigateway-orch
     restart: unless-stopped
+    volumes:
+      - ./localhost.crt:/etc/nginx/certs/localhost.crt:ro
+      - ./localhost.key:/etc/nginx/certs/localhost.key:ro
 
 # Logic Layer (business logic microservices)
   lg-users-ms:

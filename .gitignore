@@ -39,3 +39,5 @@ build/
 **/*.env
 env.secrets.json
 PASSPHRASE.txt
+localhost.crt
+localhost.key
