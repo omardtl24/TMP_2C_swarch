@@ -35,8 +35,9 @@ The `docker-compose.yml` file defines the build context for this service. It exp
 ├── docker-compose.yml
 └── cm-reverseproxy-redir/
     ├─── Dockerfile
-    └─── default.conf  # Hidden within the envs
-    └─── default.conf.template
+    ├─── default.conf.template
+    └─── cert_config.cnf
+
 ```
 
 ---
