@@ -13,4 +13,4 @@ COPY default.conf.template /etc/nginx/templates/default.conf.template
 
 # Copy the cert_config  and generate the certificate at runtime.
 COPY ./cert_config.cnf /etc/nginx/certs/cert_config.cnf
-RUN openssl req -x509 -nodes -new rsa:4096 -config /etc/nginx/certs/cert_config.cnf -keyout /etc/nginx/certs/key.key -out /etc/nginx/certs/cert.crt -days 365 -subj "/CN=localhost"
+RUN openssl req -x509 -nodes -newkey rsa:4096 -config /etc/nginx/certs/cert_config.cnf -keyout /etc/nginx/certs/key.key -out /etc/nginx/certs/cert.crt -days 365 -subj "/CN=localhost"
