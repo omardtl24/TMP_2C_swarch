@@ -1,70 +1,18 @@
-# HTTP server block
-server {
-    # Nginx will listen on this port for incoming traffic.
-    # Port 80 is the standard for HTTP.
-    listen 80;
-    server_name ${NGINX_HOST};
-
-    # Redirección HTTP → HTTPS
-    return 301 https://$host$request_uri;
+upstream events_backend {
+    least_conn;
+    server lg-events-ms-1:8083;
+    server lg-events-ms-2:8083;
+    server lg-events-ms-3:8083;
 }
 
-# HTTPS server block
 server {
-    listen 443 ssl;
-    server_name ${NGINX_HOST};
+    listen 80;
 
-    ssl_certificate     /etc/nginx/certs/cert.crt;
-    ssl_certificate_key /etc/nginx/certs/key.key;
-
-    # Seguridad básica SSL (opcional, puedes ajustar según tus necesidades)
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-
-    # API routes de Next.js (todas las de /api/auth/* y redirect)
-    location ~ ^/api/auth/ {
-        proxy_pass http://pr-frontend-web:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-    location = /google-redirect {
-        proxy_pass http://pr-frontend-web:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-
-    # Rutas API Gateway (todas las que expone FastAPI)
-    location ~ ^/(api|auth|events|personal-expenses|group-expenses) {
-        proxy_pass ${PROXY_PASS_HOST};
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-
-    # Todo lo demás va al frontend
     location / {
-        proxy_pass http://pr-frontend-web:3000;
+        proxy_pass http://events_backend;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
     }
 }

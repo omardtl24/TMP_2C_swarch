@@ -68,18 +68,59 @@ services:
       - data-users-db
     restart: unless-stopped
 
-  lg-events-ms:
-    container_name: lg-events-ms
+  lg-events-ms-1:
+    container_name: lg-events-ms-1
     build:
       context: ./lg-events-ms
       dockerfile: Dockerfile
     ports:
-      - "8083:8083"
+      - "8086:8083"
     env_file:
       - ./lg-events-ms/.env
     depends_on:
       - data-groupexpenses-db
       - data-events-db
+    restart: unless-stopped
+
+  lg-events-ms-2:
+    container_name: lg-events-ms-2
+    build:
+      context: ./lg-events-ms
+      dockerfile: Dockerfile
+    ports:
+      - "8087:8083"
+    env_file:
+      - ./lg-events-ms/.env
+    depends_on:
+      - data-groupexpenses-db
+      - data-events-db
+    restart: unless-stopped
+  lg-events-ms-3:
+    container_name: lg-events-ms-3
+    build:
+      context: ./lg-events-ms
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8083"
+    env_file:
+      - ./lg-events-ms/.env
+    depends_on:
+      - data-groupexpenses-db
+      - data-events-db
+    restart: unless-stopped
+
+
+  cm-loadbalancer-redir:
+    container_name: cm-loadbalancer-redir
+    build:
+      context: ./cm-loadbalancer-redir
+      dockerfile: Dockerfile
+    ports:
+      - "8090:80"
+    depends_on:
+      - lg-events-ms-1
+      - lg-events-ms-2
+      - lg-events-ms-3
     restart: unless-stopped
 
   lg-personalexpenses-ms:
