@@ -5,8 +5,22 @@ server {
     listen 80;
     server_name ${NGINX_HOST};
 
-    # Redirección HTTP → HTTPS
-    return 301 https://$host$request_uri;
+    # Permitir tráfico HTTP solo para la red interna Docker (por ejemplo, para /api, /auth, etc.)
+    location ~ ^/(api|auth|events|personal-expenses|group-expenses) {
+        proxy_pass ${PROXY_PASS_HOST};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    # Todo lo demás redirige a HTTPS
+    location / {
+        return 301 https://$host$request_uri;
+    }
 }
 
 # HTTPS server block
