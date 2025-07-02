@@ -70,8 +70,8 @@ services:
     networks:
       - private
 
-  lg-events-ms:
-    container_name: lg-events-ms
+  lg-events-ms-1:
+    container_name: lg-events-ms-1
     build:
       context: ./lg-events-ms
       dockerfile: Dockerfile
@@ -83,6 +83,45 @@ services:
     restart: unless-stopped
     networks:
       - private
+
+  lg-events-ms-2:
+    container_name: lg-events-ms-2
+    build:
+      context: ./lg-events-ms
+      dockerfile: Dockerfile
+    env_file:
+      - ./lg-events-ms/.env
+    depends_on:
+      - data-groupexpenses-db
+      - data-events-db
+    restart: unless-stopped
+    networks:
+      - private
+
+  lg-events-ms-3:
+    container_name: lg-events-ms-3
+    build:
+      context: ./lg-events-ms
+      dockerfile: Dockerfile
+    env_file:
+      - ./lg-events-ms/.env
+    depends_on:
+      - data-groupexpenses-db
+      - data-events-db
+    restart: unless-stopped
+    networks:
+      - private
+
+  cm-loadbalancer-redir:
+    container_name: cm-loadbalancer-redir
+    build:
+      context: ./cm-loadbalancer-redir
+      dockerfile: Dockerfile
+    depends_on:
+      - lg-events-ms-1
+      - lg-events-ms-2
+      - lg-events-ms-3
+    restart: unless-stopped
 
   lg-personalexpenses-ms:
     container_name: lg-personalexpenses-ms
