@@ -1,5 +1,4 @@
-FROM nginx:alpine
-COPY default.conf.template /etc/nginx/templates/default.conf.template
+FROM nginx:latest
+COPY nginx.conf /etc/nginx/nginx.conf
 
 
-RUN apk add --no-cache bash curl
