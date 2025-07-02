@@ -122,6 +122,8 @@ services:
       - lg-events-ms-2
       - lg-events-ms-3
     restart: unless-stopped
+    networks:
+      - private
 
   lg-personalexpenses-ms:
     container_name: lg-personalexpenses-ms
