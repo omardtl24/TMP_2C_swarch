@@ -18,26 +18,6 @@ services:
       - public
 
 # Communication Layer
-  cm-apigateway-orch:
-    container_name: cm-apigateway-orch
-    build:
-      context: ./cm-apigateway-orch
-      dockerfile: Dockerfile
-    env_file:
-      - ./cm-apigateway-orch/.env
-    restart: unless-stopped
-    networks:
-      - private
-
-  cm-broker-mq:
-    image: rabbitmq:3-management
-    container_name: cm-broker-mq
-    env_file:
-      - ./cm-broker-mq/.env  
-    restart: unless-stopped
-    networks:
-      - private
-
   cm-reverseproxy-redir:
     container_name: cm-reverseproxy-redir
     build:
@@ -49,16 +29,85 @@ services:
     env_file:
       - ./cm-reverseproxy-redir/.env
     depends_on:
-      - cm-apigateway-orch
+      - cm-apigateway-loadbalancer
     restart: unless-stopped
     networks:
       - public
       - private
 
+  cm-apigateway-loadbalancer:
+    container_name: cm-apigateway-loadbalancer
+    build:
+      context: ./cm-apigateway-loadbalancer
+      dockerfile: Dockerfile
+    depends_on:
+      - cm-apigateway-orch-1
+      - cm-apigateway-orch-2
+      - cm-apigateway-orch-3
+    restart: unless-stopped
+    networks:
+      - private
+
+  cm-apigateway-orch-1:
+    container_name: cm-apigateway-orch-1
+    build:
+      context: ./cm-apigateway-orch
+      dockerfile: Dockerfile
+    env_file:
+      - ./cm-apigateway-orch/.env
+    restart: unless-stopped
+    networks:
+      - private
+
+  cm-apigateway-orch-2:
+    container_name: cm-apigateway-orch-2
+    build:
+      context: ./cm-apigateway-orch
+      dockerfile: Dockerfile
+    env_file:
+      - ./cm-apigateway-orch/.env
+    restart: unless-stopped
+    networks:
+      - private
+
+  cm-apigateway-orch-3:
+    container_name: cm-apigateway-orch-3
+    build:
+      context: ./cm-apigateway-orch
+      dockerfile: Dockerfile
+    env_file:
+      - ./cm-apigateway-orch/.env
+    restart: unless-stopped
+    networks:
+      - private
+
+
+  cm-users-loadbalancer:
+    container_name: cm-users-loadbalancer
+    build:
+      context: ./cm-users-loadbalancer
+      dockerfile: Dockerfile
+    depends_on:
+      - lg-users-ms-1
+      - lg-users-ms-2
+      - lg-users-ms-3
+    restart: unless-stopped
+    networks:
+      - private
+
+
+  cm-broker-mq:
+    image: rabbitmq:3-management
+    container_name: cm-broker-mq
+    env_file:
+      - ./cm-broker-mq/.env  
+    restart: unless-stopped
+    networks:
+      - private
 
 # Logic Layer (business logic microservices)
-  lg-users-ms:
-    container_name: lg-users-ms
+  lg-users-ms-1:
+    container_name: lg-users-ms-1
     build:
       context: ./lg-users-ms
       dockerfile: Dockerfile
@@ -70,8 +119,34 @@ services:
     networks:
       - private
 
-  lg-events-ms-1:
-    container_name: lg-events-ms-1
+  lg-users-ms-2:
+    container_name: lg-users-ms-2
+    build:
+      context: ./lg-users-ms
+      dockerfile: Dockerfile
+    env_file:
+      - ./lg-users-ms/.env
+    depends_on:
+      - data-users-db
+    restart: unless-stopped
+    networks:
+      - private
+
+  lg-users-ms-3:
+    container_name: lg-users-ms-3
+    build:
+      context: ./lg-users-ms
+      dockerfile: Dockerfile
+    env_file:
+      - ./lg-users-ms/.env
+    depends_on:
+      - data-users-db
+    restart: unless-stopped
+    networks:
+      - private
+
+  lg-events-ms:
+    container_name: lg-events-ms
     build:
       context: ./lg-events-ms
       dockerfile: Dockerfile
@@ -80,47 +155,6 @@ services:
     depends_on:
       - data-groupexpenses-db
       - data-events-db
-    restart: unless-stopped
-    networks:
-      - private
-
-  lg-events-ms-2:
-    container_name: lg-events-ms-2
-    build:
-      context: ./lg-events-ms
-      dockerfile: Dockerfile
-    env_file:
-      - ./lg-events-ms/.env
-    depends_on:
-      - data-groupexpenses-db
-      - data-events-db
-    restart: unless-stopped
-    networks:
-      - private
-
-  lg-events-ms-3:
-    container_name: lg-events-ms-3
-    build:
-      context: ./lg-events-ms
-      dockerfile: Dockerfile
-    env_file:
-      - ./lg-events-ms/.env
-    depends_on:
-      - data-groupexpenses-db
-      - data-events-db
-    restart: unless-stopped
-    networks:
-      - private
-
-  cm-loadbalancer-redir:
-    container_name: cm-loadbalancer-redir
-    build:
-      context: ./cm-loadbalancer-redir
-      dockerfile: Dockerfile
-    depends_on:
-      - lg-events-ms-1
-      - lg-events-ms-2
-      - lg-events-ms-3
     restart: unless-stopped
     networks:
       - private
