@@ -18,16 +18,34 @@ services:
       - public
 
 # Communication Layer
-  cm-reverseproxy-redir:
-    container_name: cm-reverseproxy-redir
+  cm-reverseproxy-web:
+    container_name: cm-reverseproxy-web
     build:
-      context: ./cm-reverseproxy-redir
+      context: ./cm-reverseproxy-web
       dockerfile: Dockerfile
     ports:
       - "80:80"  
       - "443:443"
     env_file:
-      - ./cm-reverseproxy-redir/.env
+      - ./cm-reverseproxy-web/.env
+    depends_on:
+      - cm-apigateway-loadbalancer
+    restart: unless-stopped
+    networks:
+      - public
+      - private
+
+
+  cm-reverseproxy-mobile:
+    container_name: cm-reverseproxy-mobile
+    build:
+      context: ./cm-reverseproxy-mobile
+      dockerfile: Dockerfile
+    ports:
+      - "81:80"  
+      - "444:443"
+    env_file:
+      - ./cm-reverseproxy-mobile/.env
     depends_on:
       - cm-apigateway-loadbalancer
     restart: unless-stopped
