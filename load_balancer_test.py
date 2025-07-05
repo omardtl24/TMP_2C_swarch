@@ -1,8 +1,19 @@
+# COMANDO PARA CORRER EL SCRIPT
+"""
+$env:JWT_TOKEN="tu_jwt_real_aqui"
+python load_balancer_test.py
+"""
+
 import httpx
 import asyncio
+import os
 
 API_URL = "http://localhost:80/api/events/me"  
-JWT = "eyJraWQiOiIxIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJuYW1lIjoiTWFyaWEgQ2FtaWxhIFNhbmNoZXogUGFleiIsInN1YiI6IjEiLCJ1c2VyTmFtZSI6Im1hcmlhIiwiZXhwIjoxNzUxNjQ2MDk5LCJlbWFpbCI6Im1hcmlhY2FtaWxhMTMwMzcwQGdtYWlsLmNvbSJ9.rjPHMqCzwiw1u9_jGoyZtabWsOv-it6dnRFY1ImX_ib44USgZjqL3QLgolkwIAFjniT1tsrcACNTFImkRAJ8dtLg3KEfVOwbnz0Jx_gIDCTEtJ-sf43wgw7S2EWzGr_peH59MX63LuXsnxyZj_L_BO3sGQt5nRUpoGL_R2AFkmOPgBSihYFWyBUz7O8UeaBSu-TaLEJpBVEYzZg5Rbj1cKFfXmWheHVbl4_f_Qgp7uUm5XbmAr1MMWtQMXAgUiWQls5r8GgpIUmPRC0UltQCIBPg2CpW_ErmV3Iu7ukMm-jjHYPHmLrJCGd4wn8qccPBR1EG74t5JXqugi1Ft25DeQ" 
+JWT = os.getenv("JWT_TOKEN", "")  # Cargar desde variable de entorno
+
+if not JWT:
+    print("Error: JWT_TOKEN environment variable not set")
+    exit(1)
 
 HEADERS = {
     "Authorization": f"Bearer {JWT}"
