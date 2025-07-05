@@ -20,15 +20,23 @@ from gateway.utils.middlewares import responseFormat
 
 app = FastAPI(title="API Gateway")
 
-frontend_url = os.environ.get("PUBLIC_FRONTEND_URL", "PUBLIC_FRONTEND_PUBLIC_URL")
+# CORS Origins
+# Frontend web: NO necesita CORS (llamadas server-side)
+# Mobile app: NO necesita CORS (app nativa, no navegador web)
+# Solo necesario si hubiera llamadas desde navegador web directamente
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_url],
+    allow_origins=[],  # Sin orígenes permitidos por ahora
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Health check endpoint
+@app.get("/health")
+async def health():
+    return {"status": "UP", "service": "cm-apigateway-orch"}
 
 app.middleware("http")(responseFormat)
 

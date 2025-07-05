@@ -143,22 +143,10 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Spring Boot GraphQL -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-graphql</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>com.graphql-java</groupId>
 			<artifactId>graphql-java-extended-scalars</artifactId>
 			<version>20.1</version>
-		</dependency>
-
-		<!-- Soporte multipart en Spring -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 

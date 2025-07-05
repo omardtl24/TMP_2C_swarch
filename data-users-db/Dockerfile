@@ -1,11 +1,20 @@
-# postgres/Dockerfile Por ahora estan como placeholder...
-# Toca revisar si es necesario realizar configuraciones más especificas
-FROM postgres:alpine3.20
+# PostgreSQL Database for Users
+FROM postgres:16-alpine
 
-# Optional: Copy an initialization script
-# This script will be executed when the container starts for the first time
-# and the data directory (/var/lib/postgresql/data) is empty.
+# Install additional security packages
+RUN apk update && apk add --no-cache \
+    ca-certificates \
+    && rm -rf /var/cache/apk/*
+
+# Copy initialization script
 COPY init-postgres.sql /docker-entrypoint-initdb.d/init-postgres.sql
 
-# The base postgres image already exposes port 5432
-# EXPOSE 5432
+# Set proper permissions for initialization script
+RUN chmod 644 /docker-entrypoint-initdb.d/init-postgres.sql
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD pg_isready -U ${POSTGRES_USER:-postgres} || exit 1
+
+# The base postgres image already exposes port 5432 and runs as postgres user
+EXPOSE 5432

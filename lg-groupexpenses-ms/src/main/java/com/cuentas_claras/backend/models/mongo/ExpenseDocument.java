@@ -10,8 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.cuentas_claras.backend.models.enums.ExpenseType;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Data;
 
 @Data
@@ -24,7 +22,6 @@ public class ExpenseDocument {
     private double total;
     private String concept;
     @Field("type")
-    @Enumerated(EnumType.STRING)
     private ExpenseType type;
 
 
