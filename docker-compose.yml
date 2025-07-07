@@ -61,8 +61,11 @@ services:
       - cm-apigateway-orch-2
       - cm-apigateway-orch-3
     restart: unless-stopped
+    ports:
+      - "8000:80"  
     networks:
       - private
+
 
   cm-apigateway-orch-1:
     container_name: cm-apigateway-orch-1
