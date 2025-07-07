@@ -41,3 +41,6 @@ env.secrets.json
 PASSPHRASE.txt
 localhost.crt
 localhost.key
+
+#Python environment
+/venv/
