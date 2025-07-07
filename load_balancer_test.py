@@ -8,7 +8,7 @@ import httpx
 import asyncio
 import os
 
-API_URL = "http://localhost:80/api/events/me"  
+API_URL = "http://localhost:81/api/events/me"  
 JWT = os.getenv("JWT_TOKEN", "")  # Cargar desde variable de entorno
 
 if not JWT:
