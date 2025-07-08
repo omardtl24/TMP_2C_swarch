@@ -9,8 +9,7 @@ import asyncio
 import os
 
 API_URL = "http://localhost:81/api/events/me"  
-JWT = os.getenv("JWT_TOKEN", "")  # Cargar desde variable de entorno
-
+JWT = "eyJraWQiOiIxIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJuYW1lIjoiTWFyaWEgQ2FtaWxhIFNhbmNoZXogUGFleiIsInN1YiI6IjEiLCJ1c2VyTmFtZSI6ImNhbWlsYSIsImV4cCI6MTc1MjAzMTU0MSwiZW1haWwiOiJtYXJpYWNhbWlsYTEzMDM3MEBnbWFpbC5jb20ifQ.LydOwuUyQxTdtPiQAeUnuC4ejfK-KqybZwEdwXIOO8BgHBrw4se1R8UJ1hMoY3gWFubIDIvUQej9IPN5jovbScfUv47yKnv3TUE0xq8FRhVGw4LVifvqnhYUGOhwLUBiHfvaJeI2uLmuMSdvHuNE8bO3apBE95JQ4qhTl4BuFJ5OMUs99YiMhHYm-qUfuXvoOOBkXsJbmr4oXs6bRVfiTfcOXeJG1he8F5bHHWP1YW0SXv12K7PTQsBTfUiOyYxudrbBEPFzLpVpx8l_DtTWQN8ur7034CpLp2VHwPbBpLz9H_ogoSECXhnX3u6CQfsXuRm3O5nMtdGGLEyxkNR4ng"
 if not JWT:
     print("Error: JWT_TOKEN environment variable not set")
     exit(1)
@@ -29,7 +28,7 @@ async def fetch(i):
 
 async def main():
     #maximo encontrado a prueba y error 50 
-    tasks = [fetch(i) for i in range(200)]  # número de requests
+    tasks = [fetch(i) for i in range(150)]  # número de requests
     await asyncio.gather(*tasks)
 
 asyncio.run(main())
