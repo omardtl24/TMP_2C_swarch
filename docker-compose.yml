@@ -9,13 +9,10 @@ services:
     volumes:
       - ./pr-frontend-web/app:/app/app
       - ./pr-frontend-web/public:/app/public
-    ports:
-      - "3000:3000"
     env_file:
       - ./pr-frontend-web/.env
     restart: unless-stopped
     networks:
-      - public 
       - private
 
 # Communication Layer
