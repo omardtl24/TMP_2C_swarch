@@ -103,10 +103,10 @@ services:
     build:
       context: ./cm-users-loadbalancer
       dockerfile: Dockerfile
-    depends_on:
-      - lg-users-ms-1
-      - lg-users-ms-2
-      - lg-users-ms-3
+    # depends_on:  # COMENTAR ESTAS LÍNEAS
+    #   - lg-users-ms-1
+    #   - lg-users-ms-2
+    #   - lg-users-ms-3
     restart: unless-stopped
     networks:
       - private
@@ -122,44 +122,44 @@ services:
       - private
 
 # Logic Layer (business logic microservices)
-  lg-users-ms-1:
-    container_name: lg-users-ms-1
-    build:
-      context: ./lg-users-ms
-      dockerfile: Dockerfile
-    env_file:
-      - ./lg-users-ms/.env
-    depends_on:
-      - data-users-db
-    restart: unless-stopped
-    networks:
-      - private
+  # lg-users-ms-1:
+  #   container_name: lg-users-ms-1
+  #   build:
+  #     context: ./lg-users-ms
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ./lg-users-ms/.env
+  #   depends_on:
+  #     - data-users-db
+  #   restart: unless-stopped
+  #   networks:
+  #     - private
 
-  lg-users-ms-2:
-    container_name: lg-users-ms-2
-    build:
-      context: ./lg-users-ms
-      dockerfile: Dockerfile
-    env_file:
-      - ./lg-users-ms/.env
-    depends_on:
-      - data-users-db
-    restart: unless-stopped
-    networks:
-      - private
+  # lg-users-ms-2:
+  #   container_name: lg-users-ms-2
+  #   build:
+  #     context: ./lg-users-ms
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ./lg-users-ms/.env
+  #   depends_on:
+  #     - data-users-db
+  #   restart: unless-stopped
+  #   networks:
+  #     - private
 
-  lg-users-ms-3:
-    container_name: lg-users-ms-3
-    build:
-      context: ./lg-users-ms
-      dockerfile: Dockerfile
-    env_file:
-      - ./lg-users-ms/.env
-    depends_on:
-      - data-users-db
-    restart: unless-stopped
-    networks:
-      - private
+  # lg-users-ms-3:
+  #   container_name: lg-users-ms-3
+  #   build:
+  #     context: ./lg-users-ms
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ./lg-users-ms/.env
+  #   depends_on:
+  #     - data-users-db
+  #   restart: unless-stopped
+  #   networks:
+  #     - private
 
   lg-events-ms:
     container_name: lg-events-ms
@@ -218,18 +218,18 @@ services:
     networks:
       - private
 
-  data-users-db:
-    container_name: data-users-db
-    build:
-      context: ./data-users-db
-      dockerfile: Dockerfile
-    env_file:
-      - ./data-users-db/.env
-    volumes:
-      - data-users-db:/var/lib/postgresql/data
-    restart: unless-stopped
-    networks:
-      - private
+  # data-users-db:
+  #   container_name: data-users-db
+  #   build:
+  #     context: ./data-users-db
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ./data-users-db/.env
+  #   volumes:
+  #     - data-users-db:/var/lib/postgresql/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - private
 
   data-events-db:
     container_name: data-events-db
