@@ -44,3 +44,5 @@ localhost.key
 
 #Python environment
 /venv/
+
+*.yaml

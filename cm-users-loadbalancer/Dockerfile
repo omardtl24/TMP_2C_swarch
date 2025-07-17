@@ -3,8 +3,8 @@
 
 FROM nginx:alpine
 
-# Copiar configuración temporal
-COPY nginx-temp.conf /etc/nginx/nginx.conf
+# Copiar configuración
+COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 

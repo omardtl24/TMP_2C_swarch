@@ -258,18 +258,18 @@ services:
       - private
 
 # Adminer UI
-  adminer:
-    container_name: adminer
-    image: adminer
-    ports:
-      - "8081:8080"
-    restart: unless-stopped
-    depends_on:
-      - data-events-db
-      - data-users-db
-      - data-personalexpenses-db
-    networks:
-      - private
+  # adminer:
+  #   container_name: adminer
+  #   image: adminer
+  #   ports:
+  #     - "8081:8080"
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - data-events-db
+  #     - data-users-db
+  #     - data-personalexpenses-db
+  #   networks:
+  #     - private
 
 # Networks
 networks:
