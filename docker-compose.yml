@@ -98,18 +98,18 @@ services:
       - private
 
 
-  cm-users-loadbalancer:
-    container_name: cm-users-loadbalancer
-    build:
-      context: ./cm-users-loadbalancer
-      dockerfile: Dockerfile
-    # depends_on:  # COMENTAR ESTAS LÍNEAS
-    #   - lg-users-ms-1
-    #   - lg-users-ms-2
-    #   - lg-users-ms-3
-    restart: unless-stopped
-    networks:
-      - private
+  # cm-users-loadbalancer:
+  #   container_name: cm-users-loadbalancer
+  #   build:
+  #     context: ./cm-users-loadbalancer
+  #     dockerfile: Dockerfile
+  #   # depends_on:  # COMENTAR ESTAS LÍNEAS
+  #   #   - lg-users-ms-1
+  #   #   - lg-users-ms-2
+  #   #   - lg-users-ms-3
+  #   restart: unless-stopped
+  #   networks:
+  #     - private
 
 
   cm-broker-mq:

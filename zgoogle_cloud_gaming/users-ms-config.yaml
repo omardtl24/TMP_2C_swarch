@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: users-ms-config
+data:
+  GOOGLE_OAUTH_CLIENT_ID: "414832951377-d9t6vqebm0ov63njffrga981ooie637n.apps.googleusercontent.com"
+  FRONTEND_BASE_URL: "https://localhost"
+  GOOGLE_OAUTH_REDIRECT_URI: "https://localhost/api/auth/google/callback"
+  JWT_SESSION_DURATION_SECONDS: "86400"
+  PUBLIC_KEY: |-
+    -----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzD4Y23KvO6IaYqbUyMb1pjpLWrr1pNnwLb1FULRUKTUA4r6tfce1aCNxMiA2vkNKQ1C3rsXW7PtNN7MB3nGwWZ/rj5qqQA5kJ3jlks4YQ2UV9DnlOvurLR+M5NHytQ6B6BwDy2CgwKDC6Xg/aFUbuoPJLl70jYos+UqTM79ATDHc/ubofF+V80eCPxcKV9Gm0IFY1SLZYLG2tuhlJMiccMDxvAAlYOA0IcfPWkBtsDtdA3qkr1DFSY8p1JWpdASaOIzIBv9LH+bxWO4WHvs1TJvmQ9skqzDSrb2K7k+AHYuReloZbXvtWMtmfIEw1Lrlvlba47ewW9MHWq8z69wy2wIDAQAB
+    -----END PUBLIC KEY-----

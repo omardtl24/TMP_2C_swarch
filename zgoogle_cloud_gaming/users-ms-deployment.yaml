@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-ms-cluster
+  labels:
+    app: users-ms
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: users-ms
+  template:
+    metadata:
+      labels:
+        app: users-ms
+    spec:
+      containers:
+      - name: users-ms
+        image: gcr.io/swarch-cuentasclaras/lg-users-ms
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: POSTGRES_SUPERUSER
+          valueFrom:
+            secretKeyRef:
+              name: users-ms-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_SUPERUSER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: users-ms-secret
+              key: POSTGRES_PASSWORD
+        - name: PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: users-ms-secret
+              key: PRIVATE_KEY
+        - name: USERS_DATASOURCE_URL
+          valueFrom:
+            secretKeyRef:
+              name: users-ms-secret
+              key: USERS_DATASOURCE_URL
+        - name: GOOGLE_OAUTH_CLIENT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: users-ms-config
+              key: GOOGLE_OAUTH_CLIENT_ID
+        - name: GOOGLE_OAUTH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: users-ms-secret
+              key: GOOGLE_OAUTH_CLIENT_SECRET
+        - name: FRONTEND_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: users-ms-config
+              key: FRONTEND_BASE_URL
+        - name: GOOGLE_OAUTH_REDIRECT_URI
+          valueFrom:
+            configMapKeyRef:
+              name: users-ms-config
+              key: GOOGLE_OAUTH_REDIRECT_URI
+        - name: JWT_SESSION_DURATION_SECONDS
+          valueFrom:
+            configMapKeyRef:
+              name: users-ms-config
+              key: JWT_SESSION_DURATION_SECONDS
+        - name: PUBLIC_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: users-ms-config
+              key: PUBLIC_KEY
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+            ephemeral-storage: "512Mi"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+            ephemeral-storage: "1Gi"
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 18
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-ms-external
+  labels:
+    app: users-ms
+spec:
+  selector:
+    app: users-ms
+  ports:
+  - port: 80
+    targetPort: 8082
+    name: http
+  type: LoadBalancer
