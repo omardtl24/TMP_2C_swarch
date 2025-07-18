@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cm-apigateway-orch-cluster
+  labels:
+    app: cm-apigateway-orch
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cm-apigateway-orch
+  template:
+    metadata:
+      labels:
+        app: cm-apigateway-orch
+    spec:
+      containers:
+      - name: cm-apigateway-orch
+        image: us-east1-docker.pkg.dev/swarch-cuentasclaras/repo-cuentas-claras/cm-apigateway-orch-1# Replace with your actual image path
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: USERS_MS_URL
+          valueFrom:
+            secretKeyRef:
+              name: apigateway-orch-secrets
+              key: USERS_MS_URL
+        - name: EVENTS_MS_URL
+          valueFrom:
+            secretKeyRef:
+              name: apigateway-orch-secrets
+              key: EVENTS_MS_URL
+        - name: PERSONAL_EXPENSES_MS_URL
+          valueFrom:
+            secretKeyRef:
+              name: apigateway-orch-secrets
+              key: PERSONAL_EXPENSES_MS_URL
+        - name: GROUP_EXPENSES_MS_URL
+          valueFrom:
+            secretKeyRef:
+              name: apigateway-orch-secrets
+              key: GROUP_EXPENSES_MS_URL
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
