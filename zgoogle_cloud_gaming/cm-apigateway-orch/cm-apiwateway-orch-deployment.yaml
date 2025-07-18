@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: cm-apigateway-orch
-        image: us-east1-docker.pkg.dev/swarch-cuentasclaras/repo-cuentas-claras/cm-apigateway-orch-1# Replace with your actual image path
+        image: us-east1-docker.pkg.dev/swarch-cuentasclaras/repo-cuentas-claras/cm-apigateway-orch-1 # Replace with your actual image path
         ports:
         - containerPort: 8000
           name: http
