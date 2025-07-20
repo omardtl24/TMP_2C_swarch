@@ -1,41 +1,51 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: events-ms
+  name: personalexp-ms
   labels:
-    app: events-ms
+    app: personalexp-ms
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: events-ms
+      app: personalexp-ms
   template:
     metadata:
       labels:
-        app: events-ms
+        app: personalexp-ms
     spec:
       containers:
-      - name: events-ms
-        image: gcr.io/swarch-cuentasclaras/lg-events-ms
+      - name: personalexp-ms
+        image: gcr.io/swarch-cuentasclaras/lg-personalexpenses-ms
         ports:
-        - containerPort: 8083
+        - containerPort: 8084
           name: http
         env:
         - name: POSTGRES_SUPERUSER
           valueFrom:
             secretKeyRef:
-              name: events-ms-secrets
+              name: personalexp-ms-secrets
               key: POSTGRES_SUPERUSER
         - name: POSTGRES_SUPERUSER_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: events-ms-secrets
+              name: personalexp-ms-secrets
               key: POSTGRES_SUPERUSER_PASSWORD
-        - name: COMMUNITY_DATASOURCE_URL
+        - name: PERSONAL_DATASOURCE_URL
           valueFrom:
             secretKeyRef:
-              name: events-ms-secrets
-              key: COMMUNITY_DATASOURCE_URL
+              name: personalexp-ms-secrets
+              key: PERSONAL_DATASOURCE_URL
+        - name: RABBITMQ_USER
+          valueFrom:
+            secretKeyRef:
+              name: personalexp-ms-secrets
+              key: RABBITMQ_USER
+        - name: RABBITMQ_PASS
+          valueFrom:
+            secretKeyRef:
+              name: personalexp-ms-secrets
+              key: RABBITMQ_PASS
         resources:
           requests:
             memory: "256Mi"
@@ -46,7 +56,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /api/health
-            port: 8083
+            port: 8084
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
@@ -54,7 +64,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /api/health
-            port: 8083
+            port: 8084
           initialDelaySeconds: 30
           periodSeconds: 5
           timeoutSeconds: 3
@@ -63,14 +73,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: events-ms-service
+  name: personalexp-ms-service
   labels:
-    app: events-ms
+    app: personalexp-ms
 spec:
   selector:
-    app: events-ms
+    app: personalexp-ms
   ports:
   - port: 80
-    targetPort: 8083
+    targetPort: 8084
     name: http
   type: ClusterIP

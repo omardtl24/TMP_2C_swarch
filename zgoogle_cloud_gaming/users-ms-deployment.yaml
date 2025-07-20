@@ -109,11 +109,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: users-ms-external
+  name: users-ms-service
   labels:
     app: users-ms
-  annotations:
-    networking.gke.io/load-balancer-type: "Internal"
 spec:
   selector:
     app: users-ms
@@ -121,8 +119,7 @@ spec:
   - port: 80
     targetPort: 8082
     name: http
-  type: LoadBalancer
-  loadBalancerIP: 10.0.1.40
+  type: ClusterIP
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

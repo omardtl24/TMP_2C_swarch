@@ -1,3 +1,4 @@
+
 services:
 
 # Presentation Layer
@@ -26,13 +27,10 @@ services:
       - "443:443"
     env_file:
       - ./cm-reverseproxy-web/.env
-    depends_on:
-      - cm-apigateway-loadbalancer
     restart: unless-stopped
     networks:
       - public
       - private
-
 
   cm-reverseproxy-mobile:
     container_name: cm-reverseproxy-mobile
@@ -44,232 +42,229 @@ services:
       - "444:443"
     env_file:
       - ./cm-reverseproxy-mobile/.env
-    depends_on:
-      - cm-apigateway-loadbalancer
     restart: unless-stopped
     networks:
       - public
       - private
 
-  cm-apigateway-loadbalancer:
-    container_name: cm-apigateway-loadbalancer
-    build:
-      context: ./cm-apigateway-loadbalancer
-      dockerfile: Dockerfile
-    depends_on:
-      - cm-apigateway-orch-1
-      - cm-apigateway-orch-2
-      - cm-apigateway-orch-3
-    restart: unless-stopped
-    networks:
-      - private
-
-  cm-apigateway-orch-1:
-    container_name: cm-apigateway-orch-1
-    build:
-      context: ./cm-apigateway-orch
-      dockerfile: Dockerfile
-    env_file:
-      - ./cm-apigateway-orch/.env
-    restart: unless-stopped
-    networks:
-      - private
-
-  cm-apigateway-orch-2:
-    container_name: cm-apigateway-orch-2
-    build:
-      context: ./cm-apigateway-orch
-      dockerfile: Dockerfile
-    env_file:
-      - ./cm-apigateway-orch/.env
-    restart: unless-stopped
-    networks:
-      - private
-
-  cm-apigateway-orch-3:
-    container_name: cm-apigateway-orch-3
-    build:
-      context: ./cm-apigateway-orch
-      dockerfile: Dockerfile
-    env_file:
-      - ./cm-apigateway-orch/.env
-    restart: unless-stopped
-    networks:
-      - private
-
-
-  # cm-users-loadbalancer:
-  #   container_name: cm-users-loadbalancer
-  #   build:
-  #     context: ./cm-users-loadbalancer
-  #     dockerfile: Dockerfile
-  #   # depends_on:  # COMENTAR ESTAS LÍNEAS
-  #   #   - lg-users-ms-1
-  #   #   - lg-users-ms-2
-  #   #   - lg-users-ms-3
-  #   restart: unless-stopped
-  #   networks:
-  #     - private
-
-
-  cm-broker-mq:
-    image: rabbitmq:3-management
-    container_name: cm-broker-mq
-    env_file:
-      - ./cm-broker-mq/.env  
-    restart: unless-stopped
-    networks:
-      - private
-
+# --- Todo lo siguiente está en cloud y se deja comentado para referencia ---
+#   cm-apigateway-loadbalancer:
+#     container_name: cm-apigateway-loadbalancer
+#     build:
+#       context: ./cm-apigateway-loadbalancer
+#       dockerfile: Dockerfile
+#     depends_on:
+#       - cm-apigateway-orch-1
+#       - cm-apigateway-orch-2
+#       - cm-apigateway-orch-3
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   cm-apigateway-orch-1:
+#     container_name: cm-apigateway-orch-1
+#     build:
+#       context: ./cm-apigateway-orch
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./cm-apigateway-orch/.env
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   cm-apigateway-orch-2:
+#     container_name: cm-apigateway-orch-2
+#     build:
+#       context: ./cm-apigateway-orch
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./cm-apigateway-orch/.env
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   cm-apigateway-orch-3:
+#     container_name: cm-apigateway-orch-3
+#     build:
+#       context: ./cm-apigateway-orch
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./cm-apigateway-orch/.env
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   cm-users-loadbalancer:
+#     container_name: cm-users-loadbalancer
+#     build:
+#       context: ./cm-users-loadbalancer
+#       dockerfile: Dockerfile
+#     # depends_on:  # COMENTAR ESTAS LÍNEAS
+#     #   - lg-users-ms-1
+#     #   - lg-users-ms-2
+#     #   - lg-users-ms-3
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   cm-broker-mq:
+#     image: rabbitmq:3-management
+#     container_name: cm-broker-mq
+#     env_file:
+#       - ./cm-broker-mq/.env  
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
 # Logic Layer (business logic microservices)
-  # lg-users-ms-1:
-  #   container_name: lg-users-ms-1
-  #   build:
-  #     context: ./lg-users-ms
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ./lg-users-ms/.env
-  #   depends_on:
-  #     - data-users-db
-  #   restart: unless-stopped
-  #   networks:
-  #     - private
-
-  # lg-users-ms-2:
-  #   container_name: lg-users-ms-2
-  #   build:
-  #     context: ./lg-users-ms
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ./lg-users-ms/.env
-  #   depends_on:
-  #     - data-users-db
-  #   restart: unless-stopped
-  #   networks:
-  #     - private
-
-  # lg-users-ms-3:
-  #   container_name: lg-users-ms-3
-  #   build:
-  #     context: ./lg-users-ms
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ./lg-users-ms/.env
-  #   depends_on:
-  #     - data-users-db
-  #   restart: unless-stopped
-  #   networks:
-  #     - private
-
-  lg-events-ms:
-    container_name: lg-events-ms
-    build:
-      context: ./lg-events-ms
-      dockerfile: Dockerfile
-    env_file:
-      - ./lg-events-ms/.env
-    depends_on:
-      - data-groupexpenses-db
-      - data-events-db
-    restart: unless-stopped
-    networks:
-      - private
-
-  lg-personalexpenses-ms:
-    container_name: lg-personalexpenses-ms
-    build:
-      context: ./lg-personalexpenses-ms
-      dockerfile: Dockerfile
-    env_file:
-      - ./lg-personalexpenses-ms/.env
-    depends_on:
-      - data-personalexpenses-db
-      - cm-broker-mq
-    restart: unless-stopped
-    networks:
-      - private
-
-  lg-groupexpenses-ms:
-    container_name: lg-groupexpenses-ms
-    build:
-      context: ./lg-groupexpenses-ms
-      dockerfile: Dockerfile
-    env_file:
-      - ./lg-groupexpenses-ms/.env
-    depends_on:
-      - data-groupexpenses-db
-      - data-events-db
-      - cm-broker-mq
-    restart: unless-stopped
-    networks:
-      - private
-
+#   lg-users-ms-1:
+#     container_name: lg-users-ms-1
+#     build:
+#       context: ./lg-users-ms
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./lg-users-ms/.env
+#     depends_on:
+#       - data-users-db
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   lg-users-ms-2:
+#     container_name: lg-users-ms-2
+#     build:
+#       context: ./lg-users-ms
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./lg-users-ms/.env
+#     depends_on:
+#       - data-users-db
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   lg-users-ms-3:
+#     container_name: lg-users-ms-3
+#     build:
+#       context: ./lg-users-ms
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./lg-users-ms/.env
+#     depends_on:
+#       - data-users-db
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   lg-events-ms:
+#     container_name: lg-events-ms
+#     build:
+#       context: ./lg-events-ms
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./lg-events-ms/.env
+#     depends_on:
+#       - data-groupexpenses-db
+#       - data-events-db
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   lg-personalexpenses-ms:
+#     container_name: lg-personalexpenses-ms
+#     build:
+#       context: ./lg-personalexpenses-ms
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./lg-personalexpenses-ms/.env
+#     depends_on:
+#       - data-personalexpenses-db
+#       - cm-broker-mq
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   lg-groupexpenses-ms:
+#     container_name: lg-groupexpenses-ms
+#     build:
+#       context: ./lg-groupexpenses-ms
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./lg-groupexpenses-ms/.env
+#     depends_on:
+#       - data-groupexpenses-db
+#       - data-events-db
+#       - cm-broker-mq
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
 # Database Layer
-  data-groupexpenses-db:
-    container_name: data-groupexpenses-db
-    build:
-      context: ./data-groupexpenses-db
-      dockerfile: Dockerfile
-    env_file:
-      - ./data-groupexpenses-db/.env
-    volumes:
-      - data-groupexpenses-db:/data/db
-    restart: unless-stopped
-    networks:
-      - private
-
-  # data-users-db:
-  #   container_name: data-users-db
-  #   build:
-  #     context: ./data-users-db
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ./data-users-db/.env
-  #   volumes:
-  #     - data-users-db:/var/lib/postgresql/data
-  #   restart: unless-stopped
-  #   networks:
-  #     - private
-
-  data-events-db:
-    container_name: data-events-db
-    build:
-      context: ./data-events-db
-      dockerfile: Dockerfile
-    env_file:
-      - ./data-events-db/.env
-    volumes:
-      - data-events-db:/var/lib/postgresql/data
-    restart: unless-stopped
-    networks:
-      - private
-
-  data-personalexpenses-db:
-    container_name: data-personalexpenses-db
-    build:
-      context: ./data-personalexpenses-db
-      dockerfile: Dockerfile
-    env_file:
-      - ./data-personalexpenses-db/.env
-    volumes:
-      - data-personalexpenses-db:/var/lib/postgresql/data
-    restart: unless-stopped
-    networks:
-      - private
-
+#   data-groupexpenses-db:
+#     container_name: data-groupexpenses-db
+#     build:
+#       context: ./data-groupexpenses-db
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./data-groupexpenses-db/.env
+#     volumes:
+#       - data-groupexpenses-db:/data/db
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   data-users-db:
+#     container_name: data-users-db
+#     build:
+#       context: ./data-users-db
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./data-users-db/.env
+#     volumes:
+#       - data-users-db:/var/lib/postgresql/data
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   data-events-db:
+#     container_name: data-events-db
+#     build:
+#       context: ./data-events-db
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./data-events-db/.env
+#     volumes:
+#       - data-events-db:/var/lib/postgresql/data
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
+#   data-personalexpenses-db:
+#     container_name: data-personalexpenses-db
+#     build:
+#       context: ./data-personalexpenses-db
+#       dockerfile: Dockerfile
+#     env_file:
+#       - ./data-personalexpenses-db/.env
+#     volumes:
+#       - data-personalexpenses-db:/var/lib/postgresql/data
+#     restart: unless-stopped
+#     networks:
+#       - private
+#
 # Adminer UI
-  # adminer:
-  #   container_name: adminer
-  #   image: adminer
-  #   ports:
-  #     - "8081:8080"
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - data-events-db
-  #     - data-users-db
-  #     - data-personalexpenses-db
-  #   networks:
-  #     - private
+#   adminer:
+#     container_name: adminer
+#     image: adminer
+#     ports:
+#       - "8081:8080"
+#     restart: unless-stopped
+#     depends_on:
+#       - data-events-db
+#       - data-users-db
+#       - data-personalexpenses-db
+#     networks:
+#       - private
 
 # Networks
 networks:
@@ -279,12 +274,12 @@ networks:
     driver: bridge
 
 # Volumes
-volumes:
-  data-groupexpenses-db:
-    driver: local
-  data-users-db:
-    driver: local
-  data-events-db:
-    driver: local
-  data-personalexpenses-db:
-    driver: local
+# volumes:
+#   data-groupexpenses-db:
+#     driver: local
+#   data-users-db:
+#     driver: local
+#   data-events-db:
+#     driver: local
+#   data-personalexpenses-db:
+#     driver: local
