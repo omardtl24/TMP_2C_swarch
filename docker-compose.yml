@@ -5,7 +5,7 @@ services:
     container_name: pr-frontend-web
     build:
       context: ./pr-frontend-web
-      dockerfile: prod.Dockerfile
+      dockerfile: Dockerfile
     volumes:
       - ./pr-frontend-web/app:/app/app
       - ./pr-frontend-web/public:/app/public

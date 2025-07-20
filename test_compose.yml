@@ -1,0 +1,13 @@
+  lg-events-ms:
+    container_name: lg-events-ms
+    build:
+      context: ./lg-events-ms
+      dockerfile: Dockerfile
+    env_file:
+      - ./lg-events-ms/.env
+    depends_on:
+      - data-groupexpenses-db
+      - data-events-db
+    restart: unless-stopped
+    networks:
+      - private

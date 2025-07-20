@@ -18,58 +18,59 @@ spec:
       - name: users-ms
         image: gcr.io/swarch-cuentasclaras/lg-users-ms
         ports:
-        - containerPort: 8080
+        - containerPort: 8082
           name: http
         env:
+        # ===== TODAS LAS VARIABLES AHORA DESDE users-ms-secrets =====
         - name: POSTGRES_SUPERUSER
           valueFrom:
             secretKeyRef:
-              name: users-ms-secret
+              name: users-ms-secrets  # ← Cambio aquí
               key: POSTGRES_USER
         - name: POSTGRES_SUPERUSER_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: users-ms-secret
+              name: users-ms-secrets  # ← Cambio aquí
               key: POSTGRES_PASSWORD
         - name: PRIVATE_KEY
           valueFrom:
             secretKeyRef:
-              name: users-ms-secret
+              name: users-ms-secrets  # ← Cambio aquí
               key: PRIVATE_KEY
         - name: USERS_DATASOURCE_URL
           valueFrom:
             secretKeyRef:
-              name: users-ms-secret
+              name: users-ms-secrets  # ← Cambio aquí
               key: USERS_DATASOURCE_URL
         - name: GOOGLE_OAUTH_CLIENT_ID
           valueFrom:
-            configMapKeyRef:
-              name: users-ms-config
+            secretKeyRef:
+              name: users-ms-secrets  # ← Cambio aquí (era configMap)
               key: GOOGLE_OAUTH_CLIENT_ID
         - name: GOOGLE_OAUTH_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: users-ms-secret
+              name: users-ms-secrets  # ← Cambio aquí
               key: GOOGLE_OAUTH_CLIENT_SECRET
         - name: FRONTEND_BASE_URL
           valueFrom:
-            configMapKeyRef:
-              name: users-ms-config
+            secretKeyRef:
+              name: users-ms-secrets  # ← Cambio aquí (era configMap)
               key: FRONTEND_BASE_URL
         - name: GOOGLE_OAUTH_REDIRECT_URI
           valueFrom:
-            configMapKeyRef:
-              name: users-ms-config
+            secretKeyRef:
+              name: users-ms-secrets  # ← Cambio aquí (era configMap)
               key: GOOGLE_OAUTH_REDIRECT_URI
         - name: JWT_SESSION_DURATION_SECONDS
           valueFrom:
-            configMapKeyRef:
-              name: users-ms-config
+            secretKeyRef:
+              name: users-ms-secrets  # ← Cambio aquí (era configMap)
               key: JWT_SESSION_DURATION_SECONDS
         - name: PUBLIC_KEY
           valueFrom:
-            configMapKeyRef:
-              name: users-ms-config
+            secretKeyRef:
+              name: users-ms-secrets  # ← Cambio aquí (era configMap)
               key: PUBLIC_KEY
         resources:
           requests:
@@ -111,6 +112,8 @@ metadata:
   name: users-ms-external
   labels:
     app: users-ms
+  annotations:
+    networking.gke.io/load-balancer-type: "Internal"
 spec:
   selector:
     app: users-ms
@@ -119,3 +122,23 @@ spec:
     targetPort: 8082
     name: http
   type: LoadBalancer
+  loadBalancerIP: 10.0.1.40
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: users-ms-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: users-ms-cluster
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50

@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # Database for events
+  data-events-db:
+    build:
+      context: ./data-events-db
+      dockerfile: Dockerfile
+    env_file:
+      - ./data-events-db/.env
+    volumes:
+      - data-events-db:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+
+  # Main service under test
+  lg-events-ms:
+    build:
+      context: ./lg-events-ms
+      dockerfile: Dockerfile
+    env_file:
+      - ./lg-events-ms/.env
+    depends_on:
+      - data-events-db
+    ports:
+      - "8083:8083"
+    restart: unless-stopped
+
+volumes:
+  data-events-db:
+    driver: local
