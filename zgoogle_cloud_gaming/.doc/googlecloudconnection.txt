@@ -1,0 +1,5 @@
+gcloud auth login
+gcloud config set project swarch-cuentasclaras
+gcloud config list
+
+gcloud container clusters get-credentials cluster-lab-5 --region us-central1 --project swarch-cuentasclaras

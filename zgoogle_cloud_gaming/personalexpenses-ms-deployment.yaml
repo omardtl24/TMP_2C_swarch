@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: personalexp-ms
+  labels:
+    app: personalexp-ms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: personalexp-ms
+  template:
+    metadata:
+      labels:
+        app: personalexp-ms
+    spec:
+      containers:
+      - name: personalexp-ms
+        image: gcr.io/swarch-cuentasclaras/lg-personalexpenses-ms
+        ports:
+        - containerPort: 8084
+          name: http
+        env:
+        - name: POSTGRES_SUPERUSER
+          valueFrom:
+            secretKeyRef:
+              name: personalexp-ms-secrets
+              key: POSTGRES_SUPERUSER
+        - name: POSTGRES_SUPERUSER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: personalexp-ms-secrets
+              key: POSTGRES_SUPERUSER_PASSWORD
+        - name: PERSONAL_DATASOURCE_URL
+          valueFrom:
+            secretKeyRef:
+              name: personalexp-ms-secrets
+              key: PERSONAL_DATASOURCE_URL
+        - name: RABBITMQ_USER
+          valueFrom:
+            secretKeyRef:
+              name: personalexp-ms-secrets
+              key: RABBITMQ_USER
+        - name: RABBITMQ_PASS
+          valueFrom:
+            secretKeyRef:
+              name: personalexp-ms-secrets
+              key: RABBITMQ_PASS
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8084
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8084
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: personalexp-ms-service
+  labels:
+    app: personalexp-ms
+spec:
+  selector:
+    app: personalexp-ms
+  ports:
+  - port: 80
+    targetPort: 8084
+    name: http
+  type: ClusterIP

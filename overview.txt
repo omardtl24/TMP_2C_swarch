@@ -1,0 +1,94 @@
+PS C:\Users\SANTIAGO\Documents\Dev\ClonedRepos\TMP_2C_swarch> gcloud config get-value project
+Your active configuration is: [dog]
+swarch-cuentasclaras
+PS C:\Users\SANTIAGO\Documents\Dev\ClonedRepos\TMP_2C_swarch> gcloud compute networks list
+NAME            SUBNET_MODE  BGP_ROUTING_MODE  IPV4_RANGE  GATEWAY_IPV4  INTERNAL_IPV6_RANGE
+cuentas-claras  CUSTOM       REGIONAL
+default         AUTO         REGIONAL
+PS C:\Users\SANTIAGO\Documents\Dev\ClonedRepos\TMP_2C_swarch> gcloud compute networks subnets list
+NAME            REGION                   NETWORK         RANGE          STACK_TYPE  IPV6_ACCESS_TYPE  INTERNAL_IPV6_PREFIX  EXTERNAL_IPV6_PREFIX
+default         us-central1              default         10.128.0.0/20  IPV4_ONLY
+default         europe-west1             default         10.132.0.0/20  IPV4_ONLY
+default         us-west1                 default         10.138.0.0/20  IPV4_ONLY
+default         asia-east1               default         10.140.0.0/20  IPV4_ONLY
+default         us-east1                 default         10.142.0.0/20  IPV4_ONLY
+subred-privada  us-east1                 cuentas-claras  10.0.1.0/26    IPV4_ONLY
+default         asia-northeast1          default         10.146.0.0/20  IPV4_ONLY
+default         asia-southeast1          default         10.148.0.0/20  IPV4_ONLY
+default         us-east4                 default         10.150.0.0/20  IPV4_ONLY
+default         australia-southeast1     default         10.152.0.0/20  IPV4_ONLY
+default         europe-west2             default         10.154.0.0/20  IPV4_ONLY
+default         europe-west3             default         10.156.0.0/20  IPV4_ONLY
+default         southamerica-east1       default         10.158.0.0/20  IPV4_ONLY
+default         asia-south1              default         10.160.0.0/20  IPV4_ONLY
+default         northamerica-northeast1  default         10.162.0.0/20  IPV4_ONLY
+default         europe-west4             default         10.164.0.0/20  IPV4_ONLY
+default         europe-north1            default         10.166.0.0/20  IPV4_ONLY
+default         us-west2                 default         10.168.0.0/20  IPV4_ONLY
+default         asia-east2               default         10.170.0.0/20  IPV4_ONLY
+default         europe-west6             default         10.172.0.0/20  IPV4_ONLY
+default         asia-northeast2          default         10.174.0.0/20  IPV4_ONLY
+default         asia-northeast3          default         10.178.0.0/20  IPV4_ONLY
+default         us-west3                 default         10.180.0.0/20  IPV4_ONLY
+default         us-west4                 default         10.182.0.0/20  IPV4_ONLY
+default         asia-southeast2          default         10.184.0.0/20  IPV4_ONLY
+default         europe-central2          default         10.186.0.0/20  IPV4_ONLY
+default         northamerica-northeast2  default         10.188.0.0/20  IPV4_ONLY
+default         asia-south2              default         10.190.0.0/20  IPV4_ONLY
+default         australia-southeast2     default         10.192.0.0/20  IPV4_ONLY
+default         southamerica-west1       default         10.194.0.0/20  IPV4_ONLY
+default         europe-west8             default         10.198.0.0/20  IPV4_ONLY
+default         europe-west9             default         10.200.0.0/20  IPV4_ONLY
+default         us-east5                 default         10.202.0.0/20  IPV4_ONLY
+default         europe-southwest1        default         10.204.0.0/20  IPV4_ONLY
+default         us-south1                default         10.206.0.0/20  IPV4_ONLY
+default         me-west1                 default         10.208.0.0/20  IPV4_ONLY
+default         europe-west12            default         10.210.0.0/20  IPV4_ONLY
+default         me-central1              default         10.212.0.0/20  IPV4_ONLY
+default         europe-west10            default         10.214.0.0/20  IPV4_ONLY
+default         africa-south1            default         10.218.0.0/20  IPV4_ONLY
+default         northamerica-south1      default         10.224.0.0/20  IPV4_ONLY
+default         europe-north2            default         10.226.0.0/20  IPV4_ONLY
+PS C:\Users\SANTIAGO\Documents\Dev\ClonedRepos\TMP_2C_swarch> gcloud compute instances list
+NAME                      ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP  STATUS
+data-events-db            us-east1-d  e2-small                   10.0.1.25                 TERMINATED
+data-groupexpenses-db     us-east1-d  e2-small                   10.0.1.35                 TERMINATED
+data-personalexpenses-db  us-east1-d  e2-small                   10.0.1.30                 TERMINATED
+data-users-db             us-east1-d  e2-small                   10.0.1.33                 TERMINATED
+PS C:\Users\SANTIAGO\Documents\Dev\ClonedRepos\TMP_2C_swarch> gcloud container clusters list
+PS C:\Users\SANTIAGO\Documents\Dev\ClonedRepos\TMP_2C_swarch> gcloud compute firewall-rules list --filter="network:cuentas-claras"
+NAME                                   NETWORK         DIRECTION  PRIORITY  ALLOW           DENY  DISABLED
+allow-cluster-to-db                    cuentas-claras  INGRESS    1000      tcp:5432              False
+allow-mongo-private                    cuentas-claras  INGRESS    1000      tcp:27017             False
+allow-public-reverseproxy-mobile       cuentas-claras  INGRESS    1000      tcp:81,tcp:444        False
+allow-public-reverseproxy-web          cuentas-claras  INGRESS    1000      tcp:80,tcp:443        False
+allow-rabbitmq-mgmt-public             cuentas-claras  INGRESS    1000      tcp:15672             False
+allow-requests-lg-events-ms            cuentas-claras  INGRESS    1000      tcp:8083              False
+allow-requests-lg-groupexpenses-ms     cuentas-claras  INGRESS    1000      tcp:8085              False
+allow-requests-lg-personalexpenses-ms  cuentas-claras  INGRESS    1000      tcp:8084              False
+allow-reverseproxy-to-frontend         cuentas-claras  EGRESS     1000      tcp:3000              False
+allow-ssh                              cuentas-claras  INGRESS    1000      tcp:22                False
+cluster-to-db                          cuentas-claras  INGRESS    1000      tcp:5432              False
+cuentas-claras-allow-custom            cuentas-claras  INGRESS    65534     all                   False
+cuentas-claras-allow-icmp              cuentas-claras  INGRESS    65534     icmp                  False
+cuentas-claras-allow-rdp               cuentas-claras  INGRESS    65534     tcp:3389              False
+cuentas-claras-allow-ssh               cuentas-claras  INGRESS    65534     tcp:22                False
+
+To show all fields of the firewall, please show in JSON format: --format=json
+To show all fields in table format, please see the examples in --help.
+
+PS C:\Users\SANTIAGO\Documents\Dev\ClonedRepos\TMP_2C_swarch> # Comando corregido
+>> gcloud compute project-info describe --format="table(quotas.metric,quotas.usage,quotas.limit)"
+METRIC
+
+
+
+
+
+
+
+ USAGE
+                                                                                                        LIMIT
+['SNAPSHOTS', 'NETWORKS', 'FIREWALLS', 'IMAGES', 'STATIC_ADDRESSES', 'ROUTES', 'FORWARDING_RULES', 'TARGET_POOLS', 'HEALTH_CHECKS', 'IN_USE_ADDRESSES', 'TARGET_INSTANCES', 'TARGET_HTTP_PROXIES', 'URL_MAPS', 'BACKEND_SERVICES', 'INSTANCE_TEMPLATES', 'TARGET_VPN_GATEWAYS', 'VPN_TUNNELS', 'BACKEND_BUCKETS', 'ROUTERS', 'TARGET_SSL_PROXIES', 'TARGET_HTTPS_PROXIES', 'SSL_CERTIFICATES', 'SUBNETWORKS', 'TARGET_TCP_PROXIES', 
+'CPUS_ALL_REGIONS', 'SECURITY_POLICIES', 'SECURITY_POLICY_RULES', 'XPN_SERVICE_PROJECTS', 'PACKET_MIRRORINGS', 'NETWORK_ENDPOINT_GROUPS', 'INTERCONNECTS', 'SSL_POLICIES', 'GLOBAL_INTERNAL_ADDRESSES', 'VPN_GATEWAYS', 'MACHINE_IMAGES', 'SECURITY_POLICY_CEVAL_RULES', 'GPUS_ALL_REGIONS', 'EXTERNAL_VPN_GATEWAYS', 'PUBLIC_ADVERTISED_PREFIXES', 'PUBLIC_DELEGATED_PREFIXES', 'STATIC_BYOIP_ADDRESSES', 'NETWORK_FIREWALL_POLICIES', 'INTERNAL_TRAFFIC_DIRECTOR_FORWARDING_RULES', 'GLOBAL_EXTERNAL_MANAGED_FORWARDING_RULES', 'GLOBAL_INTERNAL_MANAGED_BACKEND_SERVICES', 'GLOBAL_EXTERNAL_MANAGED_BACKEND_SERVICES', 'GLOBAL_EXTERNAL_PROXY_LB_BACKEND_SERVICES', 'GLOBAL_INTERNAL_TRAFFIC_DIRECTOR_BACKEND_SERVICES'] 
+ [7.0, 2.0, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]  [1000.0, 5.0, 100.0, 100.0, 8.0, 200.0, 15.0, 50.0, 75.0, 4.0, 50.0, 10.0, 10.0, 50.0, 100.0, 5.0, 10.0, 3.0, 10.0, 10.0, 10.0, 10.0, 100.0, 10.0, 12.0, 0.0, 0.0, 1000.0, 20.0, 100.0, 6.0, 10.0, 5000.0, 5.0, 100.0, 0.0, 0.0, 5.0, 1.0, 10.0, 128.0, 10.0, 15.0, 15.0, 50.0, 50.0, 50.0, 100.0]
