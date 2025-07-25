@@ -5,9 +5,23 @@ import 'screens/register_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'utils/session.dart';
+import 'dart:io';
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? ctx) {
+    final client = super.createHttpClient(ctx);
+    client.badCertificateCallback =
+      (X509Certificate cert, String host, int port) => true;
+    return client;
+  }
+}
+
 
 void main() async {
+ 
   WidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = MyHttpOverrides();
 
   try {
     await dotenv.load(fileName: "assets/.env");

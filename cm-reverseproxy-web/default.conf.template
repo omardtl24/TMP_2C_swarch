@@ -19,9 +19,9 @@ server {
      }
 
     # Todo lo demás redirige a HTTPS (comenta esta línea durante pruebas)
-    # location / {
-    #    return 301 https://$host$request_uri;
-    # }
+    location / {
+        return 301 https://$host$request_uri;
+    }
 }
 
 # HTTPS server block

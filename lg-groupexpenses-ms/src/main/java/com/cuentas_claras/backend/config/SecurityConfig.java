@@ -24,7 +24,7 @@ public class SecurityConfig {
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 // allow unauthenticated access to GraphiQL UI and GraphQL endpoint
-                .requestMatchers("/api/graphiql/**", "/api/graphql/**", "/graphiql/**", "/graphql/**").permitAll()
+                .requestMatchers("/api/graphiql/**", "/api/graphql/**", "/graphiql/**", "/graphql/**",  "/health").permitAll()
                 // also keep your public endpoints
                 .requestMatchers("/public/**").permitAll()
                 // protect everything else

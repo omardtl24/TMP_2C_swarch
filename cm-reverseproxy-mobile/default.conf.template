@@ -1,12 +1,10 @@
+
 # HTTP server block
 server {
-    # Nginx will listen on this port for incoming traffic.
-    # Port 80 is the standard for HTTP.
     listen 80;
     server_name ${NGINX_HOST};
 
-    # Permitir tráfico HTTP solo para la red interna Docker (por ejemplo, para /api, /auth, etc.)
-    location ~ ^/(api|auth|events|personal-expenses|group-expenses) {
+    location / {
         proxy_pass ${PROXY_PASS_HOST};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -15,11 +13,6 @@ server {
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
-    }
-
-    # Todo lo demás redirige a HTTPS
-    location / {
-        return 301 https://$host$request_uri;
     }
 }
 
@@ -31,13 +24,11 @@ server {
     ssl_certificate     /etc/nginx/certs/cert.crt;
     ssl_certificate_key /etc/nginx/certs/key.key;
 
-    # Seguridad básica SSL (opcional, puedes ajustar según tus necesidades)
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers on;
     ssl_ciphers HIGH:!aNULL:!MD5;
-    
-    # Rutas API Gateway (todas las que expone FastAPI)
-    location ~ ^/(api|auth|events|personal-expenses|group-expenses) {
+
+    location / {
         proxy_pass ${PROXY_PASS_HOST};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -47,6 +38,4 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
     }
-
-   
 }

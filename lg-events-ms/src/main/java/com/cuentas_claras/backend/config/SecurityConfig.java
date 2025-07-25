@@ -23,9 +23,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/**").permitAll()
-                .requestMatchers("/api/graphiql/**", "/api/graphql/**", "/graphiql/**", "/graphql/**").permitAll()
-                .requestMatchers("/public/**").permitAll()
+                .requestMatchers("/", "/health").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

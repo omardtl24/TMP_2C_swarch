@@ -5,7 +5,7 @@ db.createCollection("expenses", {
         $and: [
             { $jsonSchema: {
                 "bsonType": "object",
-                "required": ["payerId", "total", "concept", "type", "participation", "support_image_id"],
+                "required": ["payerId", "total", "concept", "type", "participation"],
                 "properties": {
                     "payerId": {
                         "bsonType": "string",
@@ -49,10 +49,7 @@ db.createCollection("expenses", {
                             }
                         }
                     },
-                    "support_image_id": {
-                        "bsonType": "objectId",
-                        "description": "Reference to the image in GridFS"
-                    }
+                    // ...existing code...
                 }
             }},
             { $expr: {
